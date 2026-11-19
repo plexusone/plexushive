@@ -8,9 +8,10 @@ generated from them and committed under
 |---|---|
 | Role | `https://github.com/plexusone/plexushive/hive/schema/role.schema.json` |
 | Decision | `https://github.com/plexusone/plexushive/hive/schema/decision.schema.json` |
+| Report | `https://github.com/plexusone/plexushive/hive/schema/report.schema.json` |
 
-Print them with `plexushive schema role|decision`, or generate them in Go
-with `hive.RoleSchema()` and `hive.DecisionSchema()`.
+Print them with `plexushive schema decision|report|role`, or generate them in Go
+with `hive.RoleSchema()`, `hive.DecisionSchema()` and `hive.ReportSchema()`.
 
 The schemas check each file's shape. Checks across files, such as one
 steward per pattern or supersede links agreeing, need `Hive.Validate`.

@@ -52,6 +52,7 @@ nav:
   - Reference:
       - Roles: reference/roles.md
       - Decisions: reference/decisions.md
+      - Status Reports: reference/reports.md
       - Messages: reference/messages.md
       - CLI: reference/cli.md
       - JSON Schemas: reference/schemas.md

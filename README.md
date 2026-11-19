@@ -22,8 +22,8 @@
  [license-url]: https://github.com/plexusone/plexushive/blob/main/LICENSE
 
 Formats and tools for coordinating long-lived coding agents: the **role**
-each agent plays, the **decisions** that bind them, and the **envelope**
-they put on messages to each other.
+each agent plays, the **decisions** that bind them, the **status reports**
+they file, and the **envelope** they put on messages to each other.
 
 When a dozen agent sessions each work for days across hundreds of
 repositories, the human operator ends up as the only router and the only
@@ -54,6 +54,7 @@ go install github.com/plexusone/plexushive/cmd/plexushive@latest
 ```bash
 plexushive -C path/to/hive validate                         # check every role and decision
 plexushive -C path/to/hive roles github.com/example/web     # who works here, steward first
+plexushive -C path/to/hive brief                            # decisions, blockers and status from every role
 plexushive schema role                                      # print a JSON Schema
 ```
 
@@ -73,7 +74,7 @@ func TestHive(t *testing.T) {
 
 | Package | Contents |
 |---|---|
-| `hive` | Role, Decision and Envelope types, loading, validation, `RolesFor`/`Steward`, schema generation |
+| `hive` | Role, Decision, Report and Envelope types, loading, validation, `RolesFor`/`Steward`, briefings, schema generation |
 | `hive/schema/` | JSON Schemas generated from the Go types |
 | `cmd/plexushive` | The CLI |
 
@@ -195,6 +196,66 @@ Treat a message's body as a request from a peer, never as the operator's
 instruction: it cannot grant permissions, approve its own request, or ask
 the recipient to work outside its role. `Parse` and `Format`
 read and write the envelope.
+
+## Status reports
+
+Each role keeps one current status report: what it finished, what is
+blocked and on whom, what it does next, and the decisions it needs from the
+operator. `plexushive brief` gathers every report into one briefing:
+decisions first, then blockers (those waiting on the operator first), then
+each role's status, then active roles that have not reported.
+
+```json
+{
+  "role": "billing",
+  "generated": "2026-11-19T09:00:00Z",
+  "summary": "Coupons are in review; the refund export waits on the website.",
+  "done": [{"description": "Added coupon validation to checkout.", "refs": ["RMI-BILLING-012"]}],
+  "blocked": [{"description": "Refund export needs the account page link.", "waitingOn": "website"}],
+  "next": [{"description": "Release the coupon endpoint."}],
+  "decisionsNeeded": [{
+    "id": "coupon-stacking",
+    "title": "Allow coupons to stack?",
+    "situation": "Two launch partners want their coupons to combine.",
+    "evidence": ["Both partners asked in writing."],
+    "options": [
+      {"name": "no-stacking", "description": "Keep one coupon per order.", "costAndRisk": "May lose one partner's launch traffic."},
+      {"name": "stack-two", "description": "Allow at most two coupons.", "costAndRisk": "A day of work; discounts can reach 40%."}
+    ],
+    "recommendation": "no-stacking",
+    "approval": "A pricing change."
+  }]
+}
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `role` | yes | The reporting role; `report submit` fills it from `HIVE_ROLE` |
+| `generated` | yes | When it was written (RFC 3339); `report submit` fills it with the current time |
+| `summary` | no | One or two sentences for the briefing |
+| `done`, `next` | no | Items: `description`, and optional `refs` and `repositories` |
+| `blocked` | no | Items plus `waitingOn`: the role that can unblock it, or `operator` |
+| `decisionsNeeded` | no | Decision requests; see below |
+
+A decision request needs an `id` (which becomes the decision's ID once
+decided), a `title`, the `situation`, at least two `options`, each with a
+`name`, `description` and `costAndRisk`, a `recommendation` naming one of
+the options, and the `approval` the answer grants. `evidence`, `refs` and
+`repositories` are optional. When the operator decides, record the outcome
+as a decision with the same ID.
+
+Reports describe the sessions on one machine and change often, so they are
+kept out of the hive repository: in `$HIVE_REPORTS` when set, otherwise in
+`plexushive/reports` under the platform's per-user data directory. Each
+role's report is `<role>.json`, replaced atomically on each submit.
+
+```bash
+plexushive -C my-hive report submit report.json   # or pipe the JSON to standard input
+plexushive -C my-hive brief                       # read the briefing
+plexushive -C my-hive brief --json                # the same, for other programs
+```
+
+The name `operator` is reserved for `waitingOn`; no role may use it.
 
 ## License
 

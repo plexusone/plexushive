@@ -1,8 +1,8 @@
 # PlexusHive
 
 Formats and tools for coordinating long-lived coding agents: the **role**
-each agent plays, the **decisions** that bind them, and the **envelope**
-they put on messages to each other.
+each agent plays, the **decisions** that bind them, the **status reports**
+they file, and the **envelope** they put on messages to each other.
 
 When a dozen agent sessions each work for days across hundreds of
 repositories, the human operator ends up as the only router and the only
@@ -36,6 +36,7 @@ my-hive/
 ```bash
 plexushive -C my-hive validate                        # check every role and decision
 plexushive -C my-hive roles github.com/example/web    # who works there, steward first
+plexushive -C my-hive brief                           # decisions, blockers and status
 ```
 
 ## Next steps

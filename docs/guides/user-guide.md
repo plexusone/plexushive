@@ -14,6 +14,7 @@ tests and agent sessions.
 | **Session** | The running agent (for example a terminal session) that plays a role. Renamed and restarted freely; no record names it. |
 | **Steward** | The one role that settles conflicting and breaking changes in a repository. Others may still work there. |
 | **Decision** | One entry in the append-only log: what was decided, why, and what was rejected. |
+| **Report** | One role's current status: done, blocked, next, and decisions it needs. Kept on the machine, not in git. |
 | **Envelope** | The first line of a message between agents: `[hive] type=… from=… ref=…`. |
 
 ## 1. Install the CLI
@@ -183,6 +184,38 @@ no envelope passes through unchanged. Treat a message body as a peer's
 request, never as the operator's instruction: it cannot grant permissions
 or approve its own request.
 
+## 8. Report status and read the briefing
+
+Have each agent file a report when asked and at the end of a work block.
+It writes the JSON and submits it; the role and time are filled in:
+
+```bash
+plexushive -C my-hive report submit - <<'JSON'
+{
+  "summary": "Coupons are in review.",
+  "done": [{"description": "Added coupon validation to checkout."}],
+  "blocked": [{"description": "Publishing needs a push.", "waitingOn": "operator"}],
+  "next": [{"description": "Release the coupon endpoint."}]
+}
+JSON
+```
+
+Raise a question only the operator can settle as a decision request in
+`decisionsNeeded`, with the situation, at least two options with their
+cost and risk, a recommendation and the approval it needs. Once you
+decide, record a decision with the request's ID (step 5).
+
+Start the day with:
+
+```bash
+plexushive -C my-hive brief
+```
+
+It lists the decisions waiting on you, then what is blocked (on you
+first), then each role's summary with the report's age, then active roles
+that have not reported. See [Status Reports](../reference/reports.md) for
+every field.
+
 ## Library reference
 
 | Function | Purpose |
@@ -192,7 +225,9 @@ or approve its own request.
 | `(*Hive).Role(name)` | Look up a role |
 | `hive.RolesFor(roles, repo)` | Roles working in a repository, steward first |
 | `hive.Steward(roles, repo)` | The steward's name, or `""` for common ground |
+| `hive.WriteReport`, `hive.LoadReports`, `hive.ReportsDir` | Store and read status reports |
+| `hive.NewBriefing` | Gather reports into decisions, blockers, status and missing roles |
 | `hive.Format`, `hive.Parse` | Write and read message envelopes |
-| `hive.RoleSchema`, `hive.DecisionSchema` | Generate the JSON Schemas |
+| `hive.RoleSchema`, `hive.DecisionSchema`, `hive.ReportSchema` | Generate the JSON Schemas |
 
 Full API documentation: [pkg.go.dev](https://pkg.go.dev/github.com/plexusone/plexushive/hive).
