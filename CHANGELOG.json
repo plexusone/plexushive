@@ -25,6 +25,7 @@
       "documentation": [
         { "description": "README covering roles, stewardship, decisions and the envelope", "commit": "933c603" },
         { "description": "User guide covering roles, sessions, decisions, validation and messages", "commit": "1cbd3bc" },
+        { "description": "Documentation site with installation, quick start, user guide and reference for roles, decisions, messages, the CLI and the JSON Schemas", "commit": "4c3c96d" },
         { "description": "v0.1.0 release notes" }
       ],
       "tests": [
