@@ -4,6 +4,7 @@
 [![Go Lint][go-lint-svg]][go-lint-url]
 [![Go SAST][go-sast-svg]][go-sast-url]
 [![Docs][docs-godoc-svg]][docs-godoc-url]
+[![Docs][docs-mkdoc-svg]][docs-mkdoc-url]
 [![License][license-svg]][license-url]
 ![coverage](https://img.shields.io/badge/coverage-97.2%25-brightgreen)
 
@@ -15,6 +16,8 @@
  [go-sast-url]: https://github.com/plexusone/plexushive/actions/workflows/go-sast-codeql.yaml
  [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/plexusone/plexushive
  [docs-godoc-url]: https://pkg.go.dev/github.com/plexusone/plexushive
+ [docs-mkdoc-svg]: https://img.shields.io/badge/Go-dev%20guide-blue.svg
+ [docs-mkdoc-url]: https://plexusone.dev/plexushive
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
  [license-url]: https://github.com/plexusone/plexushive/blob/main/LICENSE
 
@@ -37,7 +40,8 @@ decisions/<id>.json    the append-only decision log
 ```
 
 `hive/testdata/` is a small example. The [User Guide](docs/guides/user-guide.md)
-walks through setting one up.
+walks through setting one up; the full documentation is at
+[plexusone.dev/plexushive](https://plexusone.dev/plexushive).
 
 ## Install
 
