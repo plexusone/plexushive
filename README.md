@@ -36,7 +36,8 @@ roles/<name>.json      one file per role
 decisions/<id>.json    the append-only decision log
 ```
 
-`hive/testdata/` is a small example.
+`hive/testdata/` is a small example. The [User Guide](docs/guides/user-guide.md)
+walks through setting one up.
 
 ## Install
 
