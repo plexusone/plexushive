@@ -29,7 +29,7 @@ func newRootCmd(out io.Writer) *cobra.Command {
 	root.SetOut(out)
 	var dir string
 	root.PersistentFlags().StringVarP(&dir, "dir", "C", ".", "hive directory holding roles/ and decisions/")
-	root.AddCommand(validateCmd(&dir), rolesCmd(&dir), schemaCmd())
+	root.AddCommand(validateCmd(&dir), rolesCmd(&dir), schemaCmd(), reportCmd(&dir), briefCmd(&dir))
 	return root
 }
 
