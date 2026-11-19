@@ -29,7 +29,8 @@
         { "description": "v0.1.0 release notes" }
       ],
       "tests": [
-        { "description": "Unit tests for validation, routing, loading, the envelope and the CLI against an example hive", "commit": "ba0178b" }
+        { "description": "Unit tests for validation, routing, loading, the envelope and the CLI against an example hive", "commit": "ba0178b" },
+        { "description": "Schema tests compare regardless of line endings, so they pass on Windows", "commit": "d13b4c7" }
       ],
       "build": [
         { "description": "CI, lint and CodeQL workflows", "commit": "1c58ec4" }
