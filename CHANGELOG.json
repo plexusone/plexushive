@@ -1,0 +1,38 @@
+{
+  "irVersion": "1.0",
+  "project": "plexushive",
+  "repository": "https://github.com/plexusone/plexushive",
+  "versioning": "semver",
+  "commitConvention": "conventional",
+  "releases": [
+    {
+      "version": "v0.1.0",
+      "date": "2026-11-19",
+      "highlights": [
+        { "description": "Roles, decisions and a message envelope as JSON for coordinating long-lived coding agents, with Go types as the source of truth" },
+        { "description": "Repository stewardship: several roles may work in a repository, at most one stewards it, and organization patterns are supported" },
+        { "description": "`plexushive` CLI to validate a hive directory, list the roles working in a repository and print the JSON Schemas" }
+      ],
+      "added": [
+        { "description": "`Role` format with status, mission, autonomy (`observe`, `prepare`, `execute`), repository affinities, initiatives and peers", "commit": "6d74225" },
+        { "description": "`Decision` format for an append-only decision log, with alternatives and supersede links validated in both directions", "commit": "6d74225" },
+        { "description": "Message `Envelope` with `Format` and `Parse` for `question`, `request`, `status` and `decision-needed` messages", "commit": "6d74225" },
+        { "description": "`RolesFor` and `Steward` resolve the roles that work in a repository, steward first", "commit": "6d74225" },
+        { "description": "`Load` reads a hive directory strictly, and `Hive.Validate` checks roles and decisions together", "commit": "3ad0eda" },
+        { "description": "JSON Schemas for roles and decisions generated from the Go types", "commit": "3ad0eda" },
+        { "description": "`plexushive validate`, `roles` and `schema` commands", "commit": "2bdc377" }
+      ],
+      "documentation": [
+        { "description": "README covering roles, stewardship, decisions and the envelope", "commit": "933c603" },
+        { "description": "User guide covering roles, sessions, decisions, validation and messages", "commit": "1cbd3bc" },
+        { "description": "v0.1.0 release notes" }
+      ],
+      "tests": [
+        { "description": "Unit tests for validation, routing, loading, the envelope and the CLI against an example hive", "commit": "ba0178b" }
+      ],
+      "build": [
+        { "description": "CI, lint and CodeQL workflows", "commit": "1c58ec4" }
+      ]
+    }
+  ]
+}
