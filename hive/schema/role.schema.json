@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/plexusone/plexushive/hive/schema/role.schema.json",
+  "$ref": "#/$defs/Role",
+  "$defs": {
+    "RepositoryAffinity": {
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "pattern": "^github\\.com/[A-Za-z0-9_.-]+/([A-Za-z0-9_.-]+|\\*)$"
+        },
+        "affinity": {
+          "type": "string",
+          "enum": [
+            "steward",
+            "contributor"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "pattern",
+        "affinity"
+      ]
+    },
+    "Role": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "active",
+            "retired"
+          ]
+        },
+        "mission": {
+          "type": "string"
+        },
+        "autonomy": {
+          "type": "string",
+          "enum": [
+            "observe",
+            "prepare",
+            "execute"
+          ]
+        },
+        "repositories": {
+          "items": {
+            "$ref": "#/$defs/RepositoryAffinity"
+          },
+          "type": "array"
+        },
+        "initiatives": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "peers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "status",
+        "mission",
+        "autonomy"
+      ]
+    }
+  },
+  "title": "Agent role",
+  "description": "What one long-lived agent is for, independently of the session that plays it: its mission, autonomy, the repositories it works in and its peers."
+}
