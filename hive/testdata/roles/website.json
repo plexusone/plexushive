@@ -1,0 +1,11 @@
+{
+  "name": "website",
+  "status": "active",
+  "mission": "Own the public website and its content.",
+  "autonomy": "execute",
+  "repositories": [
+    {"pattern": "github.com/example/web", "affinity": "steward"},
+    {"pattern": "github.com/example-docs/*", "affinity": "steward"}
+  ],
+  "peers": ["billing"]
+}

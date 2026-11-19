@@ -1,0 +1,7 @@
+{
+  "name": "coordinator",
+  "status": "draft",
+  "mission": "Keep the roles and the decision log current.",
+  "autonomy": "observe",
+  "notes": "Proposed; waiting for the operator to confirm."
+}

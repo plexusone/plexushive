@@ -1,0 +1,16 @@
+{
+  "id": "stewards-not-owners",
+  "title": "Repositories have stewards, not owners",
+  "status": "accepted",
+  "decision": "Several roles may change a repository; at most one stewards it and settles conflicts.",
+  "reasons": [
+    "Work crosses repositories, and one role per repository does not scale.",
+    "A steward still settles conflicting and breaking changes."
+  ],
+  "alternatives": [
+    {"option": "One owning role per repository", "rejected": "Forces every cross-repository change through a message."}
+  ],
+  "roles": ["billing", "website"],
+  "repositories": ["github.com/example/web"],
+  "supersedes": ["one-steward-per-repository"]
+}

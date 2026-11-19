@@ -1,0 +1,12 @@
+{
+  "name": "billing",
+  "status": "active",
+  "mission": "Own the billing service and its payment integrations.",
+  "autonomy": "prepare",
+  "repositories": [
+    {"pattern": "github.com/example/billing", "affinity": "steward"},
+    {"pattern": "github.com/example/web", "affinity": "contributor"}
+  ],
+  "initiatives": ["INIT-BILLING-001"],
+  "peers": ["website"]
+}

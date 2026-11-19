@@ -1,0 +1,8 @@
+{
+  "id": "one-steward-per-repository",
+  "title": "Each repository has one owner",
+  "status": "superseded",
+  "decision": "Each repository has exactly one owning role.",
+  "reasons": ["Someone has to settle conflicting changes."],
+  "supersededBy": "stewards-not-owners"
+}
