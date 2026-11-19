@@ -120,6 +120,9 @@ func (r Role) Validate() error {
 	if !namePattern.MatchString(r.Name) {
 		errs = append(errs, fmt.Sprintf("name %q must match %s", r.Name, namePattern))
 	}
+	if r.Name == Operator {
+		errs = append(errs, fmt.Sprintf("name %q is reserved for the operator", Operator))
+	}
 	switch r.Status {
 	case RoleDraft, RoleActive, RoleRetired:
 	default:

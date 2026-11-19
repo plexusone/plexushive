@@ -13,6 +13,7 @@ const schemaBase = "https://github.com/plexusone/plexushive/hive/schema/"
 var Schemas = map[string]func() ([]byte, error){
 	"role.schema.json":     RoleSchema,
 	"decision.schema.json": DecisionSchema,
+	"report.schema.json":   ReportSchema,
 }
 
 // RoleSchema generates the role JSON Schema from Role.
@@ -38,4 +39,10 @@ func schema(v any, file, title, description string) ([]byte, error) {
 		return nil, fmt.Errorf("hive: schema %s: %w", file, err)
 	}
 	return append(out, '\n'), nil
+}
+
+// ReportSchema generates the status report JSON Schema from Report.
+func ReportSchema() ([]byte, error) {
+	return schema(&Report{}, "report.schema.json", "Status report",
+		"One role's status: what it finished, what is blocked and on whom, what it does next, and the decisions it needs from the operator.")
 }
