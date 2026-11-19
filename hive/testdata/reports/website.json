@@ -1,0 +1,11 @@
+{
+  "role": "website",
+  "generated": "2026-11-19T08:30:00Z",
+  "summary": "Launch page is ready for review.",
+  "blocked": [
+    {"description": "Publishing the launch page needs a push.", "waitingOn": "operator"}
+  ],
+  "next": [
+    {"description": "Add the account page link for billing."}
+  ]
+}
