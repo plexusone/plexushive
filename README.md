@@ -5,7 +5,6 @@
 [![Go SAST][go-sast-svg]][go-sast-url]
 [![Docs][docs-godoc-svg]][docs-godoc-url]
 [![Docs][docs-mkdoc-svg]][docs-mkdoc-url]
-[![Visualization][viz-svg]][viz-url]
 [![License][license-svg]][license-url]
 ![coverage](https://img.shields.io/badge/coverage-97.2%25-brightgreen)
 
@@ -19,8 +18,6 @@
  [docs-godoc-url]: https://pkg.go.dev/github.com/plexusone/plexushive
  [docs-mkdoc-svg]: https://img.shields.io/badge/Go-dev%20guide-blue.svg
  [docs-mkdoc-url]: https://plexusone.dev/plexushive
- [viz-svg]: https://img.shields.io/badge/Go-visualizaton-blue.svg
- [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=plexusone%2Fomnivoice
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
  [license-url]: https://github.com/plexusone/plexushive/blob/main/LICENSE
 
