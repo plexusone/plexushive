@@ -1,0 +1,16 @@
+# Binaries
+/plexushive
+*.exe
+*.test
+
+# Output
+*.out
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local Claude settings
+.claude/settings.local.json
