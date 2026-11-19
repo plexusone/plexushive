@@ -6,6 +6,32 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.2.0",
+      "date": "2026-11-19",
+      "highlights": [
+        { "description": "Status reports: each role files what it finished, what is blocked and on whom, what it does next, and the decisions it needs" },
+        { "description": "`plexushive brief` gathers every report into one briefing: decisions first, then blockers, then each role's status and who has not reported" }
+      ],
+      "added": [
+        { "description": "`Report`, `Item`, `Blocker`, `DecisionRequest` and `Option` types with validation; a decision request's recommendation must name one of at least two options", "commit": "a34d45d" },
+        { "description": "`ValidateReports` checks reports against the roles: one per role, no retired roles, and blockers that wait on a role or the operator", "commit": "a34d45d" },
+        { "description": "JSON Schema for status reports", "commit": "a34d45d" },
+        { "description": "`WriteReport`, `LoadReports` and `ReportsDir`: one atomically replaced report per role in `$HIVE_REPORTS` or the per-user data directory", "commit": "798d047" },
+        { "description": "`NewBriefing` gathers reports into decisions, blockers, status and missing roles", "commit": "66b192e" },
+        { "description": "`report submit` command, filling the role from `HIVE_ROLE` and the time from the clock, and `brief` command with `--json` output", "commit": "92ea167" }
+      ],
+      "changed": [
+        { "description": "The role name `operator` is reserved for blockers that wait on the operator", "commit": "a34d45d" }
+      ],
+      "documentation": [
+        { "description": "Status reports in the README, user guide, CLI reference and a new reference page", "commit": "e6d2fb8" },
+        { "description": "v0.2.0 release notes" }
+      ],
+      "tests": [
+        { "description": "Tests for reports, the report store, briefings and the new commands, kept out of the real per-user data directory", "commit": "ff11ba2" }
+      ]
+    },
+    {
       "version": "v0.1.0",
       "date": "2026-11-19",
       "highlights": [
