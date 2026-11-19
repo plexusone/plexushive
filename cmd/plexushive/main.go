@@ -46,7 +46,7 @@ func validateCmd(dir *string) *cobra.Command {
 			if err := h.Validate(); err != nil {
 				return err
 			}
-			cmd.Printf("%d roles and %d decisions are valid\n", len(h.Roles), len(h.Decisions))
+			cmd.Printf("%s and %s are valid\n", count(len(h.Roles), "role"), count(len(h.Decisions), "decision"))
 			return nil
 		},
 	}
@@ -104,4 +104,12 @@ func schemaCmd() *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// count renders n with noun, plural unless n is 1.
+func count(n int, noun string) string {
+	if n == 1 {
+		return "1 " + noun
+	}
+	return fmt.Sprintf("%d %ss", n, noun)
 }

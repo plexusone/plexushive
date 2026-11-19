@@ -31,6 +31,15 @@ func TestValidate(t *testing.T) {
 	}
 }
 
+func TestCount(t *testing.T) {
+	if got := count(1, "role"); got != "1 role" {
+		t.Fatal(got)
+	}
+	if got := count(0, "decision"); got != "0 decisions" {
+		t.Fatal(got)
+	}
+}
+
 func TestRoles(t *testing.T) {
 	tests := []struct{ repo, want string }{
 		{"github.com/example/web", "steward      website"},
