@@ -1,13 +1,14 @@
 package hive
 
 import (
-	"bytes"
 	"flag"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/grokify/oscompat/testutil"
 )
 
 var update = flag.Bool("update", false, "regenerate the files under schema/")
@@ -63,27 +64,17 @@ func TestLoadErrors(t *testing.T) {
 }
 
 // TestSchemas checks that schema/ matches the Go types. Run
-// `go test -run TestSchemas -update` after changing a type.
+// `go test -run TestSchemas -update` after changing a type. The comparison
+// ignores CRLF versus LF, so it passes on a Windows checkout.
 func TestSchemas(t *testing.T) {
 	for file, gen := range Schemas {
-		want, err := gen()
-		if err != nil {
-			t.Fatal(err)
-		}
-		path := filepath.Join("schema", file)
-		if *update {
-			if err := os.WriteFile(path, want, 0o600); err != nil {
+		t.Run(file, func(t *testing.T) {
+			want, err := gen()
+			if err != nil {
 				t.Fatal(err)
 			}
-			continue
-		}
-		got, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatalf("%v (run go test -run TestSchemas -update)", err)
-		}
-		if !bytes.Equal(got, want) {
-			t.Errorf("%s is out of date: run go test -run TestSchemas -update", path)
-		}
+			testutil.AssertGolden(t, filepath.Join("schema", file), want, *update)
+		})
 	}
 }
 
