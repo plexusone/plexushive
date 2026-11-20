@@ -111,7 +111,7 @@ func whoCmd(hiveDir *string) *cobra.Command {
 				cmd.Println("  none: the repository is common ground")
 			}
 			for _, m := range matches {
-				cmd.Printf("  %-12s %-16s %s\n", m.Affinity, m.Role, sessions[m.Role])
+				cmd.Println(strings.TrimRight(fmt.Sprintf("  %-12s %-16s %s", m.Affinity, m.Role, sessions[m.Role]), " "))
 			}
 			b := hive.NewBriefing(h.Roles, h.Decisions, rs)
 			cmd.Println("In progress")

@@ -31,7 +31,7 @@ func (d DecisionRequest) Decide(role, option, reason string) (Decision, error) {
 	}
 	out := Decision{
 		ID:           d.ID,
-		Title:        fmt.Sprintf("%s: %s", d.Title, chosen.Name),
+		Title:        fmt.Sprintf("%s Decided: %s", strings.TrimSpace(d.Title), chosen.Name),
 		Status:       DecisionAccepted,
 		Decision:     fmt.Sprintf("%s Approved: %s", strings.TrimSpace(chosen.Description), strings.TrimSpace(d.Approval)),
 		Refs:         d.Refs,
