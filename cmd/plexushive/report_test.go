@@ -95,10 +95,20 @@ func TestBrief(t *testing.T) {
 	for _, want := range []string{
 		"Decisions needed (1)",
 		"coupon-stacking: Allow coupons to stack?",
-		"recommends no-stacking; approval: A pricing change.",
+		"recommends no-stacking",
 		"waiting on operator",
 		"billing        2h",
 		"website        2h",
+		"Your actions (2)",
+		"  push\n    website        Push the launch page branch.",
+		"$ git -C web push -u origin launch-page",
+		"Tag the coupon release. [irreversible]",
+		"github.com/example/web  [more than one role]",
+		"billing        refund-export",
+		"then: The refund report for finance.",
+		"Notices (1)",
+		"billing/coupon-stacking: Allow coupons to stack?",
+		"asked 26h ago",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("brief does not contain %q:\n%s", want, out)

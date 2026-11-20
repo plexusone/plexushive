@@ -25,11 +25,12 @@ func newRootCmd(out io.Writer) *cobra.Command {
 		Use:          "plexushive",
 		Short:        "Validate and query agent roles and the decision log",
 		SilenceUsage: true,
+		Version:      version(),
 	}
 	root.SetOut(out)
 	var dir string
 	root.PersistentFlags().StringVarP(&dir, "dir", "C", ".", "hive directory holding roles/ and decisions/")
-	root.AddCommand(validateCmd(&dir), rolesCmd(&dir), schemaCmd(), reportCmd(&dir), briefCmd(&dir))
+	root.AddCommand(validateCmd(&dir), rolesCmd(&dir), schemaCmd(), reportCmd(&dir), briefCmd(&dir), decideCmd(&dir), whoCmd(&dir))
 	return root
 }
 
