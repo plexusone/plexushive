@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -174,7 +175,7 @@ func TestBriefing(t *testing.T) {
 	if err := ValidateReports(reports, h.Roles); err != nil {
 		t.Fatal(err)
 	}
-	b := NewBriefing(h.Roles, reports)
+	b := NewBriefing(h.Roles, h.Decisions, reports)
 	if len(b.Decisions) != 1 || b.Decisions[0].Role != "billing" || b.Decisions[0].Request.ID != "coupon-stacking" {
 		t.Fatalf("decisions: %+v", b.Decisions)
 	}
@@ -187,7 +188,19 @@ func TestBriefing(t *testing.T) {
 	if b.Missing == nil || len(b.Missing) != 0 {
 		t.Fatalf("missing: %v", b.Missing)
 	}
-	b = NewBriefing(h.Roles, reports[:1])
+	if b.Decisions[0].Key != "billing/coupon-stacking" {
+		t.Fatalf("key: %q", b.Decisions[0].Key)
+	}
+	if len(b.Actions) != 2 || b.Actions[0].Action.Kind != ActionPush || b.Actions[1].Action.Kind != ActionTag {
+		t.Fatalf("actions: %+v", b.Actions)
+	}
+	if len(b.InProgress) != 1 || !b.InProgress[0].Shared || len(b.InProgress[0].Work) != 2 {
+		t.Fatalf("in progress: %+v", b.InProgress)
+	}
+	if len(b.Notices) != 1 || b.Notices[0].Role != "billing" {
+		t.Fatalf("notices: %+v", b.Notices)
+	}
+	b = NewBriefing(h.Roles, h.Decisions, reports[:1])
 	if !reflect.DeepEqual(b.Missing, []string{"website"}) {
 		t.Fatalf("missing: %v", b.Missing)
 	}
@@ -195,8 +208,101 @@ func TestBriefing(t *testing.T) {
 		{Role: "b", DecisionsNeeded: []DecisionRequest{{ID: "z"}, {ID: "a"}}},
 		{Role: "a", DecisionsNeeded: []DecisionRequest{{ID: "m"}}},
 	}
-	b = NewBriefing(nil, two)
+	b = NewBriefing([]Role{{Name: "a", Status: RoleActive}, {Name: "b", Status: RoleActive}}, nil, two)
 	if b.Decisions[0].Role != "a" || b.Decisions[1].Request.ID != "a" {
 		t.Fatalf("decision order: %+v", b.Decisions)
+	}
+}
+
+func TestBriefingAnsweredIdleIgnored(t *testing.T) {
+	roles := []Role{
+		{Name: "a", Status: RoleActive},
+		{Name: "old", Status: RoleRetired},
+	}
+	reports := []Report{
+		{Role: "a", Idle: true, DecisionsNeeded: []DecisionRequest{{ID: "done-already"}}},
+		{Role: "old"},
+		{Role: "ghost"},
+	}
+	b := NewBriefing(roles, []Decision{{ID: "done-already"}}, reports)
+	if len(b.Decisions) != 0 || len(b.Answered) != 1 || b.Answered[0].Key != "a/done-already" {
+		t.Fatalf("answered: %+v / %+v", b.Decisions, b.Answered)
+	}
+	if !reflect.DeepEqual(b.Idle, []string{"a"}) {
+		t.Fatalf("idle: %v", b.Idle)
+	}
+	if !reflect.DeepEqual(b.Ignored, []string{"ghost", "old"}) || len(b.Reports) != 1 {
+		t.Fatalf("ignored: %v, reports %d", b.Ignored, len(b.Reports))
+	}
+}
+
+func TestReportNewFieldsInvalid(t *testing.T) {
+	r := Report{
+		Role:      "a",
+		Generated: time.Date(2026, 11, 19, 0, 0, 0, 0, time.UTC),
+		OperatorActions: []Action{
+			{Kind: "launch", Description: ""},
+			{Kind: ActionPush, Description: "x", Repository: "web", Commit: "XYZ", PullRequest: "pr 9"},
+		},
+		InProgress: []Work{{Description: "x", Repository: "web"}},
+		Notices:    []Notice{{Title: "x"}},
+		Done:       []Item{{Description: "x", State: "shipped", Commits: []string{"nothex"}, PullRequests: []string{"9"}}},
+		Blocked:    []Blocker{{Item: Item{Description: "x"}, WaitingOn: "b", Decision: "missing"}},
+	}
+	err := r.Validate()
+	if err == nil {
+		t.Fatal("want errors")
+	}
+	for _, want := range []string{
+		`kind "launch"`, "operatorActions: description is required", `repository "web"`,
+		`commit "XYZ"`, `pull request "pr 9"`, `inProgress: repository "web"`,
+		"notices: title and description", `state "shipped"`, `commit "nothex"`,
+		`pull request "9"`, `decision "missing"`,
+	} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("missing %q in %v", want, err)
+		}
+	}
+}
+
+func TestDecide(t *testing.T) {
+	reports, err := LoadReports(filepath.Join("testdata", "reports"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := reports[0].DecisionsNeeded[0]
+	if _, err := req.Decide("billing", "free-for-all", ""); err == nil || !strings.Contains(err.Error(), "no-stacking, stack-two") {
+		t.Fatalf("unknown option: %v", err)
+	}
+	d, err := req.Decide("billing", "stack-two", "Partner traffic matters more this quarter.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d.ID != "coupon-stacking" || d.Status != DecisionAccepted || !reflect.DeepEqual(d.Roles, []string{"billing"}) {
+		t.Fatalf("decision: %+v", d)
+	}
+	if !strings.Contains(d.Decision, "Allow at most two coupons.") || !strings.Contains(d.Decision, "recommended no-stacking") {
+		t.Fatalf("decision text: %q", d.Decision)
+	}
+	if d.Reasons[0] != "Partner traffic matters more this quarter." || len(d.Alternatives) != 1 {
+		t.Fatalf("reasons/alternatives: %+v", d)
+	}
+	root := t.TempDir()
+	if err := os.Mkdir(filepath.Join(root, "decisions"), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteDecision(root, d); err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteDecision(root, d); err == nil || !strings.Contains(err.Error(), "supersede") {
+		t.Fatalf("second write: %v", err)
+	}
+	got, err := LoadDecisions(root)
+	if err != nil || len(got) != 1 || got[0].ID != d.ID {
+		t.Fatalf("load: %v %+v", err, got)
+	}
+	d.Reasons = nil
+	if err := WriteDecision(root, d); err == nil {
+		t.Fatal("invalid decision written")
 	}
 }

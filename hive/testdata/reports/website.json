@@ -1,9 +1,24 @@
 {
   "role": "website",
   "generated": "2026-11-19T08:30:00Z",
+  "session": {"tmux": "web", "agent": "website-1"},
   "summary": "Launch page is ready for review.",
+  "operatorActions": [
+    {
+      "kind": "push",
+      "description": "Push the launch page branch.",
+      "command": "git -C web push -u origin launch-page",
+      "repository": "github.com/example/web",
+      "branch": "launch-page",
+      "commit": "3f2a9c1",
+      "unblocks": "Publishing the launch page."
+    }
+  ],
+  "inProgress": [
+    {"description": "Account page link.", "repository": "github.com/example/web", "branch": "account-link", "base": "main"}
+  ],
   "blocked": [
-    {"description": "Publishing the launch page needs a push.", "waitingOn": "operator"}
+    {"description": "The launch page needs final wording for the pricing banner.", "waitingOn": "operator"}
   ],
   "next": [
     {"description": "Add the account page link for billing."}

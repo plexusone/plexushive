@@ -20,8 +20,19 @@ type Report struct {
 	// Generated is when the report was written. Readers use it to show how
 	// fresh the report is.
 	Generated time.Time `json:"generated"`
+	// Session says how to reach the session playing the role.
+	Session *Session `json:"session,omitempty"`
 	// Summary is one or two sentences for a briefing.
 	Summary string `json:"summary,omitempty"`
+	// Idle says the role has nothing to do until it is given work. An idle
+	// role's report does not go stale.
+	Idle bool `json:"idle,omitempty"`
+	// OperatorActions are steps only the operator takes, such as pushes,
+	// tags and deploys, for work that is ready.
+	OperatorActions []Action `json:"operatorActions,omitempty"`
+	// InProgress is what the role is doing now, and in which repository
+	// and branch.
+	InProgress []Work `json:"inProgress,omitempty"`
 	// Done is what was finished since the previous report.
 	Done []Item `json:"done,omitempty"`
 	// Blocked is what cannot move, and on whom it waits.
@@ -30,6 +41,8 @@ type Report struct {
 	Next []Item `json:"next,omitempty"`
 	// DecisionsNeeded are questions only the operator can settle.
 	DecisionsNeeded []DecisionRequest `json:"decisionsNeeded,omitempty"`
+	// Notices tell other roles about something that affects them.
+	Notices []Notice `json:"notices,omitempty"`
 }
 
 // Item is one piece of work.
@@ -40,13 +53,29 @@ type Item struct {
 	Refs []string `json:"refs,omitempty"`
 	// Repositories are where the work is, as github.com/<org>/<repo>.
 	Repositories []string `json:"repositories,omitempty"`
+	// Branch is the branch the work is on.
+	Branch string `json:"branch,omitempty"`
+	// Commits are the commits that make up the work.
+	Commits []string `json:"commits,omitempty"`
+	// PullRequests are the URLs of its pull requests.
+	PullRequests []string `json:"pullRequests,omitempty"`
+	// State is how far finished work has travelled.
+	State ItemState `json:"state,omitempty" jsonschema:"enum=committed,enum=pushed,enum=released,enum=deployed"`
+	// Paths are files the work produced, relative to their repository.
+	Paths []string `json:"paths,omitempty"`
 }
 
-// Blocker is work that cannot move.
+// Blocker is work that cannot move until another role, or the operator,
+// does something other than a routine action.
 type Blocker struct {
 	Item
 	// WaitingOn is the role that can unblock it, or "operator".
 	WaitingOn string `json:"waitingOn" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
+	// Decision is the ID of the decision request, in the same report, whose
+	// answer unblocks it.
+	Decision string `json:"decision,omitempty"`
+	// Unblocks says what else waits on this, including other roles' work.
+	Unblocks string `json:"unblocks,omitempty"`
 }
 
 // DecisionRequest asks the operator to decide. Once decided, the outcome
@@ -71,6 +100,9 @@ type DecisionRequest struct {
 	Refs []string `json:"refs,omitempty"`
 	// Repositories are the repositories it concerns.
 	Repositories []string `json:"repositories,omitempty"`
+	// Asked is when the request was first raised; it is kept when the
+	// report is replaced, so the briefing can show how long it has waited.
+	Asked time.Time `json:"asked,omitzero"`
 }
 
 // Option is one choice in a DecisionRequest.
@@ -81,6 +113,8 @@ type Option struct {
 	Description string `json:"description"`
 	// CostAndRisk is what choosing it costs and could go wrong.
 	CostAndRisk string `json:"costAndRisk"`
+	// Irreversible marks an option that cannot be undone once taken.
+	Irreversible bool `json:"irreversible,omitempty"`
 }
 
 // Validate checks one report on its own. ValidateReports also checks the
@@ -99,18 +133,32 @@ func (r Report) Validate() error {
 	for _, it := range r.Next {
 		errs = append(errs, it.problems("next")...)
 	}
-	for _, b := range r.Blocked {
-		errs = append(errs, b.problems("blocked")...)
-		if !namePattern.MatchString(b.WaitingOn) {
-			errs = append(errs, fmt.Sprintf("blocked: waitingOn %q must be a role name or %q", b.WaitingOn, Operator))
-		}
-	}
 	ids := map[string]bool{}
 	for _, d := range r.DecisionsNeeded {
 		if ids[d.ID] {
 			errs = append(errs, fmt.Sprintf("decision request %q listed twice", d.ID))
 		}
 		ids[d.ID] = true
+	}
+	for _, b := range r.Blocked {
+		errs = append(errs, b.problems("blocked")...)
+		if !namePattern.MatchString(b.WaitingOn) {
+			errs = append(errs, fmt.Sprintf("blocked: waitingOn %q must be a role name or %q", b.WaitingOn, Operator))
+		}
+		if b.Decision != "" && !ids[b.Decision] {
+			errs = append(errs, fmt.Sprintf("blocked: decision %q is not a decision request in this report", b.Decision))
+		}
+	}
+	for _, a := range r.OperatorActions {
+		errs = append(errs, a.problems()...)
+	}
+	for _, w := range r.InProgress {
+		errs = append(errs, w.problems()...)
+	}
+	for _, n := range r.Notices {
+		errs = append(errs, n.problems()...)
+	}
+	for _, d := range r.DecisionsNeeded {
 		if err := d.Validate(); err != nil {
 			errs = append(errs, err.Error())
 		}
@@ -127,6 +175,15 @@ func (it Item) problems(section string) []string {
 		errs = append(errs, section+": description is required")
 	}
 	errs = append(errs, refProblems(section, it.Refs, it.Repositories)...)
+	for _, c := range it.Commits {
+		errs = append(errs, gitProblems(section, c, "")...)
+	}
+	errs = append(errs, gitProblems(section, "", "", it.PullRequests...)...)
+	switch it.State {
+	case "", StateCommitted, StatePushed, StateReleased, StateDeployed:
+	default:
+		errs = append(errs, fmt.Sprintf("%s: state %q must be committed, pushed, released or deployed", section, it.State))
+	}
 	return errs
 }
 

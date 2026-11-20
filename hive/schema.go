@@ -44,5 +44,5 @@ func schema(v any, file, title, description string) ([]byte, error) {
 // ReportSchema generates the status report JSON Schema from Report.
 func ReportSchema() ([]byte, error) {
 	return schema(&Report{}, "report.schema.json", "Status report",
-		"One role's status: what it finished, what is blocked and on whom, what it does next, and the decisions it needs from the operator.")
+		"One role's current status: the operator's actions it waits on, its work in progress, what it finished, what is blocked and on whom, what it does next, the decisions it needs and notices for other roles. Reports are kept outside version control, so they can describe unpublished work plainly.")
 }

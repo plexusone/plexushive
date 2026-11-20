@@ -2,28 +2,94 @@
   "role": "billing",
   "generated": "2026-11-19T09:00:00Z",
   "summary": "Coupons are in review; the refund export waits on the website.",
+  "operatorActions": [
+    {
+      "kind": "tag",
+      "description": "Tag the coupon release.",
+      "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0",
+      "repository": "github.com/example/billing",
+      "version": "v1.4.0",
+      "checks": [
+        "https://github.com/example/billing/actions/runs/1"
+      ],
+      "irreversible": true
+    }
+  ],
+  "inProgress": [
+    {
+      "description": "Refund export link on the account page.",
+      "repository": "github.com/example/web",
+      "branch": "refund-export",
+      "worktree": "web-refund"
+    }
+  ],
   "done": [
-    {"description": "Added coupon validation to checkout.", "refs": ["RMI-BILLING-012"], "repositories": ["github.com/example/billing"]}
+    {
+      "description": "Added coupon validation to checkout.",
+      "refs": [
+        "RMI-BILLING-012"
+      ],
+      "repositories": [
+        "github.com/example/billing"
+      ],
+      "branch": "coupons",
+      "commits": [
+        "9b1d7e2"
+      ],
+      "state": "committed"
+    }
   ],
   "blocked": [
-    {"description": "Refund export needs the account page link.", "waitingOn": "website"}
+    {
+      "description": "Refund export needs the account page link.",
+      "waitingOn": "website",
+      "unblocks": "The refund report for finance."
+    }
   ],
   "next": [
-    {"description": "Release the coupon endpoint.", "refs": ["RMI-BILLING-012"]}
+    {
+      "description": "Release the coupon endpoint.",
+      "refs": [
+        "RMI-BILLING-012"
+      ]
+    }
   ],
   "decisionsNeeded": [
     {
       "id": "coupon-stacking",
       "title": "Allow coupons to stack?",
       "situation": "Two launch partners want their coupons to combine.",
-      "evidence": ["Both partners asked in writing.", "Stacking is off today."],
+      "evidence": [
+        "Both partners asked in writing.",
+        "Stacking is off today."
+      ],
       "options": [
-        {"name": "no-stacking", "description": "Keep one coupon per order.", "costAndRisk": "May lose one partner's launch traffic."},
-        {"name": "stack-two", "description": "Allow at most two coupons.", "costAndRisk": "A day of work; discounts can reach 40%."}
+        {
+          "name": "no-stacking",
+          "description": "Keep one coupon per order.",
+          "costAndRisk": "May lose one partner's launch traffic."
+        },
+        {
+          "name": "stack-two",
+          "description": "Allow at most two coupons.",
+          "costAndRisk": "A day of work; discounts can reach 40%."
+        }
       ],
       "recommendation": "no-stacking",
       "approval": "A pricing change.",
-      "repositories": ["github.com/example/billing"]
+      "repositories": [
+        "github.com/example/billing"
+      ],
+      "asked": "2026-11-18T09:00:00Z"
+    }
+  ],
+  "notices": [
+    {
+      "title": "Date parsing bug in a shared library",
+      "description": "Version 2.1 of the date library drops time zones; pin 2.0 until 2.2.",
+      "modules": [
+        "example.com/dates"
+      ]
     }
   ]
 }

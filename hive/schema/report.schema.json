@@ -3,6 +3,69 @@
   "$id": "https://github.com/plexusone/plexushive/hive/schema/report.schema.json",
   "$ref": "#/$defs/Report",
   "$defs": {
+    "Action": {
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "push",
+            "merge",
+            "tag",
+            "deploy",
+            "create-repository",
+            "configure",
+            "test",
+            "review",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        },
+        "pullRequest": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "irreversible": {
+          "type": "boolean"
+        },
+        "unblocks": {
+          "type": "string"
+        },
+        "refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "kind",
+        "description"
+      ]
+    },
     "Blocker": {
       "properties": {
         "description": {
@@ -20,9 +83,45 @@
           },
           "type": "array"
         },
+        "branch": {
+          "type": "string"
+        },
+        "commits": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "pullRequests": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "committed",
+            "pushed",
+            "released",
+            "deployed"
+          ]
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "waitingOn": {
           "type": "string",
           "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "unblocks": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -73,6 +172,10 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "asked": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "additionalProperties": false,
@@ -102,11 +205,75 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "commits": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "pullRequests": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "committed",
+            "pushed",
+            "released",
+            "deployed"
+          ]
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
       "type": "object",
       "required": [
+        "description"
+      ]
+    },
+    "Notice": {
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "repositories": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "modules": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "title",
         "description"
       ]
     },
@@ -120,6 +287,9 @@
         },
         "costAndRisk": {
           "type": "string"
+        },
+        "irreversible": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -140,8 +310,26 @@
           "type": "string",
           "format": "date-time"
         },
+        "session": {
+          "$ref": "#/$defs/Session"
+        },
         "summary": {
           "type": "string"
+        },
+        "idle": {
+          "type": "boolean"
+        },
+        "operatorActions": {
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "type": "array"
+        },
+        "inProgress": {
+          "items": {
+            "$ref": "#/$defs/Work"
+          },
+          "type": "array"
         },
         "done": {
           "items": {
@@ -166,6 +354,12 @@
             "$ref": "#/$defs/DecisionRequest"
           },
           "type": "array"
+        },
+        "notices": {
+          "items": {
+            "$ref": "#/$defs/Notice"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -174,8 +368,51 @@
         "role",
         "generated"
       ]
+    },
+    "Session": {
+      "properties": {
+        "tmux": {
+          "type": "string"
+        },
+        "agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Work": {
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "worktree": {
+          "type": "string"
+        },
+        "base": {
+          "type": "string"
+        },
+        "refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "description",
+        "repository"
+      ]
     }
   },
   "title": "Status report",
-  "description": "One role's status: what it finished, what is blocked and on whom, what it does next, and the decisions it needs from the operator."
+  "description": "One role's current status: the operator's actions it waits on, its work in progress, what it finished, what is blocked and on whom, what it does next, the decisions it needs and notices for other roles. Reports are kept outside version control, so they can describe unpublished work plainly."
 }
