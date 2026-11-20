@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -709,6 +709,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#who" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        who
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        decide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -879,6 +901,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.3.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.3.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.2.0/" class="md-nav__link">
         
   
@@ -1006,6 +1056,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#who" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        who
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        decide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1053,6 +1125,11 @@
 <td><code>.</code></td>
 <td>Hive directory holding <code>roles/</code> and <code>decisions/</code></td>
 </tr>
+<tr>
+<td><code>--version</code></td>
+<td></td>
+<td>Print the version the binary was built from</td>
+</tr>
 </tbody>
 </table>
 <h2 id="validate">validate<a class="headerlink" href="#validate" title="Permanent link">&para;</a></h2>
@@ -1098,24 +1175,72 @@ directory.</p>
 <h2 id="brief">brief<a class="headerlink" href="#brief" title="Permanent link">&para;</a></h2>
 <p>Gathers every role's report into one briefing.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ plexushive -C my-hive brief
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Decisions needed (1)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  billing        coupon-stacking: Allow coupons to stack?
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                 recommends no-stacking; approval: A pricing change.
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Blocked (2)
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  website        waiting on operator     Publishing the launch page needs a push.
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  billing        waiting on website      Refund export needs the account page link.
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Your actions (2)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  push
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    website        Push the launch page branch.
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>                   $ git -C web push -u origin launch-page
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  tag
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    billing        Tag the coupon release. [irreversible]
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>                   $ git -C billing tag v1.4.0 &amp;&amp; git -C billing push origin v1.4.0
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>Status (2)
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  billing        2h       Coupons are in review; the refund export waits on the website.
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  website        2h       Launch page is ready for review.
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>Decisions needed (1)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  billing/coupon-stacking: Allow coupons to stack?
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    recommends no-stacking, asked 26h ago; approval: A pricing change.
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>Blocked (2)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>  website        waiting on operator     The launch page needs final wording for the pricing banner.
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>  billing        waiting on website      Refund export needs the account page link.
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>                                         then: The refund report for finance.
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>In progress (1)
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>  github.com/example/web  [more than one role]
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    billing        refund-export            Refund export link on the account page.
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    website        account-link             Account page link.
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>Notices (1)
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>  billing        Date parsing bug in a shared library
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>Status (2)
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>  billing        2h       Coupons are in review; the refund export waits on the website.
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>  website        2h       Launch page is ready for review.
 </code></pre></div>
-<p>Active roles without a report are listed last. <code>--json</code> prints the same
-briefing as JSON (<code>decisions</code>, <code>blocked</code>, <code>reports</code>, <code>missing</code>) for other
-programs. <code>--reports</code> works as for <code>report submit</code>.</p>
+<p>Answered requests that are still in reports, active roles without a report
+and ignored reports from unknown or retired roles are listed when there
+are any. <code>--json</code> prints the same briefing as JSON (<code>actions</code>,
+<code>decisions</code>, <code>answered</code>, <code>blocked</code>, <code>inProgress</code>, <code>notices</code>, <code>reports</code>,
+<code>idle</code>, <code>missing</code>, <code>ignored</code>) for other programs; each decision carries a
+<code>key</code> of <code>role/id</code>, and reports carry their <code>generated</code> time.
+<code>--reports</code> works as for <code>report submit</code>.</p>
+<h2 id="who">who<a class="headerlink" href="#who" title="Permanent link">&para;</a></h2>
+<p>Shows who to talk to before changing a repository: its steward and
+contributors, with how to reach their sessions when their reports say, the
+work in progress there, and the operator actions waiting on it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$ plexushive -C my-hive who github.com/example/web
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Roles
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  steward      website          agent website-1, tmux web
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  contributor  billing
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>In progress
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  billing          refund-export            Refund export link on the account page.
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  website          account-link             Account page link.
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>Waiting on the operator
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>  website          push     Push the launch page branch.
+</code></pre></div>
+<h2 id="decide">decide<a class="headerlink" href="#decide" title="Permanent link">&para;</a></h2>
+<p>Answers a decision request from a role's current report. The chosen option
+becomes the decision and the others its alternatives; the request's
+situation and evidence become its reasons, after <code>--reason</code> when given.
+The decision is written to <code>decisions/&lt;id&gt;.json</code> under the request's ID,
+and the command prints the message to send the role. It never replaces an
+existing decision: a changed decision is a new one that supersedes it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason "Partners can wait a release."
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>wrote decisions/coupon-stacking.json
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>send to billing:
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
+</code></pre></div>
+<p>Commit the new decision with the rest of the hive directory.</p>
 <h2 id="schema">schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
 <p>Prints the JSON Schema for a record type: <code>decision</code>, <code>report</code> or <code>role</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
 </code></pre></div>
 
 
@@ -1188,10 +1313,10 @@ programs. <code>--reports</code> works as for <code>report submit</code>.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
