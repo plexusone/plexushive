@@ -186,24 +186,32 @@ or approve its own request.
 
 ## 8. Report status and read the briefing
 
-Have each agent file a report when asked and at the end of a work block.
-It writes the JSON and submits it; the role and time are filled in:
+Have each agent keep a current report. It writes the JSON and submits it;
+the role and time are filled in:
 
 ```bash
 plexushive -C my-hive report submit - <<'JSON'
 {
-  "summary": "Coupons are in review.",
-  "done": [{"description": "Added coupon validation to checkout."}],
-  "blocked": [{"description": "Publishing needs a push.", "waitingOn": "operator"}],
+  "summary": "Coupons are ready to release.",
+  "operatorActions": [{"kind": "tag", "description": "Tag the coupon release.",
+    "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0", "irreversible": true}],
+  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export"}],
+  "done": [{"description": "Added coupon validation to checkout.", "state": "committed"}],
   "next": [{"description": "Release the coupon endpoint."}]
 }
 JSON
 ```
 
-Raise a question only the operator can settle as a decision request in
+Put routine steps that only you can take, such as pushes, tags and
+deploys, in `operatorActions`, with the exact command. Keep `blocked` for
+work that is really stuck. List the repositories and branches the agent is
+working in under `inProgress`, so others see it before they start there;
+`plexushive who github.com/<org>/<repo>` shows them. A role with nothing to
+do sets `"idle": true` instead of reporting again and again.
+
+Raise a question only you can settle as a decision request in
 `decisionsNeeded`, with the situation, at least two options with their
-cost and risk, a recommendation and the approval it needs. Once you
-decide, record a decision with the request's ID (step 5).
+cost and risk, a recommendation and the approval it needs.
 
 Start the day with:
 
@@ -211,10 +219,16 @@ Start the day with:
 plexushive -C my-hive brief
 ```
 
-It lists the decisions waiting on you, then what is blocked (on you
-first), then each role's summary with the report's age, then active roles
-that have not reported. See [Status Reports](../reference/reports.md) for
-every field.
+It lists your actions first, then the decisions waiting on you, what is
+blocked, who is working where, notices, and each role's summary. Answer a
+decision with:
+
+```bash
+plexushive -C my-hive decide billing/coupon-stacking no-stacking
+```
+
+It writes the decision (step 5) and prints the message to send the role.
+See [Status Reports](../reference/reports.md) for every field.
 
 ## Library reference
 
@@ -226,7 +240,8 @@ every field.
 | `hive.RolesFor(roles, repo)` | Roles working in a repository, steward first |
 | `hive.Steward(roles, repo)` | The steward's name, or `""` for common ground |
 | `hive.WriteReport`, `hive.LoadReports`, `hive.ReportsDir` | Store and read status reports |
-| `hive.NewBriefing` | Gather reports into decisions, blockers, status and missing roles |
+| `hive.NewBriefing` | Gather reports into actions, decisions, blockers, work in progress, notices and status |
+| `(hive.DecisionRequest).Decide`, `hive.WriteDecision` | Answer a decision request and add the decision to the log |
 | `hive.Format`, `hive.Parse` | Write and read message envelopes |
 | `hive.RoleSchema`, `hive.DecisionSchema`, `hive.ReportSchema` | Generate the JSON Schemas |
 

@@ -36,7 +36,7 @@ my-hive/
 ```bash
 plexushive -C my-hive validate                        # check every role and decision
 plexushive -C my-hive roles github.com/example/web    # who works there, steward first
-plexushive -C my-hive brief                           # decisions, blockers and status
+plexushive -C my-hive brief                           # your actions, decisions, blockers, work in progress
 ```
 
 ## Next steps

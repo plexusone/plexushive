@@ -54,7 +54,9 @@ go install github.com/plexusone/plexushive/cmd/plexushive@latest
 ```bash
 plexushive -C path/to/hive validate                         # check every role and decision
 plexushive -C path/to/hive roles github.com/example/web     # who works here, steward first
-plexushive -C path/to/hive brief                            # decisions, blockers and status from every role
+plexushive -C path/to/hive brief                            # your actions, decisions, blockers, work in progress
+plexushive -C path/to/hive who github.com/example/web       # steward, work in progress, waiting actions
+plexushive -C path/to/hive decide billing/coupon-stacking no-stacking  # answer a decision request
 plexushive schema role                                      # print a JSON Schema
 ```
 
@@ -199,25 +201,26 @@ read and write the envelope.
 
 ## Status reports
 
-Each role keeps one current status report: what it finished, what is
-blocked and on whom, what it does next, and the decisions it needs from the
-operator. `plexushive brief` gathers every report into one briefing:
-decisions first, then blockers (those waiting on the operator first), then
-each role's status, then active roles that have not reported.
+Each role keeps one current status report. `plexushive brief` gathers them
+into one briefing, in the order the operator acts on it: the operator's
+actions (pushes, merges, tags, deploys and setup steps, with the exact
+command and whether they can be undone), decisions needed, what is
+blocked, who is working in which repository and branch, notices for other
+roles, and each role's status.
 
 ```json
 {
   "role": "billing",
   "generated": "2026-11-19T09:00:00Z",
-  "summary": "Coupons are in review; the refund export waits on the website.",
-  "done": [{"description": "Added coupon validation to checkout.", "refs": ["RMI-BILLING-012"]}],
+  "summary": "Coupons are ready to release; the refund export waits on the website.",
+  "operatorActions": [{"kind": "tag", "description": "Tag the coupon release.",
+    "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0", "irreversible": true}],
+  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export"}],
   "blocked": [{"description": "Refund export needs the account page link.", "waitingOn": "website"}],
-  "next": [{"description": "Release the coupon endpoint."}],
   "decisionsNeeded": [{
     "id": "coupon-stacking",
     "title": "Allow coupons to stack?",
     "situation": "Two launch partners want their coupons to combine.",
-    "evidence": ["Both partners asked in writing."],
     "options": [
       {"name": "no-stacking", "description": "Keep one coupon per order.", "costAndRisk": "May lose one partner's launch traffic."},
       {"name": "stack-two", "description": "Allow at most two coupons.", "costAndRisk": "A day of work; discounts can reach 40%."}
@@ -228,34 +231,19 @@ each role's status, then active roles that have not reported.
 }
 ```
 
-| Field | Required | Meaning |
-|---|---|---|
-| `role` | yes | The reporting role; `report submit` fills it from `HIVE_ROLE` |
-| `generated` | yes | When it was written (RFC 3339); `report submit` fills it with the current time |
-| `summary` | no | One or two sentences for the briefing |
-| `done`, `next` | no | Items: `description`, and optional `refs` and `repositories` |
-| `blocked` | no | Items plus `waitingOn`: the role that can unblock it, or `operator` |
-| `decisionsNeeded` | no | Decision requests; see below |
-
-A decision request needs an `id` (which becomes the decision's ID once
-decided), a `title`, the `situation`, at least two `options`, each with a
-`name`, `description` and `costAndRisk`, a `recommendation` naming one of
-the options, and the `approval` the answer grants. `evidence`, `refs` and
-`repositories` are optional. When the operator decides, record the outcome
-as a decision with the same ID.
-
-Reports describe the sessions on one machine and change often, so they are
-kept out of the hive repository: in `$HIVE_REPORTS` when set, otherwise in
-`plexushive/reports` under the platform's per-user data directory. Each
-role's report is `<role>.json`, replaced atomically on each submit.
-
 ```bash
-plexushive -C my-hive report submit report.json   # or pipe the JSON to standard input
-plexushive -C my-hive brief                       # read the briefing
-plexushive -C my-hive brief --json                # the same, for other programs
+HIVE_ROLE=billing plexushive -C my-hive report submit report.json
+plexushive -C my-hive brief                                   # or --json for other programs
+plexushive -C my-hive who github.com/example/web              # steward, work in progress, waiting actions
+plexushive -C my-hive decide billing/coupon-stacking no-stacking  # answer: writes the decision
 ```
 
-The name `operator` is reserved for `waitingOn`; no role may use it.
+A decision request names the situation, at least two options with their
+cost and risk, a recommendation and what a yes approves. `decide` writes
+the answer to the decision log under the request's ID, so the role finds
+it there. Reports are kept out of the hive repository: in `$HIVE_REPORTS`
+when set, otherwise under the per-user data directory. See
+[Status Reports](docs/reference/reports.md) for every field.
 
 ## License
 
