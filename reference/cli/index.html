@@ -549,6 +549,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status Reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../messages/" class="md-nav__link">
         
   
@@ -652,6 +680,28 @@
     <span class="md-ellipsis">
       
         roles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#report-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        report submit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brief" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        brief
       
     </span>
   </a>
@@ -829,6 +879,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.2.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
@@ -906,6 +984,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#report-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        report submit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brief" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        brief
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -970,9 +1070,52 @@ repository itself or its organization.</p>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>contributor<span class="w">  </span>billing<span class="w">              </span>repository
 </code></pre></div>
 <p>A repository no role lists is reported as common ground.</p>
+<h2 id="report-submit">report submit<a class="headerlink" href="#report-submit" title="Permanent link">&para;</a></h2>
+<p>Validates a report and stores it as the role's current report, replacing
+the previous one atomically. Reads a file, or standard input when no file
+or <code>-</code> is given. An empty <code>role</code> is taken from <code>HIVE_ROLE</code>, and an empty
+<code>generated</code> is set to the current time. The role must exist in the hive
+directory.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span><span class="nv">HIVE_ROLE</span><span class="o">=</span>billing<span class="w"> </span>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>submit<span class="w"> </span>report.json
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>stored<span class="w"> </span>the<span class="w"> </span>billing<span class="w"> </span>report
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--reports</code></td>
+<td><code>$HIVE_REPORTS</code>, else the per-user data directory</td>
+<td>Where reports are stored</td>
+</tr>
+</tbody>
+</table>
+<h2 id="brief">brief<a class="headerlink" href="#brief" title="Permanent link">&para;</a></h2>
+<p>Gathers every role's report into one briefing.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ plexushive -C my-hive brief
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Decisions needed (1)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  billing        coupon-stacking: Allow coupons to stack?
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                 recommends no-stacking; approval: A pricing change.
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Blocked (2)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  website        waiting on operator     Publishing the launch page needs a push.
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  billing        waiting on website      Refund export needs the account page link.
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>Status (2)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  billing        2h       Coupons are in review; the refund export waits on the website.
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  website        2h       Launch page is ready for review.
+</code></pre></div>
+<p>Active roles without a report are listed last. <code>--json</code> prints the same
+briefing as JSON (<code>decisions</code>, <code>blocked</code>, <code>reports</code>, <code>missing</code>) for other
+programs. <code>--reports</code> works as for <code>report submit</code>.</p>
 <h2 id="schema">schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
-<p>Prints the JSON Schema for a record type, <code>role</code> or <code>decision</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
+<p>Prints the JSON Schema for a record type: <code>decision</code>, <code>report</code> or <code>role</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
 </code></pre></div>
 
 

@@ -549,6 +549,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status Reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../messages/" class="md-nav__link">
         
   
@@ -759,6 +787,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.2.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
@@ -845,10 +901,14 @@ generated from them and committed under
 <td>Decision</td>
 <td><code>https://github.com/plexusone/plexushive/hive/schema/decision.schema.json</code></td>
 </tr>
+<tr>
+<td>Report</td>
+<td><code>https://github.com/plexusone/plexushive/hive/schema/report.schema.json</code></td>
+</tr>
 </tbody>
 </table>
-<p>Print them with <code>plexushive schema role|decision</code>, or generate them in Go
-with <code>hive.RoleSchema()</code> and <code>hive.DecisionSchema()</code>.</p>
+<p>Print them with <code>plexushive schema decision|report|role</code>, or generate them in Go
+with <code>hive.RoleSchema()</code>, <code>hive.DecisionSchema()</code> and <code>hive.ReportSchema()</code>.</p>
 <p>The schemas check each file's shape. Checks across files, such as one
 steward per pattern or supersede links agreeing, need <code>Hive.Validate</code>.</p>
 <p>To regenerate the committed files after changing a type:</p>
