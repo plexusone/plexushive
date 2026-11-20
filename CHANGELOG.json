@@ -6,6 +6,38 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.3.0",
+      "date": "2026-11-19",
+      "highlights": [
+        { "description": "Operator actions: pushes, merges, tags, deploys and setup steps with the exact command, listed first in the briefing" },
+        { "description": "Work in progress by repository and branch, with `plexushive who` to see who is working in a repository before changing it" },
+        { "description": "`plexushive decide` answers a decision request and writes the decision the role reads" }
+      ],
+      "added": [
+        { "description": "`operatorActions` in reports: kind, command, repository, branch, commit, pull request, version, checks, whether it is irreversible and what it unblocks", "commit": "bb379ca" },
+        { "description": "`inProgress` in reports: repository, branch, worktree and base of work under way", "commit": "bb379ca" },
+        { "description": "`notices`, `session` and `idle` in reports", "commit": "bb379ca" },
+        { "description": "Items carry branch, commits, pull requests, state and paths; blockers name the decision request that unblocks them and what they hold up; options can be marked irreversible; decision requests keep when they were first asked", "commit": "bb379ca" },
+        { "description": "`DecisionRequest.Decide` and `WriteDecision`, which never replaces an existing decision", "commit": "bb379ca" },
+        { "description": "`decide` and `who` commands and a `--version` flag", "commit": "860dadd" }
+      ],
+      "changed": [
+        { "description": "The briefing lists operator actions first, keys decisions as `role/id`, separates answered requests, groups work in progress by repository and flags shared repositories, and ignores reports from unknown or retired roles", "commit": "bb379ca" },
+        { "description": "`NewBriefing` takes the decision log as a second argument", "commit": "bb379ca" },
+        { "description": "`report submit` keeps when each decision request was first asked", "commit": "860dadd" }
+      ],
+      "fixed": [
+        { "description": "Decided titles read \"<question> Decided: <option>\", and `who` does not pad role lines without a session", "commit": "7985bf5" }
+      ],
+      "documentation": [
+        { "description": "Operator actions, work in progress, `decide` and `who` in the README, user guide, CLI reference and status report reference", "commit": "9960047" },
+        { "description": "v0.3.0 release notes" }
+      ],
+      "tests": [
+        { "description": "Tests for the new report fields, briefing sections, decisions from requests and the new commands", "commit": "bb379ca" }
+      ]
+    },
+    {
       "version": "v0.2.0",
       "date": "2026-11-19",
       "highlights": [

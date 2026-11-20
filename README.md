@@ -6,7 +6,7 @@
 [![Docs][docs-godoc-svg]][docs-godoc-url]
 [![Docs][docs-mkdoc-svg]][docs-mkdoc-url]
 [![License][license-svg]][license-url]
-![coverage](https://img.shields.io/badge/coverage-97.2%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-96.1%25-brightgreen)
 
  [go-ci-svg]: https://github.com/plexusone/plexushive/actions/workflows/go-ci.yaml/badge.svg?branch=main
  [go-ci-url]: https://github.com/plexusone/plexushive/actions/workflows/go-ci.yaml
