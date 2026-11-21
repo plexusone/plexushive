@@ -29,15 +29,17 @@ func resolveReports(dir string) (string, error) {
 	return hive.ReportsDir()
 }
 
-func reportCmd(hiveDir *string) *cobra.Command {
+func reportCmd(hiveDir, role *string) *cobra.Command {
 	cmd := &cobra.Command{Use: "report", Short: "Write status reports"}
 	var reports string
 	submit := &cobra.Command{
 		Use:   "submit [file|-]",
 		Short: "Validate a report and store it as the role's current report",
 		Long: "Reads a report as JSON from a file or standard input. An empty role is\n" +
-			"taken from $" + hive.RoleEnv + " and an empty generated time is set to now.\n" +
-			"The role must exist in the hive directory.",
+			"taken from --role, else $" + hive.RoleEnv + ", else the tmux session's\n" +
+			"environment. An empty generated time is set to now, and inside tmux an\n" +
+			"empty session.tmux is set to the session's name. The role must exist in\n" +
+			"the hive directory.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := readReport(cmd.InOrStdin(), args)
@@ -45,10 +47,15 @@ func reportCmd(hiveDir *string) *cobra.Command {
 				return err
 			}
 			if r.Role == "" {
-				r.Role = os.Getenv(hive.RoleEnv)
+				if r.Role, _, err = hive.ResolveRole(*role); err != nil {
+					return err
+				}
 			}
 			if r.Generated.IsZero() {
 				r.Generated = now().UTC().Truncate(time.Second)
+			}
+			if err := fillTmux(&r); err != nil {
+				return err
 			}
 			h, err := hive.Load(*hiveDir)
 			if err != nil {
@@ -76,6 +83,23 @@ func reportCmd(hiveDir *string) *cobra.Command {
 	reportsFlag(submit, &reports)
 	cmd.AddCommand(submit)
 	return cmd
+}
+
+// fillTmux sets the report's tmux session name when it is empty and the
+// command runs inside tmux.
+func fillTmux(r *hive.Report) error {
+	if r.Session != nil && r.Session.Tmux != "" {
+		return nil
+	}
+	name, err := hive.TmuxSession()
+	if err != nil || name == "" {
+		return err
+	}
+	if r.Session == nil {
+		r.Session = &hive.Session{}
+	}
+	r.Session.Tmux = name
+	return nil
 }
 
 // keepAsked fills in when each decision request was first asked: from the

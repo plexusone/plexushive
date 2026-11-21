@@ -28,9 +28,11 @@ func newRootCmd(out io.Writer) *cobra.Command {
 		Version:      version(),
 	}
 	root.SetOut(out)
-	var dir string
+	var dir, role string
 	root.PersistentFlags().StringVarP(&dir, "dir", "C", ".", "hive directory holding roles/ and decisions/")
-	root.AddCommand(validateCmd(&dir), rolesCmd(&dir), schemaCmd(), reportCmd(&dir), briefCmd(&dir), decideCmd(&dir), whoCmd(&dir))
+	root.PersistentFlags().StringVar(&role, "role", "", "the role this session plays (default $"+hive.RoleEnv+", else the tmux session's)")
+	root.AddCommand(validateCmd(&dir), rolesCmd(&dir), schemaCmd(), reportCmd(&dir, &role), briefCmd(&dir),
+		decideCmd(&dir), whoCmd(&dir), startCmd(&dir), contextCmd(&dir, &role), whoamiCmd(&role))
 	return root
 }
 
