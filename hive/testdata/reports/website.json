@@ -5,20 +5,30 @@
   "summary": "Launch page is ready for review.",
   "operatorActions": [
     {
+      "id": "push-launch",
       "kind": "push",
       "description": "Push the launch page branch.",
       "command": "git -C web push -u origin launch-page",
       "repository": "github.com/example/web",
       "branch": "launch-page",
-      "commit": "3f2a9c1",
-      "unblocks": "Publishing the launch page."
+      "commits": ["3f2a9c1"],
+      "followUp": "Open the pull request.",
+      "unblocks": ["Publishing the launch page."]
+    },
+    {
+      "kind": "configure",
+      "description": "Set the analytics key for the launch page.",
+      "after": ["push-launch"],
+      "repository": "github.com/example/web",
+      "steps": ["Create a site key in the analytics console.", "Store it as the ANALYTICS_KEY repository secret."],
+      "credentials": ["web/prod/ANALYTICS_KEY"]
     }
   ],
   "inProgress": [
-    {"description": "Account page link.", "repository": "github.com/example/web", "branch": "account-link", "base": "main"}
+    {"description": "Account page link.", "repository": "github.com/example/web", "branch": "account-link", "base": "main", "state": "committed"}
   ],
   "blocked": [
-    {"description": "The launch page needs final wording for the pricing banner.", "waitingOn": "operator"}
+    {"description": "The launch page needs final wording for the pricing banner.", "waitingOn": ["operator"]}
   ],
   "next": [
     {"description": "Add the account page link for billing."}

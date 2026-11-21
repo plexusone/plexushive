@@ -19,7 +19,7 @@ func validRequest() DecisionRequest {
 func validReport() Report {
 	return Report{Role: "alpha", Generated: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC),
 		Done:            []Item{{Description: "did", Refs: []string{"RMI-A-001"}, Repositories: []string{"github.com/example/a"}}},
-		Blocked:         []Blocker{{Item: Item{Description: "stuck"}, WaitingOn: Operator}},
+		Blocked:         []Blocker{{Item: Item{Description: "stuck"}, WaitingOn: []string{Operator}}},
 		Next:            []Item{{Description: "will"}},
 		DecisionsNeeded: []DecisionRequest{validRequest()}}
 }
@@ -37,7 +37,7 @@ func TestReportValidate(t *testing.T) {
 		{"empty done", func(r *Report) { r.Done[0].Description = " " }, "done: description"},
 		{"bad next ref", func(r *Report) { r.Next[0].Refs = []string{"X"} }, "next: ref"},
 		{"bad repository", func(r *Report) { r.Done[0].Repositories = []string{"a/b"} }, "repository"},
-		{"bad waiting on", func(r *Report) { r.Blocked[0].WaitingOn = "" }, "waitingOn"},
+		{"bad waiting on", func(r *Report) { r.Blocked[0].WaitingOn = []string{""} }, "waitingOn"},
 		{"duplicate request", func(r *Report) { r.DecisionsNeeded = append(r.DecisionsNeeded, validRequest()) }, "twice"},
 		{"bad request", func(r *Report) { r.DecisionsNeeded[0].Title = "" }, "title is required"},
 	}
@@ -86,7 +86,7 @@ func TestValidateReports(t *testing.T) {
 	checkErr(t, ValidateReports([]Report{unknown}, roles), "does not exist")
 	retired := Report{Role: "gone", Generated: rep.Generated}
 	checkErr(t, ValidateReports([]Report{retired}, roles), "retired")
-	waits := Report{Role: "alpha", Generated: rep.Generated, Blocked: []Blocker{{Item: Item{Description: "x"}, WaitingOn: "nobody"}}}
+	waits := Report{Role: "alpha", Generated: rep.Generated, Blocked: []Blocker{{Item: Item{Description: "x"}, WaitingOn: []string{"nobody"}}}}
 	checkErr(t, ValidateReports([]Report{waits}, roles), "not a role")
 	invalid := Report{Role: "alpha"}
 	checkErr(t, ValidateReports([]Report{invalid}, roles), "generated")
@@ -179,7 +179,7 @@ func TestBriefing(t *testing.T) {
 	if len(b.Decisions) != 1 || b.Decisions[0].Role != "billing" || b.Decisions[0].Request.ID != "coupon-stacking" {
 		t.Fatalf("decisions: %+v", b.Decisions)
 	}
-	if len(b.Blocked) != 2 || b.Blocked[0].Blocker.WaitingOn != Operator || b.Blocked[1].Role != "billing" {
+	if len(b.Blocked) != 2 || b.Blocked[0].Blocker.WaitingOn[0] != Operator || b.Blocked[1].Role != "billing" {
 		t.Fatalf("blocked: %+v", b.Blocked)
 	}
 	if len(b.Reports) != 2 || b.Reports[0].Role != "billing" {
@@ -191,7 +191,8 @@ func TestBriefing(t *testing.T) {
 	if b.Decisions[0].Key != "billing/coupon-stacking" {
 		t.Fatalf("key: %q", b.Decisions[0].Key)
 	}
-	if len(b.Actions) != 2 || b.Actions[0].Action.Kind != ActionPush || b.Actions[1].Action.Kind != ActionTag {
+	if len(b.Actions) != 3 || b.Actions[0].Action.Kind != ActionPush || b.Actions[1].Action.Kind != ActionTag ||
+		b.Actions[2].Action.Kind != ActionConfigure {
 		t.Fatalf("actions: %+v", b.Actions)
 	}
 	if len(b.InProgress) != 1 || !b.InProgress[0].Shared || len(b.InProgress[0].Work) != 2 {
@@ -242,12 +243,12 @@ func TestReportNewFieldsInvalid(t *testing.T) {
 		Generated: time.Date(2026, 11, 19, 0, 0, 0, 0, time.UTC),
 		OperatorActions: []Action{
 			{Kind: "launch", Description: ""},
-			{Kind: ActionPush, Description: "x", Repository: "web", Commit: "XYZ", PullRequest: "pr 9"},
+			{Kind: ActionPush, Description: "x", Repository: "web", Commits: []string{"XYZ"}, PullRequests: []string{"pr 9"}},
 		},
 		InProgress: []Work{{Description: "x", Repository: "web"}},
 		Notices:    []Notice{{Title: "x"}},
 		Done:       []Item{{Description: "x", State: "shipped", Commits: []string{"nothex"}, PullRequests: []string{"9"}}},
-		Blocked:    []Blocker{{Item: Item{Description: "x"}, WaitingOn: "b", Decision: "missing"}},
+		Blocked:    []Blocker{{Item: Item{Description: "x"}, WaitingOn: []string{"b"}, Decision: "missing"}},
 	}
 	err := r.Validate()
 	if err == nil {
@@ -278,7 +279,7 @@ func TestDecide(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if d.ID != "coupon-stacking" || d.Status != DecisionAccepted || !reflect.DeepEqual(d.Roles, []string{"billing"}) {
+	if d.ID != "coupon-stacking" || d.Status != DecisionAccepted || d.Option != "stack-two" || !reflect.DeepEqual(d.Roles, []string{"billing"}) {
 		t.Fatalf("decision: %+v", d)
 	}
 	if !strings.Contains(d.Decision, "Allow at most two coupons.") || !strings.Contains(d.Decision, "recommended no-stacking") {

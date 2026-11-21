@@ -120,13 +120,17 @@ func whoCmd(hiveDir *string) *cobra.Command {
 					continue
 				}
 				for _, w := range rw.Work {
-					cmd.Printf("  %-16s %-24s %s\n", w.Role, w.Work.Branch, w.Work.Description)
+					where := w.Work.Branch
+					if w.Work.State != "" {
+						where += " (" + string(w.Work.State) + ")"
+					}
+					cmd.Printf("  %-16s %-24s %s\n", w.Role, where, w.Work.Description)
 				}
 			}
 			cmd.Println("Waiting on the operator")
 			for _, a := range b.Actions {
 				if a.Action.Repository == repo {
-					cmd.Printf("  %-16s %-8s %s\n", a.Role, a.Action.Kind, a.Action.Description)
+					cmd.Printf("  %-16s %-10s %s\n", strings.Join(a.Roles, ", "), a.Action.Kind, a.Action.Description)
 				}
 			}
 			return nil

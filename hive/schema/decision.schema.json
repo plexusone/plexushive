@@ -38,6 +38,9 @@
         "decision": {
           "type": "string"
         },
+        "option": {
+          "type": "string"
+        },
         "reasons": {
           "items": {
             "type": "string"

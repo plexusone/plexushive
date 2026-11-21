@@ -5,6 +5,10 @@
   "$defs": {
     "Action": {
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
         "kind": {
           "type": "string",
           "enum": [
@@ -25,20 +29,64 @@
         "command": {
           "type": "string"
         },
-        "repository": {
+        "steps": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "after": {
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "type": "array"
+        },
+        "decision": {
           "type": "string"
+        },
+        "option": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
         },
         "branch": {
           "type": "string"
         },
-        "commit": {
-          "type": "string"
+        "commits": {
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,40}$"
+          },
+          "type": "array"
         },
-        "pullRequest": {
-          "type": "string"
+        "pullRequests": {
+          "items": {
+            "type": "string",
+            "pattern": "^(https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+|#[0-9]+)$"
+          },
+          "type": "array"
         },
-        "version": {
-          "type": "string"
+        "versions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "credentials": {
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$"
+          },
+          "type": "array"
         },
         "checks": {
           "items": {
@@ -49,12 +97,22 @@
         "irreversible": {
           "type": "boolean"
         },
-        "unblocks": {
+        "ongoing": {
+          "type": "boolean"
+        },
+        "followUp": {
           "type": "string"
+        },
+        "unblocks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "refs": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"
           },
           "type": "array"
         }
@@ -73,13 +131,15 @@
         },
         "refs": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"
           },
           "type": "array"
         },
         "repositories": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
           },
           "type": "array"
         },
@@ -88,24 +148,33 @@
         },
         "commits": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,40}$"
           },
           "type": "array"
         },
         "pullRequests": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+|#[0-9]+)$"
           },
           "type": "array"
         },
         "state": {
           "type": "string",
           "enum": [
+            "uncommitted",
             "committed",
             "pushed",
             "released",
             "deployed"
           ]
+        },
+        "versions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "paths": {
           "items": {
@@ -114,14 +183,28 @@
           "type": "array"
         },
         "waitingOn": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9-]*$"
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "type": "array",
+          "minItems": 1
         },
         "decision": {
           "type": "string"
         },
+        "credentials": {
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$"
+          },
+          "type": "array"
+        },
         "unblocks": {
-          "type": "string"
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -163,13 +246,15 @@
         },
         "refs": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"
           },
           "type": "array"
         },
         "repositories": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
           },
           "type": "array"
         },
@@ -196,13 +281,15 @@
         },
         "refs": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"
           },
           "type": "array"
         },
         "repositories": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
           },
           "type": "array"
         },
@@ -211,24 +298,33 @@
         },
         "commits": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,40}$"
           },
           "type": "array"
         },
         "pullRequests": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+|#[0-9]+)$"
           },
           "type": "array"
         },
         "state": {
           "type": "string",
           "enum": [
+            "uncommitted",
             "committed",
             "pushed",
             "released",
             "deployed"
           ]
+        },
+        "versions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "paths": {
           "items": {
@@ -253,7 +349,8 @@
         },
         "repositories": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
           },
           "type": "array"
         },
@@ -265,7 +362,8 @@
         },
         "refs": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"
           },
           "type": "array"
         }
@@ -387,7 +485,8 @@
           "type": "string"
         },
         "repository": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
         },
         "branch": {
           "type": "string"
@@ -398,9 +497,25 @@
         "base": {
           "type": "string"
         },
+        "state": {
+          "type": "string",
+          "enum": [
+            "uncommitted",
+            "committed",
+            "pushed"
+          ]
+        },
+        "credentials": {
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$"
+          },
+          "type": "array"
+        },
         "refs": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"
           },
           "type": "array"
         }

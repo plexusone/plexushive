@@ -33,6 +33,7 @@ func (d DecisionRequest) Decide(role, option, reason string) (Decision, error) {
 		ID:           d.ID,
 		Title:        fmt.Sprintf("%s Decided: %s", strings.TrimSpace(d.Title), chosen.Name),
 		Status:       DecisionAccepted,
+		Option:       chosen.Name,
 		Decision:     fmt.Sprintf("%s Approved: %s", strings.TrimSpace(chosen.Description), strings.TrimSpace(d.Approval)),
 		Refs:         d.Refs,
 		Roles:        []string{role},

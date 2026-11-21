@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -167,14 +168,7 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 			kind = a.Action.Kind
 			cmd.Printf("  %s\n", kind)
 		}
-		mark := ""
-		if a.Action.Irreversible {
-			mark = " [irreversible]"
-		}
-		cmd.Printf("    %-14s %s%s\n", a.Role, a.Action.Description, mark)
-		if a.Action.Command != "" {
-			cmd.Printf("    %-14s $ %s\n", "", a.Action.Command)
-		}
+		printAction(cmd, a)
 	}
 	cmd.Printf("\nDecisions needed (%d)\n", len(b.Decisions))
 	for _, d := range b.Decisions {
@@ -193,9 +187,12 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	}
 	cmd.Printf("\nBlocked (%d)\n", len(b.Blocked))
 	for _, bl := range b.Blocked {
-		cmd.Printf("  %-14s waiting on %-12s %s\n", bl.Role, bl.Blocker.WaitingOn, bl.Blocker.Description)
-		if bl.Blocker.Unblocks != "" {
-			cmd.Printf("  %-14s %-23s then: %s\n", "", "", bl.Blocker.Unblocks)
+		cmd.Printf("  %-14s waiting on %-12s %s\n", bl.Role, strings.Join(bl.Blocker.WaitingOn, ", then "), bl.Blocker.Description)
+		if len(bl.Blocker.Credentials) > 0 {
+			cmd.Printf("  %-14s %-23s credentials: %s\n", "", "", strings.Join(bl.Blocker.Credentials, ", "))
+		}
+		for _, u := range bl.Blocker.Unblocks {
+			cmd.Printf("  %-14s %-23s then: %s\n", "", "", u)
 		}
 	}
 	cmd.Printf("\nIn progress (%d)\n", len(b.InProgress))
@@ -210,6 +207,9 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 			if where == "" {
 				where = "-"
 			}
+			if w.Work.State != "" {
+				where += " (" + string(w.Work.State) + ")"
+			}
 			cmd.Printf("    %-14s %-24s %s\n", w.Role, where, w.Work.Description)
 		}
 	}
@@ -222,8 +222,11 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	cmd.Printf("\nStatus (%d)\n", len(b.Reports))
 	for _, r := range b.Reports {
 		state := age(r.Age(at))
-		if r.Idle {
+		switch {
+		case r.Idle:
 			state = "idle"
+		case slices.Contains(b.Waiting, r.Role):
+			state = "decision"
 		}
 		cmd.Printf("  %-14s %-8s %s\n", r.Role, state, r.Summary)
 	}
@@ -232,6 +235,54 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	}
 	if len(b.Ignored) > 0 {
 		cmd.Printf("Ignored reports from unknown or retired roles: %s\n", strings.Join(b.Ignored, ", "))
+	}
+}
+
+// printAction prints one operator action: who asked, what, the condition
+// it applies under, what it waits on, and how to do it.
+func printAction(cmd *cobra.Command, a hive.RoleAction) {
+	var marks []string
+	if a.Action.Irreversible {
+		marks = append(marks, "irreversible")
+	}
+	if a.Action.Ongoing {
+		marks = append(marks, "ongoing")
+	}
+	mark := ""
+	if len(marks) > 0 {
+		mark = " [" + strings.Join(marks, ", ") + "]"
+	}
+	who := strings.Join(a.Roles, ", ")
+	if who == "" {
+		who = a.Role
+	}
+	cmd.Printf("    %-14s %s%s\n", who, a.Action.Description, mark)
+	note := func(label, text string) {
+		cmd.Printf("    %-14s %s%s\n", "", label, text)
+	}
+	if a.Action.ID != "" {
+		note("id: ", a.Action.ID)
+	}
+	if a.Condition != "" {
+		note("only if decided: ", a.Condition)
+	}
+	if len(a.Action.After) > 0 {
+		note("after: ", strings.Join(a.Action.After, ", "))
+	}
+	if len(a.Action.Versions) > 0 {
+		note("versions: ", strings.Join(a.Action.Versions, ", "))
+	}
+	if len(a.Action.Credentials) > 0 {
+		note("credentials: ", strings.Join(a.Action.Credentials, ", "))
+	}
+	if a.Action.Command != "" {
+		note("$ ", a.Action.Command)
+	}
+	for i, step := range a.Action.Steps {
+		note(fmt.Sprintf("%d. ", i+1), step)
+	}
+	if a.Action.FollowUp != "" {
+		note("then the role: ", a.Action.FollowUp)
 	}
 }
 

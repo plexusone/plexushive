@@ -88,7 +88,7 @@ func TestWho(t *testing.T) {
 		"contributor  billing",
 		"billing          refund-export",
 		"website          account-link",
-		"website          push     Push the launch page branch.",
+		"website          push       Push the launch page branch.",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q:\n%s", want, out)

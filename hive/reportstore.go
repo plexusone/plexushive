@@ -33,10 +33,11 @@ func ReportsDir() (string, error) {
 	return filepath.Join(base, "reports"), nil
 }
 
-// WriteReport validates r and writes it to dir as <role>.json, replacing
+// WriteReport normalizes and validates r and writes it to dir as <role>.json, replacing
 // the role's previous report. The write is atomic: a reader sees the old
 // report or the new one, never part of either.
 func WriteReport(dir string, r Report) error {
+	r.Normalize()
 	if err := r.Validate(); err != nil {
 		return err
 	}

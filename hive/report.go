@@ -2,6 +2,7 @@ package hive
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 )
@@ -50,17 +51,19 @@ type Item struct {
 	// Description says what, in a sentence.
 	Description string `json:"description"`
 	// Refs are the initiatives and roadmap items it belongs to.
-	Refs []string `json:"refs,omitempty"`
+	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
 	// Repositories are where the work is, as github.com/<org>/<repo>.
-	Repositories []string `json:"repositories,omitempty"`
+	Repositories []string `json:"repositories,omitempty" jsonschema:"pattern=^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"`
 	// Branch is the branch the work is on.
 	Branch string `json:"branch,omitempty"`
 	// Commits are the commits that make up the work.
-	Commits []string `json:"commits,omitempty"`
+	Commits []string `json:"commits,omitempty" jsonschema:"pattern=^[0-9a-f]{7\\,40}$"`
 	// PullRequests are the URLs of its pull requests.
-	PullRequests []string `json:"pullRequests,omitempty"`
-	// State is how far finished work has travelled.
-	State ItemState `json:"state,omitempty" jsonschema:"enum=committed,enum=pushed,enum=released,enum=deployed"`
+	PullRequests []string `json:"pullRequests,omitempty" jsonschema:"pattern=^(https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+|#[0-9]+)$"`
+	// State is how far the work has travelled.
+	State ItemState `json:"state,omitempty" jsonschema:"enum=uncommitted,enum=committed,enum=pushed,enum=released,enum=deployed"`
+	// Versions are the releases the work went out in.
+	Versions []string `json:"versions,omitempty"`
 	// Paths are files the work produced, relative to their repository.
 	Paths []string `json:"paths,omitempty"`
 }
@@ -69,13 +72,18 @@ type Item struct {
 // does something other than a routine action.
 type Blocker struct {
 	Item
-	// WaitingOn is the role that can unblock it, or "operator".
-	WaitingOn string `json:"waitingOn" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
+	// WaitingOn are the roles, or "operator", that must act, in order: a
+	// push that waits on another role's release and then on the operator's
+	// yes lists both.
+	WaitingOn []string `json:"waitingOn" jsonschema:"minItems=1,pattern=^[a-z][a-z0-9-]*$"`
 	// Decision is the ID of the decision request, in the same report, whose
 	// answer unblocks it.
 	Decision string `json:"decision,omitempty"`
+	// Credentials are the IDs, in the credential registry, of credentials
+	// it waits on.
+	Credentials []string `json:"credentials,omitempty" jsonschema:"pattern=^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$"`
 	// Unblocks says what else waits on this, including other roles' work.
-	Unblocks string `json:"unblocks,omitempty"`
+	Unblocks []string `json:"unblocks,omitempty"`
 }
 
 // DecisionRequest asks the operator to decide. Once decided, the outcome
@@ -97,11 +105,12 @@ type DecisionRequest struct {
 	// push, a spend or a change to another role's repository.
 	Approval string `json:"approval"`
 	// Refs are the initiatives and roadmap items it concerns.
-	Refs []string `json:"refs,omitempty"`
+	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
 	// Repositories are the repositories it concerns.
-	Repositories []string `json:"repositories,omitempty"`
-	// Asked is when the request was first raised; it is kept when the
-	// report is replaced, so the briefing can show how long it has waited.
+	Repositories []string `json:"repositories,omitempty" jsonschema:"pattern=^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"`
+	// Asked is when the request was first raised; report submit sets it and
+	// keeps it when the report is replaced, so the briefing can show how
+	// long it has waited. A date alone is read as midnight UTC.
 	Asked time.Time `json:"asked,omitzero"`
 }
 
@@ -142,16 +151,23 @@ func (r Report) Validate() error {
 	}
 	for _, b := range r.Blocked {
 		errs = append(errs, b.problems("blocked")...)
-		if !namePattern.MatchString(b.WaitingOn) {
-			errs = append(errs, fmt.Sprintf("blocked: waitingOn %q must be a role name or %q", b.WaitingOn, Operator))
+		if len(b.WaitingOn) == 0 {
+			errs = append(errs, "blocked: waitingOn needs a role or "+Operator)
+		}
+		for _, w := range b.WaitingOn {
+			if !namePattern.MatchString(w) {
+				errs = append(errs, fmt.Sprintf("blocked: waitingOn %q must be a role name or %q", w, Operator))
+			}
 		}
 		if b.Decision != "" && !ids[b.Decision] {
 			errs = append(errs, fmt.Sprintf("blocked: decision %q is not a decision request in this report", b.Decision))
 		}
+		errs = append(errs, credentialProblems("blocked", b.Credentials)...)
 	}
 	for _, a := range r.OperatorActions {
 		errs = append(errs, a.problems()...)
 	}
+	errs = append(errs, r.actionProblems()...)
 	for _, w := range r.InProgress {
 		errs = append(errs, w.problems()...)
 	}
@@ -175,14 +191,9 @@ func (it Item) problems(section string) []string {
 		errs = append(errs, section+": description is required")
 	}
 	errs = append(errs, refProblems(section, it.Refs, it.Repositories)...)
-	for _, c := range it.Commits {
-		errs = append(errs, gitProblems(section, c, "")...)
-	}
-	errs = append(errs, gitProblems(section, "", "", it.PullRequests...)...)
-	switch it.State {
-	case "", StateCommitted, StatePushed, StateReleased, StateDeployed:
-	default:
-		errs = append(errs, fmt.Sprintf("%s: state %q must be committed, pushed, released or deployed", section, it.State))
+	errs = append(errs, gitProblems(section, it.Commits, it.PullRequests)...)
+	if it.State != "" && !slices.Contains(ItemStates, it.State) {
+		errs = append(errs, fmt.Sprintf("%s: state %q must be uncommitted, committed, pushed, released or deployed", section, it.State))
 	}
 	return errs
 }
@@ -264,8 +275,10 @@ func ValidateReports(reports []Report, roles []Role) error {
 			errs = append(errs, fmt.Sprintf("report %s: role is retired", rep.Role))
 		}
 		for _, b := range rep.Blocked {
-			if _, ok := byName[b.WaitingOn]; !ok && b.WaitingOn != Operator {
-				errs = append(errs, fmt.Sprintf("report %s: waits on %q, which is not a role", rep.Role, b.WaitingOn))
+			for _, w := range b.WaitingOn {
+				if _, ok := byName[w]; !ok && w != Operator {
+					errs = append(errs, fmt.Sprintf("report %s: waits on %q, which is not a role", rep.Role, w))
+				}
 			}
 		}
 	}
@@ -273,4 +286,109 @@ func ValidateReports(reports []Report, roles []Role) error {
 		return fmt.Errorf("reports: %s", strings.Join(errs, "\n  "))
 	}
 	return nil
+}
+
+// actionProblems checks what links actions to each other and to the
+// report's decision requests: IDs are unique, After names actions in the
+// report without a cycle, and Decision and Option name a request and one
+// of its options.
+func (r Report) actionProblems() []string {
+	var errs []string
+	byID := map[string]Action{}
+	for _, a := range r.OperatorActions {
+		if a.ID == "" {
+			continue
+		}
+		if _, dup := byID[a.ID]; dup {
+			errs = append(errs, fmt.Sprintf("operatorActions: id %q listed twice", a.ID))
+		}
+		byID[a.ID] = a
+	}
+	requests := map[string]DecisionRequest{}
+	for _, d := range r.DecisionsNeeded {
+		requests[d.ID] = d
+	}
+	for _, a := range r.OperatorActions {
+		for _, dep := range a.After {
+			if _, ok := byID[dep]; !ok {
+				errs = append(errs, fmt.Sprintf("operatorActions: after %q is not an action id in this report", dep))
+			}
+		}
+		if a.Decision == "" {
+			continue
+		}
+		d, ok := requests[a.Decision]
+		if !ok {
+			errs = append(errs, fmt.Sprintf("operatorActions: decision %q is not a decision request in this report", a.Decision))
+			continue
+		}
+		if a.Option != "" && !slices.ContainsFunc(d.Options, func(o Option) bool { return o.Name == a.Option }) {
+			errs = append(errs, fmt.Sprintf("operatorActions: option %q is not an option of %s", a.Option, a.Decision))
+		}
+	}
+	if id := afterCycle(byID); id != "" {
+		errs = append(errs, fmt.Sprintf("operatorActions: %q waits on itself through after", id))
+	}
+	return errs
+}
+
+// afterCycle returns an action on a cycle of After links, or "".
+func afterCycle(byID map[string]Action) string {
+	const (
+		visiting = 1
+		done     = 2
+	)
+	state := map[string]int{}
+	var visit func(id string) bool
+	visit = func(id string) bool {
+		switch state[id] {
+		case visiting:
+			return true
+		case done:
+			return false
+		}
+		state[id] = visiting
+		for _, dep := range byID[id].After {
+			if _, ok := byID[dep]; ok && visit(dep) {
+				return true
+			}
+		}
+		state[id] = done
+		return false
+	}
+	ids := make([]string, 0, len(byID))
+	for id := range byID {
+		ids = append(ids, id)
+	}
+	slices.Sort(ids)
+	for _, id := range ids {
+		if visit(id) {
+			return id
+		}
+	}
+	return ""
+}
+
+// Normalize fills in what a role may abbreviate: a pull request given as
+// #<n> becomes its URL when the action or item names exactly one
+// repository. WriteReport normalizes before it validates.
+func (r *Report) Normalize() {
+	for i := range r.OperatorActions {
+		a := &r.OperatorActions[i]
+		expandPulls(a.PullRequests, a.Repository)
+	}
+	for _, items := range [][]Item{r.Done, r.Next} {
+		for i := range items {
+			items[i].normalize()
+		}
+	}
+	for i := range r.Blocked {
+		r.Blocked[i].normalize()
+	}
+}
+
+func (it *Item) normalize() {
+	if len(it.Repositories) == 1 {
+		expandPulls(it.PullRequests, it.Repositories[0])
+	}
 }

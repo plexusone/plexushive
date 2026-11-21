@@ -1,13 +1,19 @@
 package hive
 
-import "sort"
+import (
+	"slices"
+	"sort"
+	"strings"
+)
 
 // Briefing gathers every role's report into what the operator reads first:
 // actions to take, decisions to make, what is blocked, who is working where,
 // notices, then each role's status.
 type Briefing struct {
 	// Actions are the operator's steps, grouped by kind in ActionKinds
-	// order, then by role.
+	// order, then by role. The same step asked for by several roles is
+	// listed once. A step that applies under an option of a decision the
+	// operator chose against is left out.
 	Actions []RoleAction `json:"actions"`
 	// Decisions are the open decision requests, by role then ID.
 	Decisions []RoleDecision `json:"decisions"`
@@ -24,16 +30,23 @@ type Briefing struct {
 	Reports []Report `json:"reports"`
 	// Idle are the roles that reported they have nothing to do.
 	Idle []string `json:"idle"`
+	// Waiting are the roles whose only open work waits on the operator's
+	// answer to their decision requests.
+	Waiting []string `json:"waiting"`
 	// Missing are active roles that have not reported.
 	Missing []string `json:"missing"`
 	// Ignored are reports from roles that do not exist or are retired.
 	Ignored []string `json:"ignored"`
 }
 
-// RoleAction is an operator action and the role that asked for it.
+// RoleAction is an operator action and the roles that asked for it. Role
+// is the first of Roles. Condition, when set, is the open decision and
+// option the action applies under, as "<role>/<id> = <option>".
 type RoleAction struct {
-	Role   string `json:"role"`
-	Action Action `json:"action"`
+	Role      string   `json:"role"`
+	Roles     []string `json:"roles"`
+	Action    Action   `json:"action"`
+	Condition string   `json:"condition,omitempty"`
 }
 
 // RoleDecision is a decision request and the role that raised it. Key,
@@ -76,16 +89,17 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 	b := Briefing{
 		Actions: []RoleAction{}, Decisions: []RoleDecision{}, Answered: []RoleDecision{},
 		Blocked: []RoleBlocker{}, InProgress: []RepositoryWork{}, Notices: []RoleNotice{},
-		Reports: []Report{}, Idle: []string{}, Missing: []string{}, Ignored: []string{},
+		Reports: []Report{}, Idle: []string{}, Waiting: []string{}, Missing: []string{}, Ignored: []string{},
 	}
 	byName := map[string]Role{}
 	for _, r := range roles {
 		byName[r.Name] = r
 	}
-	decided := map[string]bool{}
+	decided := map[string]Decision{}
 	for _, d := range decisions {
-		decided[d.ID] = true
+		decided[d.ID] = d
 	}
+	actionAt := map[string]int{}
 	reported := map[string]bool{}
 	work := map[string][]RoleWork{}
 	for _, r := range reports {
@@ -98,12 +112,35 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 		if r.Idle {
 			b.Idle = append(b.Idle, r.Role)
 		}
+		if waitsOnlyOnDecisions(r, decided) {
+			b.Waiting = append(b.Waiting, r.Role)
+		}
 		for _, a := range r.OperatorActions {
-			b.Actions = append(b.Actions, RoleAction{Role: r.Role, Action: a})
+			condition := ""
+			if a.Decision != "" {
+				d, ok := decided[a.Decision]
+				switch {
+				case ok && d.Option != "" && a.Option != "" && d.Option != a.Option:
+					continue
+				case !ok && a.Option != "":
+					condition = r.Role + "/" + a.Decision + " = " + a.Option
+				}
+			}
+			key := actionKey(a)
+			if i, ok := actionAt[key]; ok && key != "" {
+				if !slices.Contains(b.Actions[i].Roles, r.Role) {
+					b.Actions[i].Roles = append(b.Actions[i].Roles, r.Role)
+				}
+				continue
+			}
+			if key != "" {
+				actionAt[key] = len(b.Actions)
+			}
+			b.Actions = append(b.Actions, RoleAction{Role: r.Role, Roles: []string{r.Role}, Action: a, Condition: condition})
 		}
 		for _, d := range r.DecisionsNeeded {
 			rd := RoleDecision{Key: r.Role + "/" + d.ID, Role: r.Role, Request: d}
-			if decided[d.ID] {
+			if _, ok := decided[d.ID]; ok {
 				b.Answered = append(b.Answered, rd)
 			} else {
 				b.Decisions = append(b.Decisions, rd)
@@ -137,7 +174,7 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 	sort.SliceStable(b.Decisions, byKey(b.Decisions))
 	sort.SliceStable(b.Answered, byKey(b.Answered))
 	sort.SliceStable(b.Blocked, func(i, j int) bool {
-		oi, oj := b.Blocked[i].Blocker.WaitingOn == Operator, b.Blocked[j].Blocker.WaitingOn == Operator
+		oi, oj := slices.Contains(b.Blocked[i].Blocker.WaitingOn, Operator), slices.Contains(b.Blocked[j].Blocker.WaitingOn, Operator)
 		if oi != oj {
 			return oi
 		}
@@ -164,7 +201,46 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 		}
 	}
 	sort.Strings(b.Idle)
+	sort.Strings(b.Waiting)
 	sort.Strings(b.Missing)
 	sort.Strings(b.Ignored)
 	return b
+}
+
+// actionKey identifies the same step asked for by several roles. A push
+// to the same repository and branch is one step, however each role wrote
+// the command, since one push sends every commit on the branch. Any other
+// action is the same step when its kind, repository, branch and command
+// match. Actions with neither are never merged.
+func actionKey(a Action) string {
+	if a.Kind == ActionPush && a.Repository != "" && a.Branch != "" {
+		return strings.Join([]string{string(a.Kind), a.Repository, a.Branch}, "\x00")
+	}
+	cmd := strings.Join(strings.Fields(a.Command), " ")
+	if cmd == "" {
+		return ""
+	}
+	return strings.Join([]string{string(a.Kind), a.Repository, a.Branch, cmd}, "\x00")
+}
+
+// waitsOnlyOnDecisions reports whether a role's only open work is waiting
+// for the operator's answers: it has an unanswered decision request, and no
+// action, work in progress or blocker that does not wait on one of its
+// requests.
+func waitsOnlyOnDecisions(r Report, decided map[string]Decision) bool {
+	if r.Idle || len(r.OperatorActions) > 0 || len(r.InProgress) > 0 {
+		return false
+	}
+	open := false
+	for _, d := range r.DecisionsNeeded {
+		if _, ok := decided[d.ID]; !ok {
+			open = true
+		}
+	}
+	for _, bl := range r.Blocked {
+		if bl.Decision == "" {
+			return false
+		}
+	}
+	return open
 }

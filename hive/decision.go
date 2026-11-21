@@ -30,6 +30,9 @@ type Decision struct {
 	Status DecisionStatus `json:"status" jsonschema:"enum=accepted,enum=superseded"`
 	// Decision is what was decided.
 	Decision string `json:"decision"`
+	// Option is the name of the option chosen, when the decision answers a
+	// decision request; actions that apply only under an option follow it.
+	Option string `json:"option,omitempty"`
 	// Reasons are why.
 	Reasons []string `json:"reasons"`
 	// Alternatives are the options considered and not taken.
