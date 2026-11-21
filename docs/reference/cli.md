@@ -118,6 +118,17 @@ stored the billing report
 |---|---|---|
 | `--reports` | `$HIVE_REPORTS`, else the per-user data directory | Where reports are stored |
 
+## report show
+
+Prints a role's stored report as JSON: the role given, else the session's
+role. Edit it and submit it again to change one part without retyping the
+rest.
+
+```bash
+plexushive -C my-hive report show > report.json   # edit, then:
+plexushive -C my-hive report submit report.json
+```
+
 ## brief
 
 Gathers every role's report into one briefing.

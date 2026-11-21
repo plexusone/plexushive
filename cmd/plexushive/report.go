@@ -94,7 +94,49 @@ func reportCmd(hiveDir, role *string) *cobra.Command {
 		},
 	}
 	reportsFlag(submit, &reports)
-	cmd.AddCommand(submit)
+	show := &cobra.Command{
+		Use:   "show [role]",
+		Short: "Print a role's stored report as JSON, to edit and submit again",
+		Long: "Prints the role's current report exactly as stored. The role is the\n" +
+			"argument, else --role, $" + hive.RoleEnv + " or the tmux session's. Edit\n" +
+			"the output and pass it to report submit to change one part without\n" +
+			"retyping the rest.",
+		Args: cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name := *role
+			if len(args) == 1 {
+				name = args[0]
+			}
+			name, _, err := hive.ResolveRole(name)
+			if err != nil {
+				return err
+			}
+			if name == "" {
+				return errors.New("plexushive: no role: pass one, or bind one with plexushive start <role>")
+			}
+			dir, err := resolveReports(reports)
+			if err != nil {
+				return err
+			}
+			rs, _, err := readReports(cmd, dir)
+			if err != nil {
+				return err
+			}
+			for _, r := range rs {
+				if r.Role == name {
+					out, err := json.MarshalIndent(r, "", "  ")
+					if err != nil {
+						return fmt.Errorf("plexushive: %w", err)
+					}
+					cmd.Println(string(out))
+					return nil
+				}
+			}
+			return fmt.Errorf("plexushive: %s has no readable report", name)
+		},
+	}
+	reportsFlag(show, &reports)
+	cmd.AddCommand(submit, show)
 	return cmd
 }
 

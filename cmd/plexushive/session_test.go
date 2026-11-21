@@ -160,3 +160,24 @@ func TestSubmitShortPullRequest(t *testing.T) {
 		t.Fatalf("stored %q", got)
 	}
 }
+
+func TestReportShow(t *testing.T) {
+	t.Setenv("TMUX", "")
+	t.Setenv(hive.RoleEnv, "")
+	reports := example + "/reports"
+	out, err := run(t, "-C", example, "report", "show", "website", "--reports", reports)
+	if err != nil || !strings.Contains(out, `"role": "website"`) || !strings.Contains(out, `"commits": [`) {
+		t.Fatalf("show: %v %q", err, out)
+	}
+	dir := t.TempDir()
+	out, err = runIn(t, out, "-C", example, "report", "submit", "--reports", dir)
+	if err != nil {
+		t.Fatalf("resubmitting the shown report: %v %s", err, out)
+	}
+	if _, err := run(t, "-C", example, "report", "show", "--reports", reports); err == nil || !strings.Contains(err.Error(), "no role") {
+		t.Fatalf("show without a role: %v", err)
+	}
+	if _, err := run(t, "-C", example, "--role", "billing", "report", "show", "--reports", dir); err == nil || !strings.Contains(err.Error(), "no readable report") {
+		t.Fatalf("show a missing report: %v", err)
+	}
+}
