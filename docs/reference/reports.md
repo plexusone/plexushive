@@ -112,7 +112,7 @@ An item has a `description` and optionally:
 | `commits` | Commit hashes |
 | `pullRequests` | Pull request URLs, or `#<n>` when the item names exactly one repository |
 | `state` | `uncommitted`, `committed`, `pushed`, `released` or `deployed` |
-| `versions` | The releases the work went out in |
+| `versions` | The releases the work went out in: `v1.2.0` when the item names one repository, else `<module>@<version>` |
 | `paths` | Files the work produced, relative to their repository |
 
 Finished work that is not yet pushed can stay in `inProgress` with its
@@ -136,7 +136,7 @@ from the operator.
 |---|---|
 | `kind` | `push`, `merge`, `tag`, `deploy`, `create-repository`, `configure`, `test`, `review` or `other` (required) |
 | `description` | What, in a sentence (required) |
-| `id` | Names the action, so other actions in the report can wait on it |
+| `id` | Names the action, so other actions in the report can wait on it; lowercase letters, digits, `-` and `.` |
 | `command` | The command to run |
 | `steps` | What to do by hand, in order, when one command will not do, such as setting a secret whose value must not appear in the report |
 | `after` | IDs of actions in the same report that must be done first, such as the push a tag needs |

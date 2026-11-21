@@ -6,6 +6,20 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.4.1",
+      "date": "2026-11-21",
+      "fixed": [
+        { "description": "`report submit` accepts a pull request given as `#<n>` when the item or action names exactly one repository; it validated before expanding, so the short form was always rejected", "commit": "81c34ce" }
+      ],
+      "changed": [
+        { "description": "Action IDs may contain dots, such as `deploy-v0.3.0`", "commit": "81c34ce" }
+      ],
+      "documentation": [
+        { "description": "`versions` on items use `<module>@<version>` when the item spans several repositories" },
+        { "description": "v0.4.1 release notes" }
+      ]
+    },
+    {
       "version": "v0.4.0",
       "date": "2026-11-21",
       "highlights": [
