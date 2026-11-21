@@ -23,7 +23,7 @@ func startCmd(hiveDir *string) *cobra.Command {
 			"how to report. Outside tmux it prints the export to use instead.",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := loadContext(*hiveDir, reports, args[0])
+			c, err := loadContext(cmd, *hiveDir, reports, args[0])
 			if err != nil {
 				return err
 			}
@@ -69,7 +69,7 @@ func contextCmd(hiveDir, role *string) *cobra.Command {
 			if name == "" {
 				return errors.New("plexushive: no role: pass one, or bind one with plexushive start <role>")
 			}
-			c, err := loadContext(*hiveDir, reports, name)
+			c, err := loadContext(cmd, *hiveDir, reports, name)
 			if err != nil {
 				return err
 			}
@@ -128,7 +128,7 @@ func sourceText(s hive.RoleSource) string {
 	}
 }
 
-func loadContext(hiveDir, reports, role string) (hive.Context, error) {
+func loadContext(cmd *cobra.Command, hiveDir, reports, role string) (hive.Context, error) {
 	h, err := hive.Load(hiveDir)
 	if err != nil {
 		return hive.Context{}, err
@@ -137,7 +137,7 @@ func loadContext(hiveDir, reports, role string) (hive.Context, error) {
 	if err != nil {
 		return hive.Context{}, err
 	}
-	rs, err := hive.LoadReports(dir)
+	rs, _, err := readReports(cmd, dir)
 	if err != nil {
 		return hive.Context{}, err
 	}

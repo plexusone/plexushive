@@ -29,6 +29,16 @@ func resolveReports(dir string) (string, error) {
 	return hive.ReportsDir()
 }
 
+// readReports reads the reports in dir, warning on standard error about
+// any it cannot decode instead of failing.
+func readReports(cmd *cobra.Command, dir string) ([]hive.Report, []hive.UnreadableReport, error) {
+	rs, bad, err := hive.ReadReports(dir)
+	for _, u := range bad {
+		cmd.PrintErrf("skipped an unreadable report: %s\n", u)
+	}
+	return rs, bad, err
+}
+
 func reportCmd(hiveDir, role *string) *cobra.Command {
 	cmd := &cobra.Command{Use: "report", Short: "Write status reports"}
 	var reports string
@@ -68,7 +78,9 @@ func reportCmd(hiveDir, role *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			prev, err := hive.LoadReports(dir)
+			// Earlier reports only supply when each request was first asked,
+			// so one this version cannot read is no reason to refuse.
+			prev, _, err := hive.ReadReports(dir)
 			if err != nil {
 				return err
 			}
@@ -162,11 +174,12 @@ func briefCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rs, err := hive.LoadReports(dir)
+			rs, bad, err := hive.ReadReports(dir)
 			if err != nil {
 				return err
 			}
 			b := hive.NewBriefing(h.Roles, h.Decisions, rs)
+			b.SetUnreadable(bad)
 			if asJSON {
 				out, err := json.MarshalIndent(b, "", "  ")
 				if err != nil {
@@ -259,6 +272,12 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	}
 	if len(b.Ignored) > 0 {
 		cmd.Printf("Ignored reports from unknown or retired roles: %s\n", strings.Join(b.Ignored, ", "))
+	}
+	if len(b.Unreadable) > 0 {
+		cmd.Printf("\nUnreadable reports (upgrade plexushive, or ask the role to resubmit)\n")
+		for _, u := range b.Unreadable {
+			cmd.Printf("  %s\n", u)
+		}
 	}
 }
 

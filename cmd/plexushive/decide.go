@@ -32,7 +32,7 @@ func decideCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rs, err := hive.LoadReports(dir)
+			rs, _, err := readReports(cmd, dir)
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func whoCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rs, err := hive.LoadReports(dir)
+			rs, _, err := readReports(cmd, dir)
 			if err != nil {
 				return err
 			}

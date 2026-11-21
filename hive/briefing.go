@@ -37,6 +37,9 @@ type Briefing struct {
 	Missing []string `json:"missing"`
 	// Ignored are reports from roles that do not exist or are retired.
 	Ignored []string `json:"ignored"`
+	// Unreadable are report files that could not be decoded; the caller
+	// sets them from ReadReports with SetUnreadable.
+	Unreadable []UnreadableReport `json:"unreadable"`
 }
 
 // RoleAction is an operator action and the roles that asked for it. Role
@@ -90,6 +93,7 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 		Actions: []RoleAction{}, Decisions: []RoleDecision{}, Answered: []RoleDecision{},
 		Blocked: []RoleBlocker{}, InProgress: []RepositoryWork{}, Notices: []RoleNotice{},
 		Reports: []Report{}, Idle: []string{}, Waiting: []string{}, Missing: []string{}, Ignored: []string{},
+		Unreadable: []UnreadableReport{},
 	}
 	byName := map[string]Role{}
 	for _, r := range roles {
@@ -243,4 +247,13 @@ func waitsOnlyOnDecisions(r Report, decided map[string]Decision) bool {
 		}
 	}
 	return open
+}
+
+// SetUnreadable records the reports ReadReports could not decode. Their
+// roles did report, so they are no longer listed as missing.
+func (b *Briefing) SetUnreadable(u []UnreadableReport) {
+	b.Unreadable = append([]UnreadableReport{}, u...)
+	b.Missing = slices.DeleteFunc(b.Missing, func(name string) bool {
+		return slices.ContainsFunc(u, func(x UnreadableReport) bool { return x.Role == name })
+	})
 }

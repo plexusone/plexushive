@@ -2,6 +2,8 @@ package hive
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -167,4 +169,36 @@ func findAction(b Briefing, kind ActionKind) *RoleAction {
 		}
 	}
 	return nil
+}
+
+func TestReadReportsSkipsUnreadable(t *testing.T) {
+	dir := t.TempDir()
+	good := linkedReport()
+	if err := WriteReport(dir, good); err != nil {
+		t.Fatal(err)
+	}
+	for name, body := range map[string]string{
+		"newer.json":    `{"role":"newer","generated":"2026-11-21T00:00:00Z","futureField":1}`,
+		"misnamed.json": `{"role":"other","generated":"2026-11-21T00:00:00Z"}`,
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	reports, bad, err := ReadReports(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(reports) != 1 || reports[0].Role != "a" || len(bad) != 2 {
+		t.Fatalf("reports %+v, unreadable %+v", reports, bad)
+	}
+	if bad[0].Role != "misnamed" || !strings.Contains(bad[1].String(), `newer.json: json: unknown field "futureField"`) {
+		t.Fatalf("unreadable: %+v", bad)
+	}
+	if _, err := LoadReports(dir); err == nil {
+		t.Fatal("LoadReports accepted an unreadable report")
+	}
+	if reports, bad, err := ReadReports(filepath.Join(dir, "absent")); err != nil || reports != nil || bad != nil {
+		t.Fatalf("absent dir: %v %v %v", reports, bad, err)
+	}
 }

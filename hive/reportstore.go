@@ -54,25 +54,53 @@ func WriteReport(dir string, r Report) error {
 	return nil
 }
 
-// LoadReports reads every <role>.json in dir. A directory that does not
-// exist yet holds no reports.
+// LoadReports reads every <role>.json in dir and fails on any report it
+// cannot read. A directory that does not exist yet holds no reports.
 func LoadReports(dir string) ([]Report, error) {
-	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
-		return nil, nil
+	reports, unreadable, err := ReadReports(dir)
+	if err != nil {
+		return nil, err
 	}
-	var out []Report
-	err := eachJSON(dir, func(stem string, data []byte) error {
+	if len(unreadable) > 0 {
+		return nil, fmt.Errorf("hive: %s", unreadable[0])
+	}
+	return reports, nil
+}
+
+// UnreadableReport is a report file that could not be decoded, such as one
+// written by a newer version with fields this version does not know.
+type UnreadableReport struct {
+	Role  string `json:"role"`
+	Error string `json:"error"`
+}
+
+func (u UnreadableReport) String() string {
+	return u.Role + ".json: " + u.Error
+}
+
+// ReadReports reads every <role>.json in dir. A report that cannot be
+// decoded is returned in unreadable rather than failing the rest, so one
+// role writing a newer format does not stop every other role from reading
+// the briefing. err is set only when the directory or a file cannot be
+// read at all.
+func ReadReports(dir string) (reports []Report, unreadable []UnreadableReport, err error) {
+	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
+		return nil, nil, nil
+	}
+	err = eachJSON(dir, func(stem string, data []byte) error {
 		var r Report
 		if err := decodeStrict(data, &r); err != nil {
-			return err
+			unreadable = append(unreadable, UnreadableReport{Role: stem, Error: err.Error()})
+			return nil
 		}
 		if r.Role != stem {
-			return fmt.Errorf("role %q does not match the file name", r.Role)
+			unreadable = append(unreadable, UnreadableReport{Role: stem, Error: fmt.Sprintf("role %q does not match the file name", r.Role)})
+			return nil
 		}
-		out = append(out, r)
+		reports = append(reports, r)
 		return nil
 	})
-	return out, err
+	return reports, unreadable, err
 }
 
 // Age is how long ago the report was generated, as of now.

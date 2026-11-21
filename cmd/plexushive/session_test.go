@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -110,5 +112,34 @@ func TestSubmitFillsTmux(t *testing.T) {
 	}
 	if len(reports) != 1 || reports[0].Role != "website" || reports[0].Session.Tmux != "web" || reports[0].Session.Agent != "website-1" {
 		t.Fatalf("stored: %+v", reports)
+	}
+}
+
+func TestUnreadableReport(t *testing.T) {
+	fixClock(t, time.Date(2026, 11, 21, 9, 0, 0, 0, time.UTC))
+	t.Setenv("TMUX", "")
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "website.json"), []byte(`{"role":"website","futureField":true}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	out, err := runIn(t, `{"role":"billing","summary":"s"}`, "-C", example, "report", "submit", "--reports", dir)
+	if err != nil {
+		t.Fatalf("submit beside an unreadable report: %v %s", err, out)
+	}
+	out, err = run(t, "-C", example, "brief", "--reports", dir)
+	if err != nil {
+		t.Fatalf("brief: %v", err)
+	}
+	for _, want := range []string{"billing        now", "Unreadable reports", `website.json: json: unknown field "futureField"`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("brief does not contain %q:\n%s", want, out)
+		}
+	}
+	if strings.Contains(out, "No report: website") {
+		t.Errorf("a role with an unreadable report is listed as missing:\n%s", out)
+	}
+	out, err = run(t, "-C", example, "who", "github.com/example/web", "--reports", dir)
+	if err != nil || !strings.Contains(out, "skipped an unreadable report: website.json") {
+		t.Fatalf("who: %v %q", err, out)
 	}
 }

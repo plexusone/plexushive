@@ -153,8 +153,9 @@ func TestBrief(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(bad, "x.json"), []byte(`{"role":"y"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := run(t, "-C", example, "brief", "--reports", bad); err == nil {
-		t.Error("want error for a misnamed report")
+	out, err = run(t, "-C", example, "brief", "--reports", bad)
+	if err != nil || !strings.Contains(out, `x.json: role "y" does not match the file name`) {
+		t.Errorf("misnamed report: %v\n%s", err, out)
 	}
 }
 
