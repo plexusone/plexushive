@@ -171,11 +171,11 @@ and dropped for any other. A blocker waiting on several parties reads
 with nothing to do and `decision` one whose only open work waits on its
 decision requests.
 
-Answered requests that are still in reports, active roles without a report
-and ignored reports from unknown or retired roles are listed when there
-are any. `--json` prints the same briefing as JSON (`actions`,
+Answered requests that are still in reports, active roles without a report,
+ignored reports from unknown or retired roles, and unreadable reports (such
+as one from a newer version) are listed when there are any. `--json` prints the same briefing as JSON (`actions`,
 `decisions`, `answered`, `blocked`, `inProgress`, `notices`, `reports`,
-`idle`, `waiting`, `missing`, `ignored`) for other programs; each action
+`idle`, `waiting`, `missing`, `ignored`, `unreadable`) for other programs; each action
 carries the `roles` that asked for it and any `condition`, each decision
 a `key` of `role/id`, and reports their `generated` time.
 `--reports` works as for `report submit`.

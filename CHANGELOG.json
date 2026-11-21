@@ -11,14 +11,16 @@
       "highlights": [
         { "description": "Operator actions express sequences: an action can wait on others, apply only under one option of an open decision, and carry manual steps and the credentials it needs" },
         { "description": "`plexushive start` binds a role to a tmux session and prints its context; every command then finds the role, even in an agent already running" },
-        { "description": "The briefing lists a step several roles ask for once" }
+        { "description": "The briefing lists a step several roles ask for once" },
+        { "description": "A report the reader cannot decode no longer stops the briefing; it is listed as unreadable" }
       ],
       "added": [
         { "description": "Actions carry `id`, `after`, `decision` and `option`, `steps`, `paths`, `credentials`, `ongoing` and `followUp`", "commit": "676fadb" },
         { "description": "An `uncommitted` state; work in progress carries a state and credentials, items carry versions, and blockers carry credentials", "commit": "676fadb" },
         { "description": "Decisions written by `Decide` record the `option` chosen", "commit": "676fadb" },
         { "description": "`ResolveRole`, `BindTmuxRole`, `TmuxSession` and `NewContext`", "commit": "9ccc371" },
-        { "description": "`start`, `context` and `whoami` commands and a `--role` flag", "commit": "29e6004" }
+        { "description": "`start`, `context` and `whoami` commands and a `--role` flag", "commit": "29e6004" },
+        { "description": "`ReadReports` and `Briefing.SetUnreadable`: a report that cannot be decoded, such as one from a newer version, is listed instead of failing the briefing", "commit": "1d971ff" }
       ],
       "changed": [
         { "description": "Repeatable values are lists: an action's `commits`, `pullRequests`, `versions` and `unblocks`, and a blocker's `waitingOn` and `unblocks`; reports written with single values still load", "commit": "676fadb" },

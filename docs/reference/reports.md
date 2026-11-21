@@ -180,6 +180,8 @@ Reports describe the sessions on one machine and change often, so they are
 kept out of the hive repository: in `$HIVE_REPORTS` when set, otherwise in
 `plexushive/reports` under the platform's per-user data directory. Each
 role's report is `<role>.json`, replaced atomically on each submit.
+A report the reader cannot decode, such as one written by a newer version,
+is listed in the briefing as unreadable rather than stopping it.
 
 ```bash
 plexushive -C my-hive report submit report.json   # or pipe the JSON to standard input
@@ -226,8 +228,9 @@ reports.
 dir, err := hive.ReportsDir()
 err = hive.WriteReport(dir, report)
 
-reports, err := hive.LoadReports(dir)
+reports, unreadable, err := hive.ReadReports(dir)   // LoadReports fails on any unreadable report
 b := hive.NewBriefing(h.Roles, h.Decisions, reports)
+b.SetUnreadable(unreadable)
 
 d, err := request.Decide("billing", "no-stacking", "Partners can wait a release.")
 err = hive.WriteDecision("my-hive", d)
