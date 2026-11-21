@@ -71,6 +71,7 @@ func reportCmd(hiveDir, role *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			r.Normalize()
 			if err := hive.ValidateReports([]hive.Report{r}, h.Roles); err != nil {
 				return err
 			}

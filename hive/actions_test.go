@@ -109,7 +109,11 @@ func TestActionLinks(t *testing.T) {
 		})
 	}
 	item := Item{Description: "x", Repositories: []string{"github.com/o/r"}, PullRequests: []string{"#4"}, State: StateUncommitted}
-	r = Report{Role: "a", Generated: time.Now(), Done: []Item{item}}
+	r = Report{Role: "a", Generated: time.Now(), Done: []Item{item},
+		OperatorActions: []Action{{ID: "deploy-v0.3.0", Kind: ActionDeploy, Description: "d", Repository: "github.com/o/r", PullRequests: []string{"#5"}}}}
+	if err := r.Validate(); err != nil {
+		t.Fatalf("#<n> with one repository, before normalizing: %v", err)
+	}
 	r.Normalize()
 	if r.Done[0].PullRequests[0] != "https://github.com/o/r/pull/4" || r.Validate() != nil {
 		t.Fatalf("item: %+v %v", r.Done[0], r.Validate())

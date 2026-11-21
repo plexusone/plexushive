@@ -64,7 +64,7 @@ var ItemStates = []ItemState{StateUncommitted, StateCommitted, StatePushed, Stat
 type Action struct {
 	// ID names the action within the report, so other actions can wait on
 	// it with After.
-	ID string `json:"id,omitempty" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
+	ID string `json:"id,omitempty" jsonschema:"pattern=^[a-z][a-z0-9.-]*$"`
 	// Kind groups the action with others like it.
 	Kind ActionKind `json:"kind" jsonschema:"enum=push,enum=merge,enum=tag,enum=deploy,enum=create-repository,enum=configure,enum=test,enum=review,enum=other"`
 	// Description says what, in a sentence.
@@ -76,7 +76,7 @@ type Action struct {
 	Steps []string `json:"steps,omitempty"`
 	// After lists the IDs of actions in the same report that must be done
 	// first, such as the push a tag needs.
-	After []string `json:"after,omitempty" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
+	After []string `json:"after,omitempty" jsonschema:"pattern=^[a-z][a-z0-9.-]*$"`
 	// Decision is the ID of a decision request in the same report; the
 	// action applies only if the operator chooses Option.
 	Decision string `json:"decision,omitempty"`
@@ -170,6 +170,7 @@ var (
 	pullRequestPattern = regexp.MustCompile(`^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+$`)
 	shortPullPattern   = regexp.MustCompile(`^#([0-9]+)$`)
 	commitPattern      = regexp.MustCompile(`^[0-9a-f]{7,40}$`)
+	actionIDPattern    = regexp.MustCompile(`^[a-z][a-z0-9.-]*$`)
 	credentialPattern  = regexp.MustCompile(`^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$`)
 )
 
@@ -185,8 +186,8 @@ func (a Action) problems() []string {
 	if strings.TrimSpace(a.Description) == "" {
 		errs = append(errs, "operatorActions: description is required")
 	}
-	if a.ID != "" && !namePattern.MatchString(a.ID) {
-		errs = append(errs, fmt.Sprintf("operatorActions: id %q must match %s", a.ID, namePattern))
+	if a.ID != "" && !actionIDPattern.MatchString(a.ID) {
+		errs = append(errs, fmt.Sprintf("operatorActions: id %q must match %s", a.ID, actionIDPattern))
 	}
 	if a.Option != "" && a.Decision == "" {
 		errs = append(errs, "operatorActions: option needs the decision it belongs to")
@@ -194,7 +195,7 @@ func (a Action) problems() []string {
 	if a.Repository != "" && !repositoryPattern.MatchString(a.Repository) {
 		errs = append(errs, fmt.Sprintf("operatorActions: repository %q must be github.com/<org>/<repo>", a.Repository))
 	}
-	errs = append(errs, gitProblems("operatorActions", a.Commits, a.PullRequests)...)
+	errs = append(errs, gitProblems("operatorActions", a.Commits, a.PullRequests, a.Repository)...)
 	errs = append(errs, credentialProblems("operatorActions", a.Credentials)...)
 	return append(errs, refProblems("operatorActions", a.Refs, nil)...)
 }
@@ -224,7 +225,9 @@ func (n Notice) problems() []string {
 	return append(errs, refProblems("notices", n.Refs, n.Repositories)...)
 }
 
-func gitProblems(context string, commits, prs []string) []string {
+// gitProblems checks commits and pull requests. repo is the one repository
+// a #<n> pull request expands to, or "" when there is none.
+func gitProblems(context string, commits, prs []string, repo string) []string {
 	var errs []string
 	for _, c := range commits {
 		if !commitPattern.MatchString(c) {
@@ -234,6 +237,7 @@ func gitProblems(context string, commits, prs []string) []string {
 	for _, p := range prs {
 		switch {
 		case pullRequestPattern.MatchString(p):
+		case shortPullPattern.MatchString(p) && repo != "":
 		case shortPullPattern.MatchString(p):
 			errs = append(errs, fmt.Sprintf("%s: pull request %q needs exactly one repository to expand it; give the full URL", context, p))
 		default:

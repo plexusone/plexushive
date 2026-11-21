@@ -143,3 +143,20 @@ func TestUnreadableReport(t *testing.T) {
 		t.Fatalf("who: %v %q", err, out)
 	}
 }
+
+func TestSubmitShortPullRequest(t *testing.T) {
+	fixClock(t, time.Date(2026, 11, 21, 9, 0, 0, 0, time.UTC))
+	t.Setenv("TMUX", "")
+	dir := t.TempDir()
+	in := `{"role":"billing","done":[{"description":"d","repositories":["github.com/example/billing"],"pullRequests":["#9"]}]}`
+	if out, err := runIn(t, in, "-C", example, "report", "submit", "--reports", dir); err != nil {
+		t.Fatalf("%v: %s", err, out)
+	}
+	reports, err := hive.LoadReports(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := reports[0].Done[0].PullRequests[0]; got != "https://github.com/example/billing/pull/9" {
+		t.Fatalf("stored %q", got)
+	}
+}

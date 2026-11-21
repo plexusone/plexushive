@@ -191,7 +191,11 @@ func (it Item) problems(section string) []string {
 		errs = append(errs, section+": description is required")
 	}
 	errs = append(errs, refProblems(section, it.Refs, it.Repositories)...)
-	errs = append(errs, gitProblems(section, it.Commits, it.PullRequests)...)
+	repo := ""
+	if len(it.Repositories) == 1 {
+		repo = it.Repositories[0]
+	}
+	errs = append(errs, gitProblems(section, it.Commits, it.PullRequests, repo)...)
 	if it.State != "" && !slices.Contains(ItemStates, it.State) {
 		errs = append(errs, fmt.Sprintf("%s: state %q must be uncommitted, committed, pushed, released or deployed", section, it.State))
 	}

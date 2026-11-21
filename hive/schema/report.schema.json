@@ -7,7 +7,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9-]*$"
+          "pattern": "^[a-z][a-z0-9.-]*$"
         },
         "kind": {
           "type": "string",
@@ -38,7 +38,7 @@
         "after": {
           "items": {
             "type": "string",
-            "pattern": "^[a-z][a-z0-9-]*$"
+            "pattern": "^[a-z][a-z0-9.-]*$"
           },
           "type": "array"
         },
