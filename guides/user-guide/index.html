@@ -934,6 +934,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1266,12 +1294,18 @@ the same time never edit the same file.</p>
 variable. Keep the binding out of the records, because sessions change:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">HIVE_ROLE</span><span class="o">=</span>billing<span class="w"> </span>claude<span class="w"> </span>--resume<span class="w"> </span>&lt;session&gt;
 </code></pre></div>
-<p>In tmux, set it on the session so every pane and restart inherits it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tmux<span class="w"> </span>set-environment<span class="w"> </span>-t<span class="w"> </span>&lt;session&gt;<span class="w"> </span>HIVE_ROLE<span class="w"> </span>billing
+<p>In tmux, bind it to the session once, from inside it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>start<span class="w"> </span>billing
 </code></pre></div>
-<p>A session hook can then read <code>HIVE_ROLE</code>, load the role with
-<code>hive.Load(dir)</code> and <code>(*Hive).Role(name)</code>, and give the agent its mission,
-autonomy and repositories at the start of each session.</p>
+<p><code>start</code> checks the role, sets <code>HIVE_ROLE</code> in the tmux session's
+environment and prints the role's context: mission, repositories, peers
+and how to reach them, the decisions that bind it, and how to report. Every
+<code>plexushive</code> command run in that session then finds the role, even in an
+agent that was already running, because it reads the binding back from
+tmux. <code>plexushive whoami</code> shows the role and where it was found.</p>
+<p>A hook that runs when a session starts, or after its context is
+compacted, can run <code>plexushive -C my-hive context</code> to give the agent the
+same context again.</p>
 <h2 id="5-record-a-decision">5. Record a decision<a class="headerlink" href="#5-record-a-decision" title="Permanent link">&para;</a></h2>
 <p>Write a decision when a choice will constrain later work, especially
 another agent's.</p>
@@ -1365,17 +1399,26 @@ the role and time are filled in:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>submit<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;'JSON'</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="s">{</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="s">  "summary": "Coupons are ready to release.",</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="s">  "operatorActions": [{"kind": "tag", "description": "Tag the coupon release.",</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="s">    "command": "git -C billing tag v1.4.0 &amp;&amp; git -C billing push origin v1.4.0", "irreversible": true}],</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="s">  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export"}],</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="s">  "done": [{"description": "Added coupon validation to checkout.", "state": "committed"}],</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="s">  "next": [{"description": "Release the coupon endpoint."}]</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="s">}</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="s">JSON</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="s">  "operatorActions": [</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="s">    {"id": "push", "kind": "push", "description": "Push the coupon release.",</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="s">      "command": "git -C billing push origin main", "repository": "github.com/example/billing", "branch": "main"},</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="s">    {"kind": "tag", "description": "Tag the coupon release.", "after": ["push"],</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="s">      "command": "git -C billing tag v1.4.0 &amp;&amp; git -C billing push origin v1.4.0", "versions": ["v1.4.0"], "irreversible": true}</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="s">  ],</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="s">  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export", "state": "committed"}],</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="s">  "done": [{"description": "Added coupon validation to checkout.", "state": "committed"}],</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="s">  "next": [{"description": "Release the coupon endpoint."}]</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="s">}</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="s">JSON</span>
 </code></pre></div>
 <p>Put routine steps that only you can take, such as pushes, tags and
-deploys, in <code>operatorActions</code>, with the exact command. Keep <code>blocked</code> for
-work that is really stuck. List the repositories and branches the agent is
+deploys, in <code>operatorActions</code>, with the exact command. Give an action an
+<code>id</code> when another waits on it with <code>after</code>, use <code>steps</code> instead of a
+command for work by hand such as setting a secret, and name the
+<code>credentials</code> it needs by their registry IDs, never their values. An
+action that applies only if you choose one option of an open decision
+names that <code>decision</code> and <code>option</code>. Keep <code>blocked</code> for work that is really
+stuck. List the repositories and branches the agent is
 working in under <code>inProgress</code>, so others see it before they start there;
 <code>plexushive who github.com/&lt;org&gt;/&lt;repo&gt;</code> shows them. A role with nothing to
 do sets <code>"idle": true</code> instead of reporting again and again.</p>
@@ -1428,6 +1471,14 @@ See <a href="../../reference/reports/">Status Reports</a> for every field.</p>
 <tr>
 <td><code>hive.NewBriefing</code></td>
 <td>Gather reports into actions, decisions, blockers, work in progress, notices and status</td>
+</tr>
+<tr>
+<td><code>hive.ResolveRole</code>, <code>hive.BindTmuxRole</code>, <code>hive.TmuxSession</code></td>
+<td>Find the session's role from a flag, <code>HIVE_ROLE</code> or tmux, and bind one</td>
+</tr>
+<tr>
+<td><code>hive.NewContext</code></td>
+<td>What a session needs to play its role</td>
 </tr>
 <tr>
 <td><code>(hive.DecisionRequest).Decide</code>, <code>hive.WriteDecision</code></td>

@@ -2,58 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://plexusone.github.io/plexushive/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/getting-started/installation/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/getting-started/quickstart/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/guides/user-guide/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/reference/cli/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/reference/decisions/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/reference/messages/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/reference/reports/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/reference/roles/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/reference/schemas/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/releases/changelog/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/releases/v0.1.0/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/releases/v0.2.0/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/plexushive/releases/v0.3.0/</loc>
-         <lastmod>2026-11-20</lastmod>
+         <lastmod>2026-11-21</lastmod>
+    </url>
+    <url>
+         <loc>https://plexusone.github.io/plexushive/releases/v0.4.0/</loc>
+         <lastmod>2026-11-21</lastmod>
     </url>
 </urlset>

@@ -664,6 +664,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#earlier-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Earlier reports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#in-go" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -890,6 +901,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1056,6 +1095,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#earlier-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Earlier reports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#in-go" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1108,47 +1158,68 @@ report into one briefing, in the order the operator acts on it:</p>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"generated"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-19T09:00:00Z"</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"tmux"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span><span class="w"> </span><span class="nt">"agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing-1"</span><span class="p">},</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coupons are in review; the refund export waits on the website."</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">"operatorActions"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tag"</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tag the coupon release."</span><span class="p">,</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"git -C billing tag v1.4.0 &amp;&amp; git -C billing push origin v1.4.0"</span><span class="p">,</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">"repository"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/billing"</span><span class="p">,</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.4.0"</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nt">"checks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://github.com/example/billing/actions/runs/1"</span><span class="p">],</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">"irreversible"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="p">}],</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nt">"inProgress"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refund export link on the account page."</span><span class="p">,</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nt">"repository"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/web"</span><span class="p">,</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nt">"branch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"refund-export"</span><span class="p">,</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">"worktree"</span><span class="p">:</span><span class="w"> </span><span class="s2">"web-refund"</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="p">}],</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nt">"done"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Added coupon validation to checkout."</span><span class="p">,</span><span class="w"> </span><span class="nt">"branch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coupons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"commits"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"9b1d7e2"</span><span class="p">],</span><span class="w"> </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"committed"</span><span class="p">}],</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span><span class="nt">"blocked"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refund export needs the account page link."</span><span class="p">,</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="nt">"waitingOn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"website"</span><span class="p">,</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="nt">"unblocks"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The refund report for finance."</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">  </span><span class="p">}],</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">  </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Release the coupon endpoint."</span><span class="p">}],</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="nt">"decisionsNeeded"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coupon-stacking"</span><span class="p">,</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow coupons to stack?"</span><span class="p">,</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">    </span><span class="nt">"situation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Two launch partners want their coupons to combine."</span><span class="p">,</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="nt">"evidence"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Both partners asked in writing."</span><span class="p">],</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nt">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-stacking"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Keep one coupon per order."</span><span class="p">,</span><span class="w"> </span><span class="nt">"costAndRisk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"May lose one partner's launch traffic."</span><span class="p">},</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stack-two"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow at most two coupons."</span><span class="p">,</span><span class="w"> </span><span class="nt">"costAndRisk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A day of work; discounts can reach 40%."</span><span class="p">}</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nt">"recommendation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-stacking"</span><span class="p">,</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nt">"approval"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A pricing change."</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">  </span><span class="p">}],</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">  </span><span class="nt">"notices"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Date parsing bug in a shared library"</span><span class="p">,</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Version 2.1 of the date library drops time zones; pin 2.0 until 2.2."</span><span class="p">,</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">    </span><span class="nt">"modules"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"example.com/dates"</span><span class="p">]</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">  </span><span class="p">}]</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="p">}</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coupons are ready to release; the refund export waits on the website."</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">"operatorActions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"push-coupons"</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"push"</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Push the coupon release."</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"git -C billing push origin main"</span><span class="p">,</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="nt">"repository"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/billing"</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="nt">"branch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main"</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nt">"commits"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"9b1d7e2"</span><span class="p">]</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tag-coupons"</span><span class="p">,</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">      </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tag"</span><span class="p">,</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tag the coupon release."</span><span class="p">,</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">      </span><span class="nt">"after"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"push-coupons"</span><span class="p">],</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"git -C billing tag v1.4.0 9b1d7e2 &amp;&amp; git -C billing push origin v1.4.0"</span><span class="p">,</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">      </span><span class="nt">"repository"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/billing"</span><span class="p">,</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">      </span><span class="nt">"versions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"v1.4.0"</span><span class="p">],</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">      </span><span class="nt">"checks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://github.com/example/billing/actions/runs/1"</span><span class="p">],</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">      </span><span class="nt">"irreversible"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">      </span><span class="nt">"followUp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Record the release in the changelog index."</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">      </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"configure"</span><span class="p">,</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Set the payment provider's webhook secret in production."</span><span class="p">,</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">      </span><span class="nt">"steps"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Copy the signing secret from the provider's webhook page."</span><span class="p">,</span><span class="w"> </span><span class="s2">"Store it as /billing/prod/WEBHOOK_SECRET."</span><span class="p">],</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">      </span><span class="nt">"credentials"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"billing/prod/WEBHOOK_SECRET"</span><span class="p">]</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span><span class="nt">"inProgress"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refund export link on the account page."</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nt">"repository"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/web"</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nt">"branch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"refund-export"</span><span class="p">,</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="nt">"worktree"</span><span class="p">:</span><span class="w"> </span><span class="s2">"web-refund"</span><span class="p">,</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"committed"</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">  </span><span class="p">}],</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">  </span><span class="nt">"done"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Added coupon validation to checkout."</span><span class="p">,</span><span class="w"> </span><span class="nt">"branch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main"</span><span class="p">,</span><span class="w"> </span><span class="nt">"commits"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"9b1d7e2"</span><span class="p">],</span><span class="w"> </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"committed"</span><span class="p">}],</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">  </span><span class="nt">"blocked"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refund export needs the account page link."</span><span class="p">,</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="nt">"waitingOn"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"website"</span><span class="p">],</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">    </span><span class="nt">"unblocks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"The refund report for finance."</span><span class="p">]</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">  </span><span class="p">}],</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">  </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Release the coupon endpoint."</span><span class="p">}],</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">  </span><span class="nt">"decisionsNeeded"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coupon-stacking"</span><span class="p">,</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow coupons to stack?"</span><span class="p">,</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">    </span><span class="nt">"situation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Two launch partners want their coupons to combine."</span><span class="p">,</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">    </span><span class="nt">"evidence"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Both partners asked in writing."</span><span class="p">],</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="w">    </span><span class="nt">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-stacking"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Keep one coupon per order."</span><span class="p">,</span><span class="w"> </span><span class="nt">"costAndRisk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"May lose one partner's launch traffic."</span><span class="p">},</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stack-two"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow at most two coupons."</span><span class="p">,</span><span class="w"> </span><span class="nt">"costAndRisk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A day of work; discounts can reach 40%."</span><span class="p">}</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">    </span><span class="nt">"recommendation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-stacking"</span><span class="p">,</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">    </span><span class="nt">"approval"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A pricing change."</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="w">  </span><span class="p">}],</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="w">  </span><span class="nt">"notices"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a><span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Date parsing bug in a shared library"</span><span class="p">,</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Version 2.1 of the date library drops time zones; pin 2.0 until 2.2."</span><span class="p">,</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="w">    </span><span class="nt">"modules"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"example.com/dates"</span><span class="p">]</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="w">  </span><span class="p">}]</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a><span class="p">}</span>
 </code></pre></div>
 <table>
 <thead>
@@ -1172,7 +1243,7 @@ report into one briefing, in the order the operator acts on it:</p>
 <tr>
 <td><code>session</code></td>
 <td>no</td>
-<td>How to reach the session: <code>tmux</code> name and <code>agent</code> name</td>
+<td>How to reach the session: <code>tmux</code> name and <code>agent</code> name; inside tmux, <code>report submit</code> fills <code>tmux</code></td>
 </tr>
 <tr>
 <td><code>summary</code></td>
@@ -1192,7 +1263,7 @@ report into one briefing, in the order the operator acts on it:</p>
 <tr>
 <td><code>inProgress</code></td>
 <td>no</td>
-<td>Work under way: <code>description</code>, <code>repository</code>, and optional <code>branch</code>, <code>worktree</code>, <code>base</code>, <code>refs</code></td>
+<td>Work under way: <code>description</code>, <code>repository</code>, and optional <code>branch</code>, <code>worktree</code>, <code>base</code>, <code>state</code> (<code>uncommitted</code>, <code>committed</code> or <code>pushed</code>), <code>credentials</code>, <code>refs</code></td>
 </tr>
 <tr>
 <td><code>done</code>, <code>next</code></td>
@@ -1202,7 +1273,7 @@ report into one briefing, in the order the operator acts on it:</p>
 <tr>
 <td><code>blocked</code></td>
 <td>no</td>
-<td>Items plus <code>waitingOn</code>, and optional <code>decision</code> and <code>unblocks</code></td>
+<td>Items plus <code>waitingOn</code>, and optional <code>decision</code>, <code>credentials</code> and <code>unblocks</code></td>
 </tr>
 <tr>
 <td><code>decisionsNeeded</code></td>
@@ -1244,11 +1315,15 @@ report into one briefing, in the order the operator acts on it:</p>
 </tr>
 <tr>
 <td><code>pullRequests</code></td>
-<td>Pull request URLs</td>
+<td>Pull request URLs, or <code>#&lt;n&gt;</code> when the item names exactly one repository</td>
 </tr>
 <tr>
 <td><code>state</code></td>
-<td><code>committed</code>, <code>pushed</code>, <code>released</code> or <code>deployed</code></td>
+<td><code>uncommitted</code>, <code>committed</code>, <code>pushed</code>, <code>released</code> or <code>deployed</code></td>
+</tr>
+<tr>
+<td><code>versions</code></td>
+<td>The releases the work went out in</td>
 </tr>
 <tr>
 <td><code>paths</code></td>
@@ -1256,8 +1331,12 @@ report into one briefing, in the order the operator acts on it:</p>
 </tr>
 </tbody>
 </table>
-<p>A blocker adds <code>waitingOn</code> (a role or <code>operator</code>), <code>decision</code> (the ID of a
-decision request in the same report whose answer unblocks it) and
+<p>Finished work that is not yet pushed can stay in <code>inProgress</code> with its
+<code>state</code>, instead of being listed twice.</p>
+<p>A blocker adds <code>waitingOn</code> (the roles, or <code>operator</code>, that must act, in
+order: a push that waits on another role's release and then on the
+operator's yes lists both), <code>decision</code> (the ID of a decision request in the
+same report whose answer unblocks it), <code>credentials</code> it waits on and
 <code>unblocks</code> (what else waits on it, including other roles' work).</p>
 <h2 id="operator-actions-and-blockers">Operator actions and blockers<a class="headerlink" href="#operator-actions-and-blockers" title="Permanent link">&para;</a></h2>
 <p>Use an operator action, not a blocker, when the work is ready and only
@@ -1282,12 +1361,40 @@ from the operator.</p>
 <td>What, in a sentence (required)</td>
 </tr>
 <tr>
+<td><code>id</code></td>
+<td>Names the action, so other actions in the report can wait on it</td>
+</tr>
+<tr>
 <td><code>command</code></td>
 <td>The command to run</td>
 </tr>
 <tr>
-<td><code>repository</code>, <code>branch</code>, <code>commit</code>, <code>pullRequest</code>, <code>version</code></td>
-<td>What it acts on</td>
+<td><code>steps</code></td>
+<td>What to do by hand, in order, when one command will not do, such as setting a secret whose value must not appear in the report</td>
+</tr>
+<tr>
+<td><code>after</code></td>
+<td>IDs of actions in the same report that must be done first, such as the push a tag needs</td>
+</tr>
+<tr>
+<td><code>decision</code>, <code>option</code></td>
+<td>A decision request in the same report and the option the action applies under; the briefing marks it until the operator decides, then keeps or drops it</td>
+</tr>
+<tr>
+<td><code>repository</code>, <code>branch</code></td>
+<td>Where it acts</td>
+</tr>
+<tr>
+<td><code>commits</code>, <code>pullRequests</code>, <code>versions</code></td>
+<td>What it acts on; a nested module's tag adds its own version on the same commit</td>
+</tr>
+<tr>
+<td><code>paths</code></td>
+<td>Files the operator works with, relative to the repository</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td>Credential registry IDs it creates, sets or needs; never values</td>
 </tr>
 <tr>
 <td><code>checks</code></td>
@@ -1296,6 +1403,14 @@ from the operator.</p>
 <tr>
 <td><code>irreversible</code></td>
 <td>It cannot be undone, such as a tag on a public Go module</td>
+</tr>
+<tr>
+<td><code>ongoing</code></td>
+<td>It is kept up rather than done once, such as a local webhook listener while a role tests</td>
+</tr>
+<tr>
+<td><code>followUp</code></td>
+<td>What the role does once the operator has acted, such as opening a pull request</td>
 </tr>
 <tr>
 <td><code>unblocks</code></td>
@@ -1307,6 +1422,9 @@ from the operator.</p>
 </tr>
 </tbody>
 </table>
+<p>The briefing lists a step once when several roles ask for it, naming them
+all: a push to the same repository and branch, or any action with the same
+kind, repository, branch and command.</p>
 <h2 id="decision-requests">Decision requests<a class="headerlink" href="#decision-requests" title="Permanent link">&para;</a></h2>
 <p>A decision request needs an <code>id</code> (which becomes the decision's ID once
 decided), a <code>title</code>, the <code>situation</code>, at least two <code>options</code>, each with a
@@ -1314,17 +1432,21 @@ decided), a <code>title</code>, the <code>situation</code>, at least two <code>o
 the options, and the <code>approval</code> the answer grants. <code>evidence</code>, <code>refs</code> and
 <code>repositories</code> are optional; an option can be marked <code>irreversible</code>.
 <code>asked</code> is when the request was first raised: <code>report submit</code> sets it and
-keeps it across later reports that carry the same request.</p>
+keeps it across later reports that carry the same request, so leave it out.
+A date alone is accepted.</p>
 <p>The operator answers with <code>plexushive decide &lt;role&gt;/&lt;id&gt; &lt;option&gt;</code>, which
 writes the decision to the log under the request's ID and prints the
 message to send the role. The role reads the decision and drops the
 request from its next report; until it does, the briefing lists the
-request as answered.</p>
+request as answered. A role whose only open work waits on its own requests
+shows as <code>decision</code> in the briefing's status, neither idle nor blocked.</p>
 <h2 id="where-reports-live">Where reports live<a class="headerlink" href="#where-reports-live" title="Permanent link">&para;</a></h2>
 <p>Reports describe the sessions on one machine and change often, so they are
 kept out of the hive repository: in <code>$HIVE_REPORTS</code> when set, otherwise in
 <code>plexushive/reports</code> under the platform's per-user data directory. Each
-role's report is <code>&lt;role&gt;.json</code>, replaced atomically on each submit.</p>
+role's report is <code>&lt;role&gt;.json</code>, replaced atomically on each submit.
+A report the reader cannot decode, such as one written by a newer version,
+is listed in the briefing as unreadable rather than stopping it.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>submit<span class="w"> </span>report.json<span class="w">   </span><span class="c1"># or pipe the JSON to standard input</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>brief<span class="w">                       </span><span class="c1"># read the briefing</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>brief<span class="w"> </span>--json<span class="w">                </span><span class="c1"># the same, for other programs</span>
@@ -1343,20 +1465,31 @@ against the roles:</p>
   <code>decision</code> names a request in the same report</li>
 <li>action kinds and item states are known values</li>
 <li>refs are <code>INIT-&lt;SLUG&gt;-NNN</code> or <code>RMI-&lt;SLUG&gt;-NNN</code>, repositories are
-  <code>github.com/&lt;org&gt;/&lt;repo&gt;</code>, commits are hexadecimal hashes and pull
-  requests are GitHub pull request URLs</li>
+  <code>github.com/&lt;org&gt;/&lt;repo&gt;</code>, commits are hexadecimal hashes, pull
+  requests are GitHub pull request URLs (<code>#&lt;n&gt;</code> is expanded when one
+  repository is named) and credentials are registry IDs such as
+  <code>app/prod/DB_URL</code>; the schema carries the same patterns</li>
+<li>action IDs are unique, <code>after</code> names actions in the report without a
+  cycle, and an action's <code>decision</code> and <code>option</code> name a request in the
+  report and one of its options</li>
 <li>decision request IDs are unique within the report, there are at least two
   complete options with distinct names, and the recommendation names one</li>
 </ul>
+<h2 id="earlier-reports">Earlier reports<a class="headerlink" href="#earlier-reports" title="Permanent link">&para;</a></h2>
+<p>Reports written for v0.3 still load: a single <code>commit</code>, <code>pullRequest</code> or
+<code>version</code> on an action joins its list, and a single <code>waitingOn</code> or
+<code>unblocks</code> string becomes a one-element list. Write the lists in new
+reports.</p>
 <h2 id="in-go">In Go<a class="headerlink" href="#in-go" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">dir</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">ReportsDir</span><span class="p">()</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">WriteReport</span><span class="p">(</span><span class="nx">dir</span><span class="p">,</span><span class="w"> </span><span class="nx">report</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nx">reports</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">LoadReports</span><span class="p">(</span><span class="nx">dir</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nx">reports</span><span class="p">,</span><span class="w"> </span><span class="nx">unreadable</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">ReadReports</span><span class="p">(</span><span class="nx">dir</span><span class="p">)</span><span class="w">   </span><span class="c1">// LoadReports fails on any unreadable report</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nx">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">NewBriefing</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nx">Roles</span><span class="p">,</span><span class="w"> </span><span class="nx">h</span><span class="p">.</span><span class="nx">Decisions</span><span class="p">,</span><span class="w"> </span><span class="nx">reports</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nx">d</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">Decide</span><span class="p">(</span><span class="s">"billing"</span><span class="p">,</span><span class="w"> </span><span class="s">"no-stacking"</span><span class="p">,</span><span class="w"> </span><span class="s">"Partners can wait a release."</span><span class="p">)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nx">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">WriteDecision</span><span class="p">(</span><span class="s">"my-hive"</span><span class="p">,</span><span class="w"> </span><span class="nx">d</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nx">b</span><span class="p">.</span><span class="nx">SetUnreadable</span><span class="p">(</span><span class="nx">unreadable</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nx">d</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">Decide</span><span class="p">(</span><span class="s">"billing"</span><span class="p">,</span><span class="w"> </span><span class="s">"no-stacking"</span><span class="p">,</span><span class="w"> </span><span class="s">"Partners can wait a release."</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nx">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">WriteDecision</span><span class="p">(</span><span class="s">"my-hive"</span><span class="p">,</span><span class="w"> </span><span class="nx">d</span><span class="p">)</span>
 </code></pre></div>
 
 
