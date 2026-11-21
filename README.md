@@ -57,6 +57,9 @@ plexushive -C path/to/hive roles github.com/example/web     # who works here, st
 plexushive -C path/to/hive brief                            # your actions, decisions, blockers, work in progress
 plexushive -C path/to/hive who github.com/example/web       # steward, work in progress, waiting actions
 plexushive -C path/to/hive decide billing/coupon-stacking no-stacking  # answer a decision request
+plexushive -C path/to/hive start billing                    # bind a role to this tmux session, print its context
+plexushive -C path/to/hive context                          # the session's context again, such as after compaction
+plexushive whoami                                           # the role this session plays
 plexushive schema role                                      # print a JSON Schema
 ```
 
@@ -91,11 +94,16 @@ A role says what one long-lived agent is for and where it works. It is
 durable; the session playing it is not. tmux names are kept short for
 interfaces that truncate them, and both they and harness session IDs change
 when a session is restarted, so no record names a session. A session
-declares its role with the environment variable `HIVE_ROLE`:
+declares its role with the environment variable `HIVE_ROLE`, or once for
+the whole tmux session with `plexushive start`:
 
 ```bash
 HIVE_ROLE=billing claude --resume <session>
+plexushive -C my-hive start billing    # inside the session's tmux; reaches agents already running
 ```
+
+Commands that need the role look for `--role`, then `HIVE_ROLE`, then the
+tmux session's environment.
 
 | Field | Required | Meaning |
 |---|---|---|
@@ -213,10 +221,14 @@ roles, and each role's status.
   "role": "billing",
   "generated": "2026-11-19T09:00:00Z",
   "summary": "Coupons are ready to release; the refund export waits on the website.",
-  "operatorActions": [{"kind": "tag", "description": "Tag the coupon release.",
-    "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0", "irreversible": true}],
-  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export"}],
-  "blocked": [{"description": "Refund export needs the account page link.", "waitingOn": "website"}],
+  "operatorActions": [
+    {"id": "push-coupons", "kind": "push", "description": "Push the coupon release.",
+      "command": "git -C billing push origin main", "repository": "github.com/example/billing", "branch": "main"},
+    {"kind": "tag", "description": "Tag the coupon release.", "after": ["push-coupons"],
+      "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0", "versions": ["v1.4.0"], "irreversible": true}
+  ],
+  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export", "state": "committed"}],
+  "blocked": [{"description": "Refund export needs the account page link.", "waitingOn": ["website"]}],
   "decisionsNeeded": [{
     "id": "coupon-stacking",
     "title": "Allow coupons to stack?",
@@ -232,11 +244,16 @@ roles, and each role's status.
 ```
 
 ```bash
-HIVE_ROLE=billing plexushive -C my-hive report submit report.json
+plexushive -C my-hive report submit report.json               # the role from --role, HIVE_ROLE or tmux
 plexushive -C my-hive brief                                   # or --json for other programs
 plexushive -C my-hive who github.com/example/web              # steward, work in progress, waiting actions
 plexushive -C my-hive decide billing/coupon-stacking no-stacking  # answer: writes the decision
 ```
+
+Actions can wait on each other (`after`), apply only under one option of a
+decision, carry manual `steps` and the `credentials` they need by registry
+ID, and say what the role does afterwards. The briefing lists a step
+several roles ask for once.
 
 A decision request names the situation, at least two options with their
 cost and risk, a recommendation and what a yes approves. `decide` writes

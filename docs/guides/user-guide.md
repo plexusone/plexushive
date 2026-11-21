@@ -85,15 +85,22 @@ variable. Keep the binding out of the records, because sessions change:
 HIVE_ROLE=billing claude --resume <session>
 ```
 
-In tmux, set it on the session so every pane and restart inherits it:
+In tmux, bind it to the session once, from inside it:
 
 ```bash
-tmux set-environment -t <session> HIVE_ROLE billing
+plexushive -C my-hive start billing
 ```
 
-A session hook can then read `HIVE_ROLE`, load the role with
-`hive.Load(dir)` and `(*Hive).Role(name)`, and give the agent its mission,
-autonomy and repositories at the start of each session.
+`start` checks the role, sets `HIVE_ROLE` in the tmux session's
+environment and prints the role's context: mission, repositories, peers
+and how to reach them, the decisions that bind it, and how to report. Every
+`plexushive` command run in that session then finds the role, even in an
+agent that was already running, because it reads the binding back from
+tmux. `plexushive whoami` shows the role and where it was found.
+
+A hook that runs when a session starts, or after its context is
+compacted, can run `plexushive -C my-hive context` to give the agent the
+same context again.
 
 ## 5. Record a decision
 
@@ -193,9 +200,13 @@ the role and time are filled in:
 plexushive -C my-hive report submit - <<'JSON'
 {
   "summary": "Coupons are ready to release.",
-  "operatorActions": [{"kind": "tag", "description": "Tag the coupon release.",
-    "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0", "irreversible": true}],
-  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export"}],
+  "operatorActions": [
+    {"id": "push", "kind": "push", "description": "Push the coupon release.",
+      "command": "git -C billing push origin main", "repository": "github.com/example/billing", "branch": "main"},
+    {"kind": "tag", "description": "Tag the coupon release.", "after": ["push"],
+      "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0", "versions": ["v1.4.0"], "irreversible": true}
+  ],
+  "inProgress": [{"description": "Refund export.", "repository": "github.com/example/web", "branch": "refund-export", "state": "committed"}],
   "done": [{"description": "Added coupon validation to checkout.", "state": "committed"}],
   "next": [{"description": "Release the coupon endpoint."}]
 }
@@ -203,8 +214,13 @@ JSON
 ```
 
 Put routine steps that only you can take, such as pushes, tags and
-deploys, in `operatorActions`, with the exact command. Keep `blocked` for
-work that is really stuck. List the repositories and branches the agent is
+deploys, in `operatorActions`, with the exact command. Give an action an
+`id` when another waits on it with `after`, use `steps` instead of a
+command for work by hand such as setting a secret, and name the
+`credentials` it needs by their registry IDs, never their values. An
+action that applies only if you choose one option of an open decision
+names that `decision` and `option`. Keep `blocked` for work that is really
+stuck. List the repositories and branches the agent is
 working in under `inProgress`, so others see it before they start there;
 `plexushive who github.com/<org>/<repo>` shows them. A role with nothing to
 do sets `"idle": true` instead of reporting again and again.
@@ -241,6 +257,8 @@ See [Status Reports](../reference/reports.md) for every field.
 | `hive.Steward(roles, repo)` | The steward's name, or `""` for common ground |
 | `hive.WriteReport`, `hive.LoadReports`, `hive.ReportsDir` | Store and read status reports |
 | `hive.NewBriefing` | Gather reports into actions, decisions, blockers, work in progress, notices and status |
+| `hive.ResolveRole`, `hive.BindTmuxRole`, `hive.TmuxSession` | Find the session's role from a flag, `HIVE_ROLE` or tmux, and bind one |
+| `hive.NewContext` | What a session needs to play its role |
 | `(hive.DecisionRequest).Decide`, `hive.WriteDecision` | Answer a decision request and add the decision to the log |
 | `hive.Format`, `hive.Parse` | Write and read message envelopes |
 | `hive.RoleSchema`, `hive.DecisionSchema`, `hive.ReportSchema` | Generate the JSON Schemas |

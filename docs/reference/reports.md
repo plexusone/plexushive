@@ -22,27 +22,48 @@ report into one briefing, in the order the operator acts on it:
   "role": "billing",
   "generated": "2026-11-19T09:00:00Z",
   "session": {"tmux": "billing", "agent": "billing-1"},
-  "summary": "Coupons are in review; the refund export waits on the website.",
-  "operatorActions": [{
-    "kind": "tag",
-    "description": "Tag the coupon release.",
-    "command": "git -C billing tag v1.4.0 && git -C billing push origin v1.4.0",
-    "repository": "github.com/example/billing",
-    "version": "v1.4.0",
-    "checks": ["https://github.com/example/billing/actions/runs/1"],
-    "irreversible": true
-  }],
+  "summary": "Coupons are ready to release; the refund export waits on the website.",
+  "operatorActions": [
+    {
+      "id": "push-coupons",
+      "kind": "push",
+      "description": "Push the coupon release.",
+      "command": "git -C billing push origin main",
+      "repository": "github.com/example/billing",
+      "branch": "main",
+      "commits": ["9b1d7e2"]
+    },
+    {
+      "id": "tag-coupons",
+      "kind": "tag",
+      "description": "Tag the coupon release.",
+      "after": ["push-coupons"],
+      "command": "git -C billing tag v1.4.0 9b1d7e2 && git -C billing push origin v1.4.0",
+      "repository": "github.com/example/billing",
+      "versions": ["v1.4.0"],
+      "checks": ["https://github.com/example/billing/actions/runs/1"],
+      "irreversible": true,
+      "followUp": "Record the release in the changelog index."
+    },
+    {
+      "kind": "configure",
+      "description": "Set the payment provider's webhook secret in production.",
+      "steps": ["Copy the signing secret from the provider's webhook page.", "Store it as /billing/prod/WEBHOOK_SECRET."],
+      "credentials": ["billing/prod/WEBHOOK_SECRET"]
+    }
+  ],
   "inProgress": [{
     "description": "Refund export link on the account page.",
     "repository": "github.com/example/web",
     "branch": "refund-export",
-    "worktree": "web-refund"
+    "worktree": "web-refund",
+    "state": "committed"
   }],
-  "done": [{"description": "Added coupon validation to checkout.", "branch": "coupons", "commits": ["9b1d7e2"], "state": "committed"}],
+  "done": [{"description": "Added coupon validation to checkout.", "branch": "main", "commits": ["9b1d7e2"], "state": "committed"}],
   "blocked": [{
     "description": "Refund export needs the account page link.",
-    "waitingOn": "website",
-    "unblocks": "The refund report for finance."
+    "waitingOn": ["website"],
+    "unblocks": ["The refund report for finance."]
   }],
   "next": [{"description": "Release the coupon endpoint."}],
   "decisionsNeeded": [{
@@ -69,13 +90,13 @@ report into one briefing, in the order the operator acts on it:
 |---|---|---|
 | `role` | yes | The reporting role; `report submit` fills it from `HIVE_ROLE` |
 | `generated` | yes | When it was written (RFC 3339); `report submit` fills it with the current time |
-| `session` | no | How to reach the session: `tmux` name and `agent` name |
+| `session` | no | How to reach the session: `tmux` name and `agent` name; inside tmux, `report submit` fills `tmux` |
 | `summary` | no | One or two sentences for the briefing |
 | `idle` | no | The role has nothing to do until it is given work |
 | `operatorActions` | no | Steps only the operator takes; see below |
-| `inProgress` | no | Work under way: `description`, `repository`, and optional `branch`, `worktree`, `base`, `refs` |
+| `inProgress` | no | Work under way: `description`, `repository`, and optional `branch`, `worktree`, `base`, `state` (`uncommitted`, `committed` or `pushed`), `credentials`, `refs` |
 | `done`, `next` | no | Items; see below |
-| `blocked` | no | Items plus `waitingOn`, and optional `decision` and `unblocks` |
+| `blocked` | no | Items plus `waitingOn`, and optional `decision`, `credentials` and `unblocks` |
 | `decisionsNeeded` | no | Decision requests; see below |
 | `notices` | no | `title`, `description`, and optional `repositories`, `modules`, `refs` |
 
@@ -89,12 +110,18 @@ An item has a `description` and optionally:
 | `repositories` | `github.com/<org>/<repo>` |
 | `branch` | The branch the work is on |
 | `commits` | Commit hashes |
-| `pullRequests` | Pull request URLs |
-| `state` | `committed`, `pushed`, `released` or `deployed` |
+| `pullRequests` | Pull request URLs, or `#<n>` when the item names exactly one repository |
+| `state` | `uncommitted`, `committed`, `pushed`, `released` or `deployed` |
+| `versions` | The releases the work went out in |
 | `paths` | Files the work produced, relative to their repository |
 
-A blocker adds `waitingOn` (a role or `operator`), `decision` (the ID of a
-decision request in the same report whose answer unblocks it) and
+Finished work that is not yet pushed can stay in `inProgress` with its
+`state`, instead of being listed twice.
+
+A blocker adds `waitingOn` (the roles, or `operator`, that must act, in
+order: a push that waits on another role's release and then on the
+operator's yes lists both), `decision` (the ID of a decision request in the
+same report whose answer unblocks it), `credentials` it waits on and
 `unblocks` (what else waits on it, including other roles' work).
 
 ## Operator actions and blockers
@@ -109,12 +136,25 @@ from the operator.
 |---|---|
 | `kind` | `push`, `merge`, `tag`, `deploy`, `create-repository`, `configure`, `test`, `review` or `other` (required) |
 | `description` | What, in a sentence (required) |
+| `id` | Names the action, so other actions in the report can wait on it |
 | `command` | The command to run |
-| `repository`, `branch`, `commit`, `pullRequest`, `version` | What it acts on |
+| `steps` | What to do by hand, in order, when one command will not do, such as setting a secret whose value must not appear in the report |
+| `after` | IDs of actions in the same report that must be done first, such as the push a tag needs |
+| `decision`, `option` | A decision request in the same report and the option the action applies under; the briefing marks it until the operator decides, then keeps or drops it |
+| `repository`, `branch` | Where it acts |
+| `commits`, `pullRequests`, `versions` | What it acts on; a nested module's tag adds its own version on the same commit |
+| `paths` | Files the operator works with, relative to the repository |
+| `credentials` | Credential registry IDs it creates, sets or needs; never values |
 | `checks` | Links to CI runs or other evidence it is ready |
 | `irreversible` | It cannot be undone, such as a tag on a public Go module |
+| `ongoing` | It is kept up rather than done once, such as a local webhook listener while a role tests |
+| `followUp` | What the role does once the operator has acted, such as opening a pull request |
 | `unblocks` | What waits on it |
 | `refs` | Initiatives and roadmap items |
+
+The briefing lists a step once when several roles ask for it, naming them
+all: a push to the same repository and branch, or any action with the same
+kind, repository, branch and command.
 
 ## Decision requests
 
@@ -124,13 +164,15 @@ decided), a `title`, the `situation`, at least two `options`, each with a
 the options, and the `approval` the answer grants. `evidence`, `refs` and
 `repositories` are optional; an option can be marked `irreversible`.
 `asked` is when the request was first raised: `report submit` sets it and
-keeps it across later reports that carry the same request.
+keeps it across later reports that carry the same request, so leave it out.
+A date alone is accepted.
 
 The operator answers with `plexushive decide <role>/<id> <option>`, which
 writes the decision to the log under the request's ID and prints the
 message to send the role. The role reads the decision and drops the
 request from its next report; until it does, the briefing lists the
-request as answered.
+request as answered. A role whose only open work waits on its own requests
+shows as `decision` in the briefing's status, neither idle nor blocked.
 
 ## Where reports live
 
@@ -161,10 +203,22 @@ against the roles:
   `decision` names a request in the same report
 - action kinds and item states are known values
 - refs are `INIT-<SLUG>-NNN` or `RMI-<SLUG>-NNN`, repositories are
-  `github.com/<org>/<repo>`, commits are hexadecimal hashes and pull
-  requests are GitHub pull request URLs
+  `github.com/<org>/<repo>`, commits are hexadecimal hashes, pull
+  requests are GitHub pull request URLs (`#<n>` is expanded when one
+  repository is named) and credentials are registry IDs such as
+  `app/prod/DB_URL`; the schema carries the same patterns
+- action IDs are unique, `after` names actions in the report without a
+  cycle, and an action's `decision` and `option` name a request in the
+  report and one of its options
 - decision request IDs are unique within the report, there are at least two
   complete options with distinct names, and the recommendation names one
+
+## Earlier reports
+
+Reports written for v0.3 still load: a single `commit`, `pullRequest` or
+`version` on an action joins its list, and a single `waitingOn` or
+`unblocks` string becomes a one-element list. Write the lists in new
+reports.
 
 ## In Go
 
