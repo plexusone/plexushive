@@ -162,7 +162,11 @@ A decision request needs an `id` (which becomes the decision's ID once
 decided), a `title`, the `situation`, at least two `options`, each with a
 `name`, `description` and `costAndRisk`, a `recommendation` naming one of
 the options, and the `approval` the answer grants. `evidence`, `refs` and
-`repositories` are optional; an option can be marked `irreversible`.
+`repositories` are optional; an option can be marked `irreversible`. Set
+`authorization` when the answer lets the work identity do what its
+autonomy does not allow, such as publishing a repository, deploying to
+production or spending: the briefing, `open` and `decide` then say to keep
+the answer as an approval with its audit trail.
 `asked` is when the request was first raised: `report submit` sets it and
 keeps it across later reports that carry the same request, so leave it out.
 A date alone is accepted.
