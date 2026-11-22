@@ -197,3 +197,30 @@ func TestVersion(t *testing.T) {
 		t.Fatalf("%v: %q", err, out)
 	}
 }
+
+func TestDecideAuthorization(t *testing.T) {
+	fixClock(t, time.Date(2026, 11, 22, 9, 0, 0, 0, time.UTC))
+	root := copyHive(t)
+	reports := t.TempDir()
+	report := `{"identity":"website","generated":"2026-11-22T08:00:00Z","decisionsNeeded":[{"id":"publish-web","title":"Make web public?",` +
+		`"situation":"s","approval":"Make the repository public.","recommendation":"publish","authorization":true,` +
+		`"options":[{"name":"publish","description":"d","costAndRisk":"c","irreversible":true},{"name":"keep","description":"d","costAndRisk":"c"}]}]}`
+	if err := os.WriteFile(filepath.Join(reports, "website.json"), []byte(report), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	out, err := run(t, "-C", root, "brief", "--reports", reports)
+	if err != nil || !strings.Contains(out, "authorization: keep the answer as an approval") {
+		t.Fatalf("brief: %v\n%s", err, out)
+	}
+	if _, err := run(t, "-C", root, "open", "sync", "--reports", reports); err != nil {
+		t.Fatal(err)
+	}
+	out, err = run(t, "-C", root, "open", "website", "--status", "open")
+	if err != nil || !strings.Contains(out, "recommends publish; authorization") {
+		t.Fatalf("open: %v\n%s", err, out)
+	}
+	out, err = run(t, "-C", root, "decide", "website/publish-web", "publish", "--reports", reports)
+	if err != nil || !strings.Contains(out, "keep it as an approval") {
+		t.Fatalf("decide: %v\n%s", err, out)
+	}
+}
