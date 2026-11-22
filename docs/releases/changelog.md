@@ -6,6 +6,7 @@ generated from `CHANGELOG.json`.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| [v0.6.0](v0.6.0.md) | 2026-11-22 | Open items: questions from reports and design records tracked until closed |
 | [v0.5.0](v0.5.0.md) | 2026-11-22 | Roles become work identities; old names still read; `report show` |
 | [v0.4.1](v0.4.1.md) | 2026-11-21 | `#<n>` pull requests on submit; dotted action IDs |
 | [v0.4.0](v0.4.0.md) | 2026-11-21 | Sequences of operator actions, session binding, unreadable reports skipped |

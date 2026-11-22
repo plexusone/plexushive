@@ -52,6 +52,7 @@ nav:
   - Reference:
       - Work identities: reference/identities.md
       - Decisions: reference/decisions.md
+      - Open Items: reference/open-items.md
       - Status Reports: reference/reports.md
       - Messages: reference/messages.md
       - CLI: reference/cli.md
@@ -59,6 +60,7 @@ nav:
   - API Reference: https://pkg.go.dev/github.com/plexusone/plexushive/hive
   - Releases:
       - Changelog: releases/changelog.md
+      - v0.6.0: releases/v0.6.0.md
       - v0.5.0: releases/v0.5.0.md
       - v0.4.1: releases/v0.4.1.md
       - v0.4.0: releases/v0.4.0.md

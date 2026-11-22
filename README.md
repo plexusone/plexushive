@@ -6,7 +6,7 @@
 [![Docs][docs-godoc-svg]][docs-godoc-url]
 [![Docs][docs-mkdoc-svg]][docs-mkdoc-url]
 [![License][license-svg]][license-url]
-![coverage](https://img.shields.io/badge/coverage-96.1%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-96.2%25-brightgreen)
 
  [go-ci-svg]: https://github.com/plexusone/plexushive/actions/workflows/go-ci.yaml/badge.svg?branch=main
  [go-ci-url]: https://github.com/plexusone/plexushive/actions/workflows/go-ci.yaml
@@ -37,6 +37,7 @@ directory of your own, usually a private repository:
 ```text
 identities/<name>.json  one file per work identity
 decisions/<id>.json     the append-only decision log
+open-items.json         every question waiting on the operator, until closed
 ```
 
 `hive/testdata/` is a small example. The [User Guide](docs/guides/user-guide.md)
@@ -60,6 +61,8 @@ plexushive -C path/to/hive decide billing/coupon-stacking no-stacking  # answer 
 plexushive -C path/to/hive start billing                    # bind a work identity to this tmux session, print its context
 plexushive -C path/to/hive context                          # the session's context again, such as after compaction
 plexushive whoami                                           # the work identity this session works under
+plexushive -C path/to/hive open                             # questions waiting on you, by status
+plexushive -C path/to/hive open sync                        # update them from reports and decisions
 plexushive schema identity                                  # print a JSON Schema
 ```
 
@@ -194,6 +197,27 @@ Rules:
 - **No duplication.** If a decision is already recorded in an ADR or a
   spec's PLAN, reference that initiative instead of restating it, unless
   agents outside that repository need to find it.
+
+## Open items
+
+`open-items.json` keeps every question waiting on the operator until it is
+decided or withdrawn: decision requests from reports, and open questions
+from design records such as ADRs, which no report carries. Each item has a
+key (`<identity>/<request id>`), its source, a status and the request:
+
+| Status | Meaning |
+|---|---|
+| `draft` | A question with no options yet, such as one copied from an ADR |
+| `open` | A complete decision request waiting on the operator |
+| `deferred` | Waits on something its note names |
+| `decided` | Answered by the decision it names |
+| `withdrawn` | Dropped by its work identity without a decision |
+
+`plexushive open` lists them by status and work identity, `decide` marks
+the item it answers, and `open sync` adds new requests from the reports,
+opens a draft once its work identity asks it with options, marks answered
+items and withdraws dropped ones. A design record can be accepted once
+none of its items are draft or open.
 
 ## Messages between agents
 

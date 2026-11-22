@@ -30,7 +30,8 @@ JSON files that every agent can read and tests can validate.
 ```text
 my-hive/
 ├── identities/<name>.json  one file per work identity
-└── decisions/<id>.json     the append-only decision log
+├── decisions/<id>.json     the append-only decision log
+└── open-items.json         questions waiting on the operator, until closed
 ```
 
 ```bash

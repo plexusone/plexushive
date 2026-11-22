@@ -246,21 +246,54 @@ plexushive -C my-hive decide billing/coupon-stacking no-stacking
 It writes the decision (step 5) and prints the message to send the work identity.
 See [Status Reports](../reference/reports.md) for every field.
 
+## 9. Track open items
+
+Decision requests leave the briefing once answered or dropped, and a design
+record's open questions are in no report. To keep everything still
+undecided in one list, copy each design record's open questions into
+`open-items.json` as drafts, then let the CLI keep the list current:
+
+```json
+{
+  "items": [
+    {
+      "key": "website/checkout-copy",
+      "identity": "website",
+      "source": {"kind": "adr", "repository": "github.com/example/web",
+        "path": "docs/adr/ADR-004-checkout.md", "document": "ADR-004"},
+      "status": "draft",
+      "request": {"id": "checkout-copy", "title": "Who writes the checkout wording, website or billing?"}
+    }
+  ]
+}
+```
+
+```bash
+plexushive -C my-hive open sync    # add new requests, open framed drafts, mark answers
+plexushive -C my-hive open         # what is still waiting, by status and work identity
+plexushive -C my-hive open website --all
+```
+
+The work identity frames a draft by asking a decision request with the same
+ID in its report; the next sync opens it. `decide` marks the item decided.
+See [Open Items](../reference/open-items.md).
+
 ## Library reference
 
 | Function | Purpose |
 |---|---|
-| `hive.Load(root)` | Read `identities/` and `decisions/` under root |
+| `hive.Load(root)` | Read `identities/`, `decisions/` and `open-items.json` under root |
 | `(*Hive).Validate()` | Check all records together |
-| `(*Hive).Work identity(name)` | Look up a work identity |
-| `hive.IdentitiesFor(work identities, repo)` | Work identities working in a repository, steward first |
-| `hive.Steward(work identities, repo)` | The steward's name, or `""` for common ground |
+| `(*Hive).Identity(name)` | Look up a work identity |
+| `hive.IdentitiesFor(identities, repo)` | Work identities working in a repository, steward first |
+| `hive.Steward(identities, repo)` | The steward's name, or `""` for common ground |
 | `hive.WriteReport`, `hive.LoadReports`, `hive.ReportsDir` | Store and read status reports |
 | `hive.NewBriefing` | Gather reports into actions, decisions, blockers, work in progress, notices and status |
 | `hive.ResolveIdentity`, `hive.BindTmuxIdentity`, `hive.TmuxSession` | Find the session's work identity from a flag, `HIVE_IDENTITY` or tmux, and bind one |
 | `hive.NewContext` | What a session needs to work under its work identity |
 | `(hive.DecisionRequest).Decide`, `hive.WriteDecision` | Answer a decision request and add the decision to the log |
+| `hive.LoadOpenItems`, `hive.WriteOpenItems`, `(*OpenItems).Sync`, `(*OpenItems).MarkDecided` | Read, write and update open items |
 | `hive.Format`, `hive.Parse` | Write and read message envelopes |
-| `hive.IdentitySchema`, `hive.DecisionSchema`, `hive.ReportSchema` | Generate the JSON Schemas |
+| `hive.IdentitySchema`, `hive.DecisionSchema`, `hive.ReportSchema`, `hive.OpenItemsSchema` | Generate the JSON Schemas |
 
 Full API documentation: [pkg.go.dev](https://pkg.go.dev/github.com/plexusone/plexushive/hive).

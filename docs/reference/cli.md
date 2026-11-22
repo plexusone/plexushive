@@ -221,21 +221,65 @@ Answers a decision request from a work identity's current report. The chosen opt
 becomes the decision and the others its alternatives; the request's
 situation and evidence become its reasons, after `--reason` when given.
 The decision is written to `decisions/<id>.json` under the request's ID,
+the item is marked decided in `open-items.json` when it is listed there,
 and the command prints the message to send the work identity. It never replaces an
 existing decision: a changed decision is a new one that supersedes it.
 
 ```text
 $ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason "Partners can wait a release."
 wrote decisions/coupon-stacking.json
+marked billing/coupon-stacking decided in open-items.json
 send to billing:
 [hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
 ```
 
 Commit the new decision with the rest of the hive directory.
 
+## open
+
+Lists [open items](open-items.md): open questions with their
+recommendation first, then drafts that still need options, then deferred
+ones. Give a work identity to list only its items.
+
+```text
+$ plexushive -C my-hive open
+Open, waiting on the operator (1)
+  billing/coupon-stacking
+      Allow coupons to stack?
+      recommends no-stacking; decide with website/checkout-copy
+
+Draft, waiting on its work identity for options (1)
+  website/checkout-copy  [ADR-004]
+      Who writes the checkout wording, website or billing?
+
+Deferred (1)
+  website/cookie-banner  [ADR-004]
+      Which cookie banner the checkout shows
+      note: Waits on the privacy review.
+```
+
+| Flag | Meaning |
+|---|---|
+| `--status` | Only these statuses, comma-separated or repeated |
+| `--all` | Include decided and withdrawn items |
+| `--json` | Print the items as JSON |
+
+## open sync
+
+Brings `open-items.json` up to date with the reports and the decision log
+and prints each change; `--dry-run` prints without writing. See
+[keeping the list current](open-items.md#keeping-the-list-current).
+
+```text
+$ plexushive -C my-hive open sync
+added      website/hero-image
+opened     website/checkout-copy
+withdrawn  billing/coupon-stacking
+```
+
 ## schema
 
-Prints the JSON Schema for a record type: `decision`, `report` or `identity`.
+Prints the JSON Schema for a record type: `decision`, `report`, `identity` or `open-items`.
 
 ```bash
 plexushive schema identity > identity.schema.json

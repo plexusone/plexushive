@@ -9,9 +9,11 @@ generated from them and committed under
 | Work identity | `https://github.com/plexusone/plexushive/hive/schema/identity.schema.json` |
 | Decision | `https://github.com/plexusone/plexushive/hive/schema/decision.schema.json` |
 | Report | `https://github.com/plexusone/plexushive/hive/schema/report.schema.json` |
+| Open items | `https://github.com/plexusone/plexushive/hive/schema/open-items.schema.json` |
 
-Print them with `plexushive schema decision|report|identity`, or generate them in Go
-with `hive.IdentitySchema()`, `hive.DecisionSchema()` and `hive.ReportSchema()`.
+Print them with `plexushive schema decision|report|identity|open-items`, or generate
+them in Go with `hive.IdentitySchema()`, `hive.DecisionSchema()`,
+`hive.ReportSchema()` and `hive.OpenItemsSchema()`.
 
 The schemas check each file's shape. Checks across files, such as one
 steward per pattern or supersede links agreeing, need `Hive.Validate`.

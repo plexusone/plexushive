@@ -6,6 +6,22 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.6.0",
+      "date": "2026-11-22",
+      "added": [
+        { "description": "Open items: `open-items.json` keeps every question waiting on the operator, from reports and from design records such as ADRs, with a status (draft, open, deferred, decided, withdrawn) until it is closed; `Load` reads it and `Validate` checks it against the work identities and the decision log", "commit": "d617cca" },
+        { "description": "`plexushive open` lists open items by status and work identity; `open sync` updates them from the reports and the decision log; `decide` marks the item it answers", "commit": "9268e4a" }
+      ],
+      "tests": [
+        { "description": "Open items, their sync and `decide` marking them", "commit": "b9e19f1" }
+      ],
+      "documentation": [
+        { "description": "Open items reference, CLI sections and a user guide step" },
+        { "description": "The user guide's library table names `Hive.Identity`, `IdentitiesFor` and `Steward` correctly" },
+        { "description": "v0.6.0 release notes" }
+      ]
+    },
+    {
       "version": "v0.5.0",
       "date": "2026-11-22",
       "breaking": [
