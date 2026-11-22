@@ -60,6 +60,8 @@ type IdentityDecision struct {
 	Key      string          `json:"key"`
 	Identity string          `json:"identity"`
 	Request  DecisionRequest `json:"request"`
+	// Option is the chosen option of an answered request, when known.
+	Option string `json:"option,omitempty"`
 }
 
 // IdentityBlocker is a blocker and the work identity it blocks.
@@ -91,6 +93,28 @@ type IdentityNotice struct {
 // NewBriefing builds a briefing from the identities, the decision log and the
 // current reports.
 func NewBriefing(identities []WorkIdentity, decisions []Decision, reports []Report) Briefing {
+	decided := map[string]Decision{}
+	for _, d := range decisions {
+		decided[d.ID] = d
+	}
+	return newBriefing(identities, func(_, id string) (string, bool) {
+		d, ok := decided[id]
+		return d.Option, ok
+	}, reports)
+}
+
+// NewHiveBriefing builds a briefing from the hive and the reports. A
+// request counts as answered when its open item has the operator's answer
+// or a decision with its ID binds its work identity.
+func NewHiveBriefing(h *Hive, reports []Report) Briefing {
+	return newBriefing(h.Identities, h.Answered, reports)
+}
+
+// answeredFunc returns the option chosen for a work identity's request,
+// and whether it has been answered.
+type answeredFunc func(identity, id string) (string, bool)
+
+func newBriefing(identities []WorkIdentity, answered answeredFunc, reports []Report) Briefing {
 	b := Briefing{
 		Actions: []IdentityAction{}, Decisions: []IdentityDecision{}, Answered: []IdentityDecision{},
 		Blocked: []IdentityBlocker{}, InProgress: []RepositoryWork{}, Notices: []IdentityNotice{},
@@ -100,10 +124,6 @@ func NewBriefing(identities []WorkIdentity, decisions []Decision, reports []Repo
 	byName := map[string]WorkIdentity{}
 	for _, r := range identities {
 		byName[r.Name] = r
-	}
-	decided := map[string]Decision{}
-	for _, d := range decisions {
-		decided[d.ID] = d
 	}
 	actionAt := map[string]int{}
 	reported := map[string]bool{}
@@ -118,15 +138,15 @@ func NewBriefing(identities []WorkIdentity, decisions []Decision, reports []Repo
 		if r.Idle {
 			b.Idle = append(b.Idle, r.Identity)
 		}
-		if waitsOnlyOnDecisions(r, decided) {
+		if waitsOnlyOnDecisions(r, answered) {
 			b.Waiting = append(b.Waiting, r.Identity)
 		}
 		for _, a := range r.OperatorActions {
 			condition := ""
 			if a.Decision != "" {
-				d, ok := decided[a.Decision]
+				option, ok := answered(r.Identity, a.Decision)
 				switch {
-				case ok && d.Option != "" && a.Option != "" && d.Option != a.Option:
+				case ok && option != "" && a.Option != "" && option != a.Option:
 					continue
 				case !ok && a.Option != "":
 					condition = r.Identity + "/" + a.Decision + " = " + a.Option
@@ -146,7 +166,8 @@ func NewBriefing(identities []WorkIdentity, decisions []Decision, reports []Repo
 		}
 		for _, d := range r.DecisionsNeeded {
 			rd := IdentityDecision{Key: r.Identity + "/" + d.ID, Identity: r.Identity, Request: d}
-			if _, ok := decided[d.ID]; ok {
+			if option, ok := answered(r.Identity, d.ID); ok {
+				rd.Option = option
 				b.Answered = append(b.Answered, rd)
 			} else {
 				b.Decisions = append(b.Decisions, rd)
@@ -233,13 +254,13 @@ func actionKey(a Action) string {
 // waiting for the operator's answers: it has an unanswered decision request,
 // and no action, work in progress or blocker that does not wait on one of its
 // requests.
-func waitsOnlyOnDecisions(r Report, decided map[string]Decision) bool {
+func waitsOnlyOnDecisions(r Report, answered answeredFunc) bool {
 	if r.Idle || len(r.OperatorActions) > 0 || len(r.InProgress) > 0 {
 		return false
 	}
 	open := false
 	for _, d := range r.DecisionsNeeded {
-		if _, ok := decided[d.ID]; !ok {
+		if _, ok := answered(r.Identity, d.ID); !ok {
 			open = true
 		}
 	}

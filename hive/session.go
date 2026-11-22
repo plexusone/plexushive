@@ -144,8 +144,12 @@ type Context struct {
 	Peers []Peer `json:"peers"`
 	// Report is the identity's current report, if it has one.
 	Report *Report `json:"report,omitempty"`
-	// Answered are the IDs of the report's decision requests that the
-	// decision log answers.
+	// Answers are the operator's answers to the report's requests, by
+	// request ID, when they are recorded on open items rather than in the
+	// decision log.
+	Answers map[string]Answer `json:"answers,omitempty"`
+	// Answered are the IDs of the report's decision requests the operator
+	// has answered, on an open item or in the decision log.
 	Answered []string `json:"answered"`
 }
 
@@ -166,9 +170,7 @@ func NewContext(h *Hive, reports []Report, identity string) (Context, error) {
 		return Context{}, fmt.Errorf("hive: work identity %q is retired", identity)
 	}
 	c := Context{Identity: r, Decisions: []Decision{}, Peers: []Peer{}, Answered: []string{}}
-	decided := map[string]bool{}
 	for _, d := range h.Decisions {
-		decided[d.ID] = true
 		if d.Status == DecisionAccepted && (len(d.Identities) == 0 || contains(d.Identities, identity)) {
 			c.Decisions = append(c.Decisions, d)
 		}
@@ -186,8 +188,14 @@ func NewContext(h *Hive, reports []Report, identity string) (Context, error) {
 	}
 	if c.Report != nil {
 		for _, d := range c.Report.DecisionsNeeded {
-			if decided[d.ID] {
+			if _, ok := h.Answered(identity, d.ID); ok {
 				c.Answered = append(c.Answered, d.ID)
+				if it, ok := h.Open.Item(identity + "/" + d.ID); ok && it.Answer != nil {
+					if c.Answers == nil {
+						c.Answers = map[string]Answer{}
+					}
+					c.Answers[d.ID] = *it.Answer
+				}
 			}
 		}
 	}

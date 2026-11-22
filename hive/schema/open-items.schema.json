@@ -3,6 +3,26 @@
   "$id": "https://github.com/plexusone/plexushive/hive/schema/open-items.schema.json",
   "$ref": "#/$defs/OpenItems",
   "$defs": {
+    "Answer": {
+      "properties": {
+        "option": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "answered": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "option",
+        "answered"
+      ]
+    },
     "DecisionRequest": {
       "properties": {
         "id": {
@@ -107,6 +127,7 @@
           "enum": [
             "draft",
             "open",
+            "answered",
             "deferred",
             "decided",
             "withdrawn"
@@ -114,6 +135,9 @@
         },
         "request": {
           "$ref": "#/$defs/DecisionRequest"
+        },
+        "answer": {
+          "$ref": "#/$defs/Answer"
         },
         "decision": {
           "type": "string"

@@ -26,9 +26,15 @@ const (
 	ItemDraft ItemStatus = "draft"
 	// ItemOpen has options and a recommendation and waits on the operator.
 	ItemOpen ItemStatus = "open"
+	// ItemAnswered is a question from a document that the operator has
+	// answered; it waits for its work identity to write the answer into
+	// the document, and is decided once the work identity drops the
+	// request from its report.
+	ItemAnswered ItemStatus = "answered"
 	// ItemDeferred waits on something its note names.
 	ItemDeferred ItemStatus = "deferred"
-	// ItemDecided is answered by the decision its Decision names.
+	// ItemDecided is answered: by the operator's Answer, by the decision its
+	// Decision names, or both.
 	ItemDecided ItemStatus = "decided"
 	// ItemWithdrawn was dropped by the work identity that raised it; its
 	// note says why.
@@ -36,7 +42,7 @@ const (
 )
 
 // ItemStatuses lists the statuses in the order they are shown.
-var ItemStatuses = []ItemStatus{ItemOpen, ItemDraft, ItemDeferred, ItemDecided, ItemWithdrawn}
+var ItemStatuses = []ItemStatus{ItemOpen, ItemAnswered, ItemDraft, ItemDeferred, ItemDecided, ItemWithdrawn}
 
 // Closed reports whether the item needs nothing more from the operator.
 func (s ItemStatus) Closed() bool {
@@ -66,6 +72,20 @@ type ItemSource struct {
 	Document   string     `json:"document,omitempty"`
 }
 
+// Answer is the operator's answer to an open item. Most answers are point
+// decisions that unblock work: the answer reaches the work identity, and
+// its lasting record is the result, such as a commit, a changelog entry or
+// an ADR. Only working rules for the agents also become decisions in the
+// log.
+type Answer struct {
+	// Option is the chosen option's name.
+	Option string `json:"option"`
+	// Reason is why, when the operator gave one.
+	Reason string `json:"reason,omitempty"`
+	// Answered is the date, as YYYY-MM-DD.
+	Answered string `json:"answered" jsonschema:"pattern=^[0-9]{4}-[0-9]{2}-[0-9]{2}$"`
+}
+
 // OpenItem is one question waiting on the operator, tracked until it is
 // decided or withdrawn. Request is in the decision request format; a draft
 // has only its ID and title until its work identity writes the options in
@@ -77,9 +97,12 @@ type OpenItem struct {
 	// frame it.
 	Identity string          `json:"identity" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
 	Source   ItemSource      `json:"source"`
-	Status   ItemStatus      `json:"status" jsonschema:"enum=draft,enum=open,enum=deferred,enum=decided,enum=withdrawn"`
+	Status   ItemStatus      `json:"status" jsonschema:"enum=draft,enum=open,enum=answered,enum=deferred,enum=decided,enum=withdrawn"`
 	Request  DecisionRequest `json:"request"`
-	// Decision is the ID of the decision that answers a decided item.
+	// Answer is the operator's answer to an answered or decided item.
+	Answer *Answer `json:"answer,omitempty"`
+	// Decision is the ID of the decision in the log that records the
+	// answer, when it was recorded as one.
 	Decision string `json:"decision,omitempty"`
 	// Related are the keys of items to decide together with this one.
 	Related []string `json:"related,omitempty"`
@@ -192,7 +215,7 @@ func (it OpenItem) problems(identities, decided map[string]bool, keys map[string
 		out = append(out, "request title is required")
 	}
 	if !slices.Contains(ItemStatuses, it.Status) {
-		out = append(out, fmt.Sprintf("status %q must be draft, open, deferred, decided or withdrawn", it.Status))
+		out = append(out, fmt.Sprintf("status %q must be draft, open, answered, deferred, decided or withdrawn", it.Status))
 	}
 	switch it.Source.Kind {
 	case SourceReport:
@@ -208,20 +231,41 @@ func (it OpenItem) problems(identities, decided map[string]bool, keys map[string
 			out = append(out, err.Error())
 		}
 	}
-	switch {
-	case it.Status == ItemDecided && it.Decision == "":
-		out = append(out, "a decided item names its decision")
-	case it.Status != ItemDecided && it.Decision != "":
-		out = append(out, "only a decided item names a decision")
-	case it.Decision != "" && !decided[it.Decision]:
-		out = append(out, fmt.Sprintf("decision %q does not exist", it.Decision))
-	}
+	out = append(out, it.answerProblems(decided)...)
 	if (it.Status == ItemDeferred || it.Status == ItemWithdrawn) && strings.TrimSpace(it.Note) == "" {
 		out = append(out, fmt.Sprintf("a %s item says why in its note", it.Status))
 	}
 	for _, r := range it.Related {
 		if keys[r] == 0 {
 			out = append(out, fmt.Sprintf("related %q is not listed", r))
+		}
+	}
+	return out
+}
+
+func (it OpenItem) answerProblems(decided map[string]bool) []string {
+	var out []string
+	answered := it.Status == ItemAnswered || it.Status == ItemDecided
+	switch {
+	case it.Status == ItemDecided && it.Answer == nil && it.Decision == "":
+		out = append(out, "a decided item has its answer or names its decision")
+	case it.Status == ItemAnswered && it.Answer == nil:
+		out = append(out, "an answered item has its answer")
+	case !answered && (it.Answer != nil || it.Decision != ""):
+		out = append(out, "only an answered or decided item has an answer or a decision")
+	}
+	if it.Status == ItemAnswered && it.Source.Kind == SourceReport {
+		out = append(out, "a question from a report is decided when answered, not answered")
+	}
+	if it.Decision != "" && !decided[it.Decision] {
+		out = append(out, fmt.Sprintf("decision %q does not exist", it.Decision))
+	}
+	if a := it.Answer; a != nil {
+		if _, err := time.Parse(time.DateOnly, a.Answered); err != nil {
+			out = append(out, fmt.Sprintf("answered %q must be YYYY-MM-DD", a.Answered))
+		}
+		if len(it.Request.Options) > 0 && !slices.ContainsFunc(it.Request.Options, func(o Option) bool { return o.Name == a.Option }) {
+			out = append(out, fmt.Sprintf("answer %q is not one of the request's options", a.Option))
 		}
 	}
 	return out
@@ -252,7 +296,9 @@ const WithdrawnNote = "Dropped from the report without a recorded decision."
 //     or withdrawn item whose work identity now asks it is opened; this is
 //     how a design record's question gets its options
 //   - an item answered by a decision with the same ID that binds its work
-//     identity becomes decided
+//     identity becomes decided, and so does an answered item once its work
+//     identity drops the request, having written the answer into the
+//     document
 //   - an open item raised in a report that its work identity has dropped,
 //     with no decision, becomes withdrawn
 //
@@ -273,7 +319,7 @@ func (o *OpenItems) Sync(reports []Report, decisions []Decision) SyncResult {
 				res.Added = append(res.Added, key)
 				continue
 			}
-			if it.Status == ItemDecided {
+			if it.Status == ItemDecided || it.Status == ItemAnswered {
 				continue
 			}
 			if it.Status != ItemOpen {
@@ -292,6 +338,13 @@ func (o *OpenItems) Sync(reports []Report, decisions []Decision) SyncResult {
 	for i := range o.Items {
 		it := &o.Items[i]
 		if it.Status.Closed() {
+			continue
+		}
+		if it.Status == ItemAnswered {
+			if reported[it.Identity] && !asked[it.Key] {
+				it.Status = ItemDecided
+				res.Decided = append(res.Decided, it.Key)
+			}
 			continue
 		}
 		if d, ok := answer(decisions, it); ok {
@@ -324,6 +377,36 @@ func requestsEqual(a, b DecisionRequest) bool {
 	return errA == nil && errB == nil && string(x) == string(y)
 }
 
+// Record records the operator's answer to the item with key and returns
+// the item. decision, when not empty, is the ID of the decision that also
+// records it in the log. A question from a report is then decided; one
+// from a document is answered until its work identity has written the
+// answer into it. An item not listed yet is added from req, which must be
+// its decision request.
+func (o *OpenItems) Record(identity string, req DecisionRequest, a Answer, decision string) (*OpenItem, error) {
+	key := identity + "/" + req.ID
+	it, ok := o.Item(key)
+	if !ok {
+		o.Items = append(o.Items, OpenItem{Key: key, Identity: identity, Source: ItemSource{Kind: SourceReport}, Status: ItemOpen, Request: req})
+		it = &o.Items[len(o.Items)-1]
+	}
+	switch it.Status {
+	case ItemDecided, ItemAnswered:
+		return nil, fmt.Errorf("hive: %s is already %s", key, it.Status)
+	case ItemWithdrawn:
+		return nil, fmt.Errorf("hive: %s was withdrawn by its work identity", key)
+	}
+	if len(req.Options) > 0 {
+		it.Request = req
+	}
+	it.Status = ItemDecided
+	if it.Source.Kind != SourceReport {
+		it.Status = ItemAnswered
+	}
+	it.Answer, it.Decision, it.Note = &a, decision, ""
+	return it, nil
+}
+
 // MarkDecided records that decision answers the item with key, if it is
 // listed and not already closed, and reports whether it changed anything.
 func (o *OpenItems) MarkDecided(key, decision string) bool {
@@ -333,4 +416,20 @@ func (o *OpenItems) MarkDecided(key, decision string) bool {
 	}
 	it.Status, it.Decision, it.Note = ItemDecided, decision, ""
 	return true
+}
+
+// Answered returns the option chosen for the work identity's request id,
+// from its open item's answer or else from a decision with the same ID that
+// binds it. The option is empty when a decision answers the request without
+// naming one.
+func (h *Hive) Answered(identity, id string) (string, bool) {
+	if it, ok := h.Open.Item(identity + "/" + id); ok && it.Answer != nil {
+		return it.Answer.Option, true
+	}
+	for _, d := range h.Decisions {
+		if d.ID == id && (len(d.Identities) == 0 || slices.Contains(d.Identities, identity)) {
+			return d.Option, true
+		}
+	}
+	return "", false
 }
