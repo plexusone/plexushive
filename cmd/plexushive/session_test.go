@@ -185,3 +185,21 @@ func TestReportShow(t *testing.T) {
 		t.Fatalf("show a missing report: %v", err)
 	}
 }
+
+func TestLegacyNames(t *testing.T) {
+	t.Setenv(hive.IdentityEnv, "")
+	t.Setenv(hive.LegacyIdentityEnv, "billing")
+	t.Setenv("TMUX", "")
+	out, err := run(t, "whoami")
+	if err != nil || !strings.Contains(out, "billing (from $HIVE_ROLE)") || !strings.Contains(out, "plexushive start billing") {
+		t.Fatalf("whoami with HIVE_ROLE: %v %q", err, out)
+	}
+	out, err = run(t, "--role", "website", "whoami")
+	if err != nil || !strings.Contains(out, "website (from --identity)") {
+		t.Fatalf("--role: %v %q", err, out)
+	}
+	out, err = run(t, "-C", example, "roles", "github.com/example/web")
+	if err != nil || !strings.Contains(out, "steward      website") {
+		t.Fatalf("roles alias: %v %q", err, out)
+	}
+}
