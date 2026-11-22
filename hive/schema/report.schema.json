@@ -244,6 +244,9 @@
         "approval": {
           "type": "string"
         },
+        "authorization": {
+          "type": "boolean"
+        },
         "refs": {
           "items": {
             "type": "string",

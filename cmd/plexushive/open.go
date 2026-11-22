@@ -119,6 +119,9 @@ func printOpenItems(cmd *cobra.Command, items []hive.OpenItem) {
 			if st == hive.ItemOpen && it.Request.Recommendation != "" {
 				details = append(details, "recommends "+it.Request.Recommendation)
 			}
+			if it.Request.Authorization {
+				details = append(details, "authorization")
+			}
 			if a := it.Answer; a != nil {
 				answer := "answered " + a.Option + " on " + a.Answered
 				if a.Reason != "" {

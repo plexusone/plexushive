@@ -260,6 +260,9 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 		}
 		cmd.Printf("  %s: %s\n", d.Key, d.Request.Title)
 		cmd.Printf("    recommends %s%s; approval: %s\n", d.Request.Recommendation, waited, d.Request.Approval)
+		if d.Request.Authorization {
+			cmd.Println("    authorization: keep the answer as an approval")
+		}
 	}
 	if len(b.Answered) > 0 {
 		cmd.Printf("\nAnswered, still in reports (%d)\n", len(b.Answered))

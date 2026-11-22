@@ -84,6 +84,9 @@ func decideCmd(hiveDir *string) *cobra.Command {
 			cmd.Printf("marked %s %s in %s\n", args[0], it.Status, hive.OpenItemsFile)
 			env := hive.Envelope{Type: hive.MessageStatus, From: hive.Operator}
 			cmd.Printf("send to %s:\n%s %s\n", identity, env.String(), answerMessage(it, record))
+			if req.Authorization {
+				cmd.Println("this answer authorizes the work identity to act beyond its autonomy: keep it as an approval")
+			}
 			return nil
 		},
 	}

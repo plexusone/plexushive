@@ -105,6 +105,11 @@ type DecisionRequest struct {
 	// Approval says what the operator's answer authorizes, such as a
 	// push, a spend or a change to another work identity's repository.
 	Approval string `json:"approval"`
+	// Authorization marks a request whose answer lets the work identity do
+	// what its autonomy does not allow, such as publishing a repository,
+	// deploying to production or spending. Such an answer is kept as an
+	// approval with an audit trail, not only as a point decision.
+	Authorization bool `json:"authorization,omitempty"`
 	// Refs are the initiatives and roadmap items it concerns.
 	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
 	// Repositories are the repositories it concerns.
