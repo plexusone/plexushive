@@ -36,7 +36,7 @@ func newRootCmd(out io.Writer) *cobra.Command {
 		panic(err) // the flag is defined on the line above
 	}
 	root.AddCommand(validateCmd(&dir), identitiesCmd(&dir), schemaCmd(), reportCmd(&dir, &identity), briefCmd(&dir),
-		decideCmd(&dir), whoCmd(&dir), startCmd(&dir), contextCmd(&dir, &identity), whoamiCmd(&identity))
+		decideCmd(&dir), whoCmd(&dir), startCmd(&dir), contextCmd(&dir, &identity), whoamiCmd(&identity), openCmd(&dir))
 	return root
 }
 

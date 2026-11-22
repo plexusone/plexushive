@@ -16,7 +16,8 @@ func decideCmd(hiveDir *string) *cobra.Command {
 		Use:   "decide <identity>/<id> <option>",
 		Short: "Answer a decision request and add the decision to the log",
 		Long: "Finds the request in the work identity's current report, writes the\n" +
-			"chosen option to decisions/<id>.json and prints the message to send it.\n" +
+			"chosen option to decisions/<id>.json, marks the item decided in\n" +
+			"open-items.json when it is listed, and prints the message to send.\n" +
 			"The decision is a new file to commit; it never replaces an existing one.",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -50,8 +51,15 @@ func decideCmd(hiveDir *string) *cobra.Command {
 			if err := hive.WriteDecision(*hiveDir, d); err != nil {
 				return err
 			}
-			env := hive.Envelope{Type: hive.MessageStatus, From: hive.Operator}
 			cmd.Printf("wrote decisions/%s.json\n", d.ID)
+			if h.Open.MarkDecided(args[0], d.ID) {
+				h.Open.Updated = now().Format("2006-01-02")
+				if err := hive.WriteOpenItems(*hiveDir, h.Open); err != nil {
+					return err
+				}
+				cmd.Printf("marked %s decided in %s\n", args[0], hive.OpenItemsFile)
+			}
+			env := hive.Envelope{Type: hive.MessageStatus, From: hive.Operator}
 			cmd.Printf("send to %s:\n%s decided %s: %s. Read decisions/%s.json and drop the request from your report.\n",
 				identity, env.String(), d.ID, args[1], d.ID)
 			return nil
