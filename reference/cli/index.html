@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -731,6 +731,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#report-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        report show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#brief" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1167,6 +1178,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#report-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        report show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#brief" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1291,7 +1313,7 @@ the <code>export</code> to use instead.</p>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>Report at handoffs: when work is ready for the operator, when blocked or
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>unblocked, when a decision is needed, when starting or stopping in a
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>repository, after the operator acts for you, and when another role&#39;s work
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>repository, after the operator acts for you, and when another role's work
 <a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>changes your plan. Before working in a repository another role stewards:
 <a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>  plexushive -C /path/to/my-hive who github.com/&lt;org&gt;/&lt;repo&gt;
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>Submit (plexushive schema report gives the format):
@@ -1354,46 +1376,53 @@ exist in the hive directory.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="report-show">report show<a class="headerlink" href="#report-show" title="Permanent link">&para;</a></h2>
+<p>Prints a role's stored report as JSON: the role given, else the session's
+role. Edit it and submit it again to change one part without retyping the
+rest.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>show<span class="w"> </span>&gt;<span class="w"> </span>report.json<span class="w">   </span><span class="c1"># edit, then:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>submit<span class="w"> </span>report.json
+</code></pre></div>
 <h2 id="brief">brief<a class="headerlink" href="#brief" title="Permanent link">&para;</a></h2>
 <p>Gathers every role's report into one briefing.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$ plexushive -C my-hive brief
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Your actions (3)
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  push
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    website        Push the launch page branch.
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>                   id: push-launch
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>                   $ git -C web push -u origin launch-page
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>                   then the role: Open the pull request.
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  tag
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    billing        Tag the coupon release. [irreversible]
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>                   versions: v1.4.0
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>                   $ git -C billing tag v1.4.0 &amp;&amp; git -C billing push origin v1.4.0
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  configure
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    website        Set the analytics key for the launch page.
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>                   after: push-launch
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>                   credentials: web/prod/ANALYTICS_KEY
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>                   1. Create a site key in the analytics console.
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>                   2. Store it as the ANALYTICS_KEY repository secret.
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>Decisions needed (1)
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>  billing/coupon-stacking: Allow coupons to stack?
-<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    recommends no-stacking, asked 26h ago; approval: A pricing change.
-<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>
-<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>Blocked (2)
-<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>  website        waiting on operator     The launch page needs final wording for the pricing banner.
-<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>  billing        waiting on website      Refund export needs the account page link.
-<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>                                         then: The refund report for finance.
-<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>
-<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>In progress (1)
-<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>  github.com/example/web  [more than one role]
-<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>    billing        refund-export            Refund export link on the account page.
-<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>    website        account-link (committed) Account page link.
-<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>
-<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>Notices (1)
-<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>  billing        Date parsing bug in a shared library
-<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>
-<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>Status (2)
-<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>  billing        2h       Coupons are in review; the refund export waits on the website.
-<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>  website        2h       Launch page is ready for review.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$ plexushive -C my-hive brief
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Your actions (3)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  push
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    website        Push the launch page branch.
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                   id: push-launch
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>                   $ git -C web push -u origin launch-page
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>                   then the role: Open the pull request.
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  tag
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    billing        Tag the coupon release. [irreversible]
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>                   versions: v1.4.0
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>                   $ git -C billing tag v1.4.0 &amp;&amp; git -C billing push origin v1.4.0
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>  configure
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    website        Set the analytics key for the launch page.
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>                   after: push-launch
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>                   credentials: web/prod/ANALYTICS_KEY
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>                   1. Create a site key in the analytics console.
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>                   2. Store it as the ANALYTICS_KEY repository secret.
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>Decisions needed (1)
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>  billing/coupon-stacking: Allow coupons to stack?
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    recommends no-stacking, asked 26h ago; approval: A pricing change.
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>Blocked (2)
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>  website        waiting on operator     The launch page needs final wording for the pricing banner.
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>  billing        waiting on website      Refund export needs the account page link.
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>                                         then: The refund report for finance.
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>In progress (1)
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>  github.com/example/web  [more than one role]
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>    billing        refund-export            Refund export link on the account page.
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>    website        account-link (committed) Account page link.
+<a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>
+<a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>Notices (1)
+<a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>  billing        Date parsing bug in a shared library
+<a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a>
+<a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>Status (2)
+<a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a>  billing        2h       Coupons are in review; the refund export waits on the website.
+<a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>  website        2h       Launch page is ready for review.
 </code></pre></div>
 <p>A step several roles ask for is listed once with all their names. An
 action that applies under an option of an open decision is marked <code>only if
@@ -1414,16 +1443,16 @@ a <code>key</code> of <code>role/id</code>, and reports their <code>generated</c
 <p>Shows who to talk to before changing a repository: its steward and
 contributors, with how to reach their sessions when their reports say, the
 work in progress there, and the operator actions waiting on it.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$ plexushive -C my-hive who github.com/example/web
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Roles
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  steward      website          agent website-1, tmux web
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  contributor  billing
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>In progress
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  billing          refund-export            Refund export link on the account page.
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  website          account-link (committed) Account page link.
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>Waiting on the operator
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  website          push       Push the launch page branch.
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  website          configure  Set the analytics key for the launch page.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$ plexushive -C my-hive who github.com/example/web
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Roles
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  steward      website          agent website-1, tmux web
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  contributor  billing
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>In progress
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  billing          refund-export            Refund export link on the account page.
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  website          account-link (committed) Account page link.
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>Waiting on the operator
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  website          push       Push the launch page branch.
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  website          configure  Set the analytics key for the launch page.
 </code></pre></div>
 <h2 id="decide">decide<a class="headerlink" href="#decide" title="Permanent link">&para;</a></h2>
 <p>Answers a decision request from a role's current report. The chosen option
@@ -1432,15 +1461,15 @@ situation and evidence become its reasons, after <code>--reason</code> when give
 The decision is written to <code>decisions/&lt;id&gt;.json</code> under the request's ID,
 and the command prints the message to send the role. It never replaces an
 existing decision: a changed decision is a new one that supersedes it.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason &quot;Partners can wait a release.&quot;
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>wrote decisions/coupon-stacking.json
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>send to billing:
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason "Partners can wait a release."
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>wrote decisions/coupon-stacking.json
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>send to billing:
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
 </code></pre></div>
 <p>Commit the new decision with the rest of the hive directory.</p>
 <h2 id="schema">schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
 <p>Prints the JSON Schema for a record type: <code>decision</code>, <code>report</code> or <code>role</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
 </code></pre></div>
 
 
@@ -1513,10 +1542,10 @@ existing decision: a changed decision is a new one that supersedes it.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
