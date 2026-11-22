@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Roles, decisions and messages for coordinating long-lived coding agents">
+        <meta name="description" content="Work identities, decisions and messages for coordinating long-lived coding agents">
       
       
       
@@ -493,14 +493,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../roles/" class="md-nav__link">
+      <a href="../identities/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Roles
+    Work identities
   
 
     
@@ -787,6 +787,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.4.1/" class="md-nav__link">
         
   
@@ -978,8 +1006,8 @@ generated from them and committed under
 </thead>
 <tbody>
 <tr>
-<td>Role</td>
-<td><code>https://github.com/plexusone/plexushive/hive/schema/role.schema.json</code></td>
+<td>Work identity</td>
+<td><code>https://github.com/plexusone/plexushive/hive/schema/identity.schema.json</code></td>
 </tr>
 <tr>
 <td>Decision</td>
@@ -991,8 +1019,8 @@ generated from them and committed under
 </tr>
 </tbody>
 </table>
-<p>Print them with <code>plexushive schema decision|report|role</code>, or generate them in Go
-with <code>hive.RoleSchema()</code>, <code>hive.DecisionSchema()</code> and <code>hive.ReportSchema()</code>.</p>
+<p>Print them with <code>plexushive schema decision|report|identity</code>, or generate them in Go
+with <code>hive.IdentitySchema()</code>, <code>hive.DecisionSchema()</code> and <code>hive.ReportSchema()</code>.</p>
 <p>The schemas check each file's shape. Checks across files, such as one
 steward per pattern or supersede links agreeing, need <code>Hive.Validate</code>.</p>
 <p>To regenerate the committed files after changing a type:</p>

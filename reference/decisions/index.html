@@ -6,14 +6,14 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Roles, decisions and messages for coordinating long-lived coding agents">
+        <meta name="description" content="Work identities, decisions and messages for coordinating long-lived coding agents">
       
       
       
         <link rel="canonical" href="https://plexusone.github.io/plexushive/reference/decisions/">
       
       
-        <link rel="prev" href="../roles/">
+        <link rel="prev" href="../identities/">
       
       
         <link rel="next" href="../reports/">
@@ -493,14 +493,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../roles/" class="md-nav__link">
+      <a href="../identities/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Roles
+    Work identities
   
 
     
@@ -846,6 +846,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.4.1/" class="md-nav__link">
         
   
@@ -1103,9 +1131,9 @@ work by another agent.</p>
 <td><code>INIT-…</code> and <code>RMI-…</code> IDs it belongs to or constrains</td>
 </tr>
 <tr>
-<td><code>roles</code></td>
+<td><code>identities</code></td>
 <td>no</td>
-<td>Roles it binds; empty means all</td>
+<td>Work identities it binds; empty means all</td>
 </tr>
 <tr>
 <td><code>repositories</code></td>
@@ -1134,14 +1162,14 @@ work by another agent.</p>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stewards-not-owners"</span><span class="p">,</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Repositories have stewards, not owners"</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"accepted"</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"decision"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Several roles may change a repository; at most one stewards it and settles conflicts."</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"decision"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Several work identities may change a repository; at most one stewards it and settles conflicts."</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">"reasons"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="s2">"Work crosses repositories, and one role per repository does not scale."</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="s2">"Work crosses repositories, and one work identity per repository does not scale."</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="p">],</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">"alternatives"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">{</span><span class="nt">"option"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One owning role per repository"</span><span class="p">,</span><span class="w"> </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Forces every cross-repository change through a message."</span><span class="p">}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">{</span><span class="nt">"option"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One owning work identity per repository"</span><span class="p">,</span><span class="w"> </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Forces every cross-repository change through a message."</span><span class="p">}</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">],</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"billing"</span><span class="p">,</span><span class="w"> </span><span class="s2">"website"</span><span class="p">],</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">"identities"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"billing"</span><span class="p">,</span><span class="w"> </span><span class="s2">"website"</span><span class="p">],</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">"repositories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"github.com/example/web"</span><span class="p">],</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">"supersedes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"one-steward-per-repository"</span><span class="p">]</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
@@ -1153,7 +1181,7 @@ work by another agent.</p>
 <li><code>title</code>, <code>decision</code> and at least one reason are present</li>
 <li>an accepted decision has no <code>supersededBy</code>; a superseded one has it</li>
 <li><code>refs</code> are <code>INIT-&lt;SLUG&gt;-NNN</code> or <code>RMI-&lt;SLUG&gt;-NNN</code>, and repositories are <code>github.com/&lt;org&gt;/&lt;repo&gt;</code></li>
-<li><code>roles</code> name existing roles</li>
+<li><code>identities</code> name existing work identities</li>
 <li><code>supersedes</code> and <code>supersededBy</code> agree on both sides</li>
 </ul>
 

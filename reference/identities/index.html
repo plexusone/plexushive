@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Roles, decisions and messages for coordinating long-lived coding agents">
+        <meta name="description" content="Work identities, decisions and messages for coordinating long-lived coding agents">
       
       
       
-        <link rel="canonical" href="https://plexusone.github.io/plexushive/reference/roles/">
+        <link rel="canonical" href="https://plexusone.github.io/plexushive/reference/identities/">
       
       
         <link rel="prev" href="../../guides/user-guide/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Roles - PlexusHive</title>
+        <title>Work identities - PlexusHive</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#roles" class="md-skip">
+        <a href="#work-identities" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Roles
+              Work identities
             
           </span>
         </div>
@@ -509,7 +509,7 @@
   <span class="md-ellipsis">
     
   
-    Roles
+    Work identities
   
 
     
@@ -527,7 +527,7 @@
   <span class="md-ellipsis">
     
   
-    Roles
+    Work identities
   
 
     
@@ -579,6 +579,17 @@
     <span class="md-ellipsis">
       
         Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#names-before-v050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Names before v0.5.0
       
     </span>
   </a>
@@ -857,6 +868,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.4.1/" class="md-nav__link">
         
   
@@ -1056,6 +1095,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#names-before-v050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Names before v0.5.0
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1076,14 +1126,18 @@
   
 
 
-<h1 id="roles">Roles<a class="headerlink" href="#roles" title="Permanent link">&para;</a></h1>
-<p>A role says what one long-lived agent is for and where it works. It is
-durable; the session playing it is not. tmux names are kept short for
+<h1 id="work-identities">Work identities<a class="headerlink" href="#work-identities" title="Permanent link">&para;</a></h1>
+<p>A work identity says what one long-lived agent is for and where it works. It is
+durable; the sessions working under it are not. tmux names are kept short for
 interfaces that truncate them, and both they and harness session IDs change
 when a session is restarted, so no record names a session. A session
-declares its role with the environment variable <code>HIVE_ROLE</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">HIVE_ROLE</span><span class="o">=</span>billing<span class="w"> </span>claude<span class="w"> </span>--resume<span class="w"> </span>&lt;session&gt;
+declares its work identity with the environment variable <code>HIVE_IDENTITY</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">HIVE_IDENTITY</span><span class="o">=</span>billing<span class="w"> </span>claude<span class="w"> </span>--resume<span class="w"> </span>&lt;session&gt;
 </code></pre></div>
+<p>A work identity is not a role. Role keeps its usual meaning in access
+control, a permission level such as <code>admin</code> or <code>viewer</code> that a principal
+holds; a work identity is a line of work, with a purpose and an address,
+that sessions take on.</p>
 <table>
 <thead>
 <tr>
@@ -1096,17 +1150,17 @@ declares its role with the environment variable <code>HIVE_ROLE</code>:</p>
 <tr>
 <td><code>name</code></td>
 <td>yes</td>
-<td>Stable, lowercase role name; also the file name, the value of <code>HIVE_ROLE</code> and the name others address it by</td>
+<td>Stable, lowercase work identity name; also the file name, the value of <code>HIVE_IDENTITY</code> and the name others address it by</td>
 </tr>
 <tr>
 <td><code>status</code></td>
 <td>yes</td>
-<td><code>draft</code> until the operator confirms it, then <code>active</code>; <code>retired</code> when no session plays it</td>
+<td><code>draft</code> until the operator confirms it, then <code>active</code>; <code>retired</code> when no session works under it</td>
 </tr>
 <tr>
 <td><code>mission</code></td>
 <td>yes</td>
-<td>What the role is responsible for, in a sentence or two</td>
+<td>What the work identity is responsible for, in a sentence or two</td>
 </tr>
 <tr>
 <td><code>autonomy</code></td>
@@ -1116,7 +1170,7 @@ declares its role with the environment variable <code>HIVE_ROLE</code>:</p>
 <tr>
 <td><code>repositories</code></td>
 <td>no</td>
-<td>Where the role works: <code>{"pattern": …, "affinity": …}</code> entries; see below</td>
+<td>Where the work identity works: <code>{"pattern": …, "affinity": …}</code> entries; see below</td>
 </tr>
 <tr>
 <td><code>initiatives</code></td>
@@ -1126,7 +1180,7 @@ declares its role with the environment variable <code>HIVE_ROLE</code>:</p>
 <tr>
 <td><code>peers</code></td>
 <td>no</td>
-<td>Roles it works with most</td>
+<td>Work identities it works with most</td>
 </tr>
 <tr>
 <td><code>notes</code></td>
@@ -1146,19 +1200,19 @@ declares its role with the environment variable <code>HIVE_ROLE</code>:</p>
   customers still need approval at every level.</li>
 </ul>
 <h2 id="repositories-stewards-not-owners">Repositories: stewards, not owners<a class="headerlink" href="#repositories-stewards-not-owners" title="Permanent link">&para;</a></h2>
-<p>Several roles may change the same repository. <code>pattern</code> is one repository,
+<p>Several work identities may change the same repository. <code>pattern</code> is one repository,
 <code>github.com/&lt;org&gt;/&lt;repo&gt;</code>, or a whole organization, <code>github.com/&lt;org&gt;/*</code>.
 <code>affinity</code> is:</p>
 <ul>
 <li><strong>steward</strong>: settles conflicting changes and reviews breaking ones. At
-  most one role stewards a pattern, and an exact repository outranks an
+  most one work identity stewards a pattern, and an exact repository outranks an
   organization pattern.</li>
-<li><strong>contributor</strong>: works there regularly.</li>
+<li><strong>collaborator</strong>: works there regularly.</li>
 </ul>
-<p>A repository no role lists is common ground. A role working in a repository
+<p>A repository no work identity lists is common ground. A work identity working in a repository
 it does not steward uses its own branch or worktree, and sends the steward a
-<code>request</code> only for breaking or cross-cutting changes. <code>RolesFor</code> and
-<code>Steward</code> answer who works in a repository, and <code>plexushive roles</code> prints
+<code>request</code> only for breaking or cross-cutting changes. <code>IdentitiesFor</code> and
+<code>Steward</code> answer who works in a repository, and <code>plexushive identities</code> prints
 the answer.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
@@ -1168,21 +1222,61 @@ the answer.</p>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">"autonomy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prepare"</span><span class="p">,</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">"repositories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">{</span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/billing"</span><span class="p">,</span><span class="w"> </span><span class="nt">"affinity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"steward"</span><span class="p">},</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/web"</span><span class="p">,</span><span class="w"> </span><span class="nt">"affinity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contributor"</span><span class="p">}</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/web"</span><span class="p">,</span><span class="w"> </span><span class="nt">"affinity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"collaborator"</span><span class="p">}</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">],</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">"initiatives"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"INIT-BILLING-001"</span><span class="p">],</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nt">"peers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"website"</span><span class="p">]</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
-<p><code>Role.Validate</code> checks one role; <code>ValidateRoles</code> checks the set:</p>
+<p><code>WorkIdentity.Validate</code> checks one work identity; <code>ValidateIdentities</code> checks the set:</p>
 <ul>
-<li>names are lowercase (<code>^[a-z][a-z0-9-]*$</code>) and unique, and each file is named after its role</li>
+<li>names are lowercase (<code>^[a-z][a-z0-9-]*$</code>) and unique, and each file is named after its work identity</li>
 <li><code>status</code> and <code>autonomy</code> take one of their listed values, and <code>mission</code> is not blank</li>
-<li>each pattern is <code>github.com/&lt;org&gt;/&lt;repo&gt;</code> or <code>github.com/&lt;org&gt;/*</code>, listed once per role</li>
-<li>peers name existing roles, and a role is not its own peer</li>
-<li>no pattern has two stewards among roles that are not retired</li>
+<li>each pattern is <code>github.com/&lt;org&gt;/&lt;repo&gt;</code> or <code>github.com/&lt;org&gt;/*</code>, listed once per work identity</li>
+<li>peers name existing work identities, and a work identity is not its own peer</li>
+<li>no pattern has two stewards among work identities that are not retired</li>
 </ul>
+<h2 id="names-before-v050">Names before v0.5.0<a class="headerlink" href="#names-before-v050" title="Permanent link">&para;</a></h2>
+<p>Work identities were called roles before v0.5.0. Reading still accepts the
+old names, so a hive and its sessions can move one at a time; everything
+written uses the new ones.</p>
+<table>
+<thead>
+<tr>
+<th>Before v0.5.0</th>
+<th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>roles/</code></td>
+<td><code>identities/</code> (a hive with both is refused)</td>
+</tr>
+<tr>
+<td><code>HIVE_ROLE</code></td>
+<td><code>HIVE_IDENTITY</code>, read first</td>
+</tr>
+<tr>
+<td><code>--role</code></td>
+<td><code>--identity</code></td>
+</tr>
+<tr>
+<td><code>plexushive roles</code></td>
+<td><code>plexushive identities</code></td>
+</tr>
+<tr>
+<td><code>"role"</code> in a report, <code>"roles"</code> in a decision</td>
+<td><code>"identity"</code>, <code>"identities"</code></td>
+</tr>
+<tr>
+<td><code>contributor</code> affinity</td>
+<td><code>collaborator</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>plexushive whoami</code> says when it found the old variable; run
+<code>plexushive start &lt;identity&gt;</code> again to bind the new one.</p>
 
 
 

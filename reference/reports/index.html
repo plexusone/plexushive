@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Roles, decisions and messages for coordinating long-lived coding agents">
+        <meta name="description" content="Work identities, decisions and messages for coordinating long-lived coding agents">
       
       
       
@@ -493,14 +493,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../roles/" class="md-nav__link">
+      <a href="../identities/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Roles
+    Work identities
   
 
     
@@ -901,6 +901,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.4.1/" class="md-nav__link">
         
   
@@ -1165,25 +1193,25 @@
 
 
 <h1 id="status-reports">Status Reports<a class="headerlink" href="#status-reports" title="Permanent link">&para;</a></h1>
-<p>Each role keeps one current status report. <code>plexushive brief</code> gathers every
+<p>Each work identity keeps one current status report. <code>plexushive brief</code> gathers every
 report into one briefing, in the order the operator acts on it:</p>
 <ol>
 <li><strong>Your actions</strong>: pushes, merges, tags, deploys and setup steps for work
    that is ready, grouped by kind, with the exact command</li>
-<li><strong>Decisions needed</strong>: open decision requests, keyed <code>role/id</code>, with how
+<li><strong>Decisions needed</strong>: open decision requests, keyed <code>identity/id</code>, with how
    long each has waited</li>
-<li><strong>Answered</strong>: requests the decision log already answers, which the role
+<li><strong>Answered</strong>: requests the decision log already answers, which the work identity
    should drop</li>
 <li><strong>Blocked</strong>: work that cannot move, those waiting on the operator first</li>
 <li><strong>In progress</strong>: who is working in which repository and branch;
-   repositories with more than one role are listed first and flagged</li>
-<li><strong>Notices</strong>: what one role told the others</li>
-<li><strong>Status</strong>: each role's summary, with the report's age or <code>idle</code></li>
-<li>Active roles that have not reported, and reports ignored because their
-   role does not exist or is retired</li>
+   repositories with more than one work identity are listed first and flagged</li>
+<li><strong>Notices</strong>: what one work identity told the others</li>
+<li><strong>Status</strong>: each work identity's summary, with the report's age or <code>idle</code></li>
+<li>Active work identities that have not reported, and reports ignored because their
+   work identity does not exist or is retired</li>
 </ol>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"identity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"generated"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-19T09:00:00Z"</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"tmux"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span><span class="w"> </span><span class="nt">"agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing-1"</span><span class="p">},</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coupons are ready to release; the refund export waits on the website."</span><span class="p">,</span>
@@ -1259,9 +1287,9 @@ report into one briefing, in the order the operator acts on it:</p>
 </thead>
 <tbody>
 <tr>
-<td><code>role</code></td>
+<td><code>identity</code></td>
 <td>yes</td>
-<td>The reporting role; <code>report submit</code> fills it from <code>HIVE_ROLE</code></td>
+<td>The reporting work identity; <code>report submit</code> fills it from <code>HIVE_IDENTITY</code></td>
 </tr>
 <tr>
 <td><code>generated</code></td>
@@ -1281,7 +1309,7 @@ report into one briefing, in the order the operator acts on it:</p>
 <tr>
 <td><code>idle</code></td>
 <td>no</td>
-<td>The role has nothing to do until it is given work</td>
+<td>The work identity has nothing to do until it is given work</td>
 </tr>
 <tr>
 <td><code>operatorActions</code></td>
@@ -1361,16 +1389,16 @@ report into one briefing, in the order the operator acts on it:</p>
 </table>
 <p>Finished work that is not yet pushed can stay in <code>inProgress</code> with its
 <code>state</code>, instead of being listed twice.</p>
-<p>A blocker adds <code>waitingOn</code> (the roles, or <code>operator</code>, that must act, in
-order: a push that waits on another role's release and then on the
+<p>A blocker adds <code>waitingOn</code> (the work identities, or <code>operator</code>, that must act, in
+order: a push that waits on another work identity's release and then on the
 operator's yes lists both), <code>decision</code> (the ID of a decision request in the
 same report whose answer unblocks it), <code>credentials</code> it waits on and
-<code>unblocks</code> (what else waits on it, including other roles' work).</p>
+<code>unblocks</code> (what else waits on it, including other work identities' work).</p>
 <h2 id="operator-actions-and-blockers">Operator actions and blockers<a class="headerlink" href="#operator-actions-and-blockers" title="Permanent link">&para;</a></h2>
 <p>Use an operator action, not a blocker, when the work is ready and only
 needs the operator's hands: a push, merge, tag, deploy, new repository,
 account or secret, a test only the operator can run, or a review. Use a
-blocker when something is genuinely stuck, on another role or on an answer
+blocker when something is genuinely stuck, on another work identity or on an answer
 from the operator.</p>
 <table>
 <thead>
@@ -1434,11 +1462,11 @@ from the operator.</p>
 </tr>
 <tr>
 <td><code>ongoing</code></td>
-<td>It is kept up rather than done once, such as a local webhook listener while a role tests</td>
+<td>It is kept up rather than done once, such as a local webhook listener while a work identity tests</td>
 </tr>
 <tr>
 <td><code>followUp</code></td>
-<td>What the role does once the operator has acted, such as opening a pull request</td>
+<td>What the work identity does once the operator has acted, such as opening a pull request</td>
 </tr>
 <tr>
 <td><code>unblocks</code></td>
@@ -1450,7 +1478,7 @@ from the operator.</p>
 </tr>
 </tbody>
 </table>
-<p>The briefing lists a step once when several roles ask for it, naming them
+<p>The briefing lists a step once when several work identities ask for it, naming them
 all: a push to the same repository and branch, or any action with the same
 kind, repository, branch and command.</p>
 <h2 id="decision-requests">Decision requests<a class="headerlink" href="#decision-requests" title="Permanent link">&para;</a></h2>
@@ -1462,17 +1490,17 @@ the options, and the <code>approval</code> the answer grants. <code>evidence</co
 <code>asked</code> is when the request was first raised: <code>report submit</code> sets it and
 keeps it across later reports that carry the same request, so leave it out.
 A date alone is accepted.</p>
-<p>The operator answers with <code>plexushive decide &lt;role&gt;/&lt;id&gt; &lt;option&gt;</code>, which
+<p>The operator answers with <code>plexushive decide &lt;identity&gt;/&lt;id&gt; &lt;option&gt;</code>, which
 writes the decision to the log under the request's ID and prints the
-message to send the role. The role reads the decision and drops the
+message to send the work identity. The work identity reads the decision and drops the
 request from its next report; until it does, the briefing lists the
-request as answered. A role whose only open work waits on its own requests
+request as answered. A work identity whose only open work waits on its own requests
 shows as <code>decision</code> in the briefing's status, neither idle nor blocked.</p>
 <h2 id="where-reports-live">Where reports live<a class="headerlink" href="#where-reports-live" title="Permanent link">&para;</a></h2>
 <p>Reports describe the sessions on one machine and change often, so they are
 kept out of the hive repository: in <code>$HIVE_REPORTS</code> when set, otherwise in
 <code>plexushive/reports</code> under the platform's per-user data directory. Each
-role's report is <code>&lt;role&gt;.json</code>, replaced atomically on each submit.
+work identity's report is <code>&lt;identity&gt;.json</code>, replaced atomically on each submit.
 A report the reader cannot decode, such as one written by a newer version,
 is listed in the briefing as unreadable rather than stopping it.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>submit<span class="w"> </span>report.json<span class="w">   </span><span class="c1"># or pipe the JSON to standard input</span>
@@ -1481,15 +1509,15 @@ is listed in the briefing as unreadable rather than stopping it.</p>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>who<span class="w"> </span>github.com/example/web<span class="w">  </span><span class="c1"># steward, work in progress, waiting actions</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>decide<span class="w"> </span>billing/coupon-stacking<span class="w"> </span>no-stacking
 </code></pre></div>
-<p>The name <code>operator</code> is reserved for <code>waitingOn</code>; no role may use it.</p>
+<p>The name <code>operator</code> is reserved for <code>waitingOn</code>; no work identity may use it.</p>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <p><code>Report.Validate</code> checks one report; <code>ValidateReports</code> checks reports
-against the roles:</p>
+against the work identities:</p>
 <ul>
-<li>the role exists, is not retired, and has at most one report</li>
+<li>the work identity exists, is not retired, and has at most one report</li>
 <li><code>generated</code> is set, and every item, action, work entry and notice has
   its required fields</li>
-<li><code>waitingOn</code> names an existing role or <code>operator</code>, and a blocker's
+<li><code>waitingOn</code> names an existing work identity or <code>operator</code>, and a blocker's
   <code>decision</code> names a request in the same report</li>
 <li>action kinds and item states are known values</li>
 <li>refs are <code>INIT-&lt;SLUG&gt;-NNN</code> or <code>RMI-&lt;SLUG&gt;-NNN</code>, repositories are
@@ -1513,7 +1541,7 @@ reports.</p>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">WriteReport</span><span class="p">(</span><span class="nx">dir</span><span class="p">,</span><span class="w"> </span><span class="nx">report</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nx">reports</span><span class="p">,</span><span class="w"> </span><span class="nx">unreadable</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">ReadReports</span><span class="p">(</span><span class="nx">dir</span><span class="p">)</span><span class="w">   </span><span class="c1">// LoadReports fails on any unreadable report</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nx">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">NewBriefing</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nx">Roles</span><span class="p">,</span><span class="w"> </span><span class="nx">h</span><span class="p">.</span><span class="nx">Decisions</span><span class="p">,</span><span class="w"> </span><span class="nx">reports</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nx">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hive</span><span class="p">.</span><span class="nx">NewBriefing</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nx">Work</span><span class="w"> </span><span class="nx">identities</span><span class="p">,</span><span class="w"> </span><span class="nx">h</span><span class="p">.</span><span class="nx">Decisions</span><span class="p">,</span><span class="w"> </span><span class="nx">reports</span><span class="p">)</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nx">b</span><span class="p">.</span><span class="nx">SetUnreadable</span><span class="p">(</span><span class="nx">unreadable</span><span class="p">)</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nx">d</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">Decide</span><span class="p">(</span><span class="s">"billing"</span><span class="p">,</span><span class="w"> </span><span class="s">"no-stacking"</span><span class="p">,</span><span class="w"> </span><span class="s">"Partners can wait a release."</span><span class="p">)</span>

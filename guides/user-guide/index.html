@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Roles, decisions and messages for coordinating long-lived coding agents">
+        <meta name="description" content="Work identities, decisions and messages for coordinating long-lived coding agents">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="prev" href="../../getting-started/quickstart/">
       
       
-        <link rel="next" href="../../reference/roles/">
+        <link rel="next" href="../../reference/identities/">
       
       
         
@@ -505,10 +505,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-write-a-role" class="md-nav__link">
+  <a href="#3-write-a-work-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Write a role
+        3. Write a work identity
       
     </span>
   </a>
@@ -516,10 +516,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-bind-a-session-to-its-role" class="md-nav__link">
+  <a href="#4-bind-a-session-to-its-work-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Bind a session to its role
+        4. Bind a session to its work identity
       
     </span>
   </a>
@@ -650,14 +650,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/roles/" class="md-nav__link">
+      <a href="../../reference/identities/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Roles
+    Work identities
   
 
     
@@ -934,6 +934,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.4.1/" class="md-nav__link">
         
   
@@ -1134,10 +1162,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-write-a-role" class="md-nav__link">
+  <a href="#3-write-a-work-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Write a role
+        3. Write a work identity
       
     </span>
   </a>
@@ -1145,10 +1173,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-bind-a-session-to-its-role" class="md-nav__link">
+  <a href="#4-bind-a-session-to-its-work-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Bind a session to its role
+        4. Bind a session to its work identity
       
     </span>
   </a>
@@ -1234,7 +1262,7 @@
 <p>PlexusHive keeps a written record of what each long-lived coding agent is
 for, where it works, and why things were decided, so the agents can
 coordinate without the operator relaying every message. This guide sets up
-a hive directory, writes roles and decisions, and wires validation into
+a hive directory, writes work identities and decisions, and wires validation into
 tests and agent sessions.</p>
 <h2 id="concepts">Concepts<a class="headerlink" href="#concepts" title="Permanent link">&para;</a></h2>
 <table>
@@ -1246,16 +1274,16 @@ tests and agent sessions.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>Role</strong></td>
+<td><strong>Work identity</strong></td>
 <td>What one agent is for: its mission, autonomy, the repositories it works in and its peers. Durable; outlives any session.</td>
 </tr>
 <tr>
 <td><strong>Session</strong></td>
-<td>The running agent (for example a terminal session) that plays a role. Renamed and restarted freely; no record names it.</td>
+<td>The running agent (for example a terminal session) that works under a work identity. Renamed and restarted freely; no record names it.</td>
 </tr>
 <tr>
 <td><strong>Steward</strong></td>
-<td>The one role that settles conflicting and breaking changes in a repository. Others may still work there.</td>
+<td>The one work identity that settles conflicting and breaking changes in a repository. Others may still work there.</td>
 </tr>
 <tr>
 <td><strong>Decision</strong></td>
@@ -1263,7 +1291,7 @@ tests and agent sessions.</p>
 </tr>
 <tr>
 <td><strong>Report</strong></td>
-<td>One role's current status: done, blocked, next, and decisions it needs. Kept on the machine, not in git.</td>
+<td>One work identity's current status: done, blocked, next, and decisions it needs. Kept on the machine, not in git.</td>
 </tr>
 <tr>
 <td><strong>Envelope</strong></td>
@@ -1278,16 +1306,16 @@ tests and agent sessions.</p>
 <p>Keep the records in a repository of your own. If they name private
 products or repositories, make it a private one.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>my-hive/
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── roles/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── identities/
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── billing.json
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   └── website.json
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>└── decisions/
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    └── stewards-not-owners.json
 </code></pre></div>
-<p>Each file holds one record and is named after it: <code>roles/billing.json</code>
-holds the role named <code>billing</code>. One record per file means agents writing at
+<p>Each file holds one record and is named after it: <code>identities/billing.json</code>
+holds the work identity named <code>billing</code>. One record per file means agents writing at
 the same time never edit the same file.</p>
-<h2 id="3-write-a-role">3. Write a role<a class="headerlink" href="#3-write-a-role" title="Permanent link">&para;</a></h2>
+<h2 id="3-write-a-work-identity">3. Write a work identity<a class="headerlink" href="#3-write-a-work-identity" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"draft"</span><span class="p">,</span>
@@ -1295,42 +1323,42 @@ the same time never edit the same file.</p>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">"autonomy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prepare"</span><span class="p">,</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">"repositories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="p">{</span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/billing"</span><span class="p">,</span><span class="w"> </span><span class="nt">"affinity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"steward"</span><span class="p">},</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/web"</span><span class="p">,</span><span class="w"> </span><span class="nt">"affinity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contributor"</span><span class="p">}</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"github.com/example/web"</span><span class="p">,</span><span class="w"> </span><span class="nt">"affinity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"collaborator"</span><span class="p">}</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="p">],</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">"peers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"website"</span><span class="p">]</span>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
 </code></pre></div>
 <ul>
-<li>Start a role as <code>draft</code>; set it to <code>active</code> once you confirm it.</li>
+<li>Start a work identity as <code>draft</code>; set it to <code>active</code> once you confirm it.</li>
 <li>Choose the lowest <code>autonomy</code> that lets the agent do its job:</li>
 <li><code>observe</code> reads, analyzes and reports, and changes nothing.</li>
 <li><code>prepare</code> also makes local changes for you to publish: branches,
     commits, release notes. It never pushes, tags, merges, deploys or sends.</li>
 <li><code>execute</code> also makes bounded, low-risk changes itself.</li>
 <li>A <code>pattern</code> is one repository, <code>github.com/&lt;org&gt;/&lt;repo&gt;</code>, or a whole
-  organization, <code>github.com/&lt;org&gt;/*</code>. At most one active role stewards a
+  organization, <code>github.com/&lt;org&gt;/*</code>. At most one active work identity stewards a
   pattern, and an exact repository outranks an organization pattern.</li>
-<li>A repository no role lists is common ground.</li>
+<li>A repository no work identity lists is common ground.</li>
 </ul>
-<p>See which roles work in a repository:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>roles<span class="w"> </span>github.com/example/web
+<p>See which work identities work in a repository:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>identities<span class="w"> </span>github.com/example/web
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>steward<span class="w">      </span>website<span class="w">              </span>repository
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>contributor<span class="w">  </span>billing<span class="w">              </span>repository
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>collaborator<span class="w"> </span>billing<span class="w">              </span>repository
 </code></pre></div>
-<h2 id="4-bind-a-session-to-its-role">4. Bind a session to its role<a class="headerlink" href="#4-bind-a-session-to-its-role" title="Permanent link">&para;</a></h2>
-<p>A session declares the role it plays with the <code>HIVE_ROLE</code> environment
+<h2 id="4-bind-a-session-to-its-work-identity">4. Bind a session to its work identity<a class="headerlink" href="#4-bind-a-session-to-its-work-identity" title="Permanent link">&para;</a></h2>
+<p>A session declares its work identity with the <code>HIVE_IDENTITY</code> environment
 variable. Keep the binding out of the records, because sessions change:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">HIVE_ROLE</span><span class="o">=</span>billing<span class="w"> </span>claude<span class="w"> </span>--resume<span class="w"> </span>&lt;session&gt;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">HIVE_IDENTITY</span><span class="o">=</span>billing<span class="w"> </span>claude<span class="w"> </span>--resume<span class="w"> </span>&lt;session&gt;
 </code></pre></div>
 <p>In tmux, bind it to the session once, from inside it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>start<span class="w"> </span>billing
 </code></pre></div>
-<p><code>start</code> checks the role, sets <code>HIVE_ROLE</code> in the tmux session's
-environment and prints the role's context: mission, repositories, peers
+<p><code>start</code> checks the work identity, sets <code>HIVE_IDENTITY</code> in the tmux session's
+environment and prints the work identity's context: mission, repositories, peers
 and how to reach them, the decisions that bind it, and how to report. Every
-<code>plexushive</code> command run in that session then finds the role, even in an
+<code>plexushive</code> command run in that session then finds the work identity, even in an
 agent that was already running, because it reads the binding back from
-tmux. <code>plexushive whoami</code> shows the role and where it was found.</p>
+tmux. <code>plexushive whoami</code> shows the work identity and where it was found.</p>
 <p>A hook that runs when a session starts, or after its context is
 compacted, can run <code>plexushive -C my-hive context</code> to give the agent the
 same context again.</p>
@@ -1341,10 +1369,10 @@ another agent's.</p>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stewards-not-owners"</span><span class="p">,</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Repositories have stewards, not owners"</span><span class="p">,</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"accepted"</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">"decision"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Several roles may change a repository; at most one stewards it."</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">"reasons"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Work crosses repositories, and one role per repository does not scale."</span><span class="p">],</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">"decision"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Several work identities may change a repository; at most one stewards it."</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">"reasons"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Work crosses repositories, and one work identity per repository does not scale."</span><span class="p">],</span>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">"alternatives"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">"option"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One owning role per repository"</span><span class="p">,</span><span class="w"> </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Forces every cross-repository change through a message."</span><span class="p">}</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">"option"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One owning work identity per repository"</span><span class="p">,</span><span class="w"> </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Forces every cross-repository change through a message."</span><span class="p">}</span>
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="p">],</span>
 <a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">"repositories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"github.com/example/web"</span><span class="p">]</span>
 <a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="p">}</span>
@@ -1356,7 +1384,7 @@ agree. Leave dates out; git history records when a decision was made.</p>
 <h2 id="6-validate">6. Validate<a class="headerlink" href="#6-validate" title="Permanent link">&para;</a></h2>
 <p>From the CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$<span class="w"> </span>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>validate
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="m">2</span><span class="w"> </span>roles<span class="w"> </span>and<span class="w"> </span><span class="m">1</span><span class="w"> </span>decision<span class="w"> </span>are<span class="w"> </span>valid
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="m">2</span><span class="w"> </span>work<span class="w"> </span>identities<span class="w"> </span>and<span class="w"> </span><span class="m">1</span><span class="w"> </span>decision<span class="w"> </span>are<span class="w"> </span>valid
 </code></pre></div>
 <p>Or in the hive repository's own tests, so every change is checked:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">myhive</span>
@@ -1381,9 +1409,9 @@ agree. Leave dates out; git history records when a decision was made.</p>
 differently from its record is an error, so a typo fails instead of being
 silently dropped. Validation then checks each record and the set as a
 whole: unique names, peers that exist, one steward per pattern, decisions
-that name existing roles, and supersede links that agree.</p>
+that name existing work identities, and supersede links that agree.</p>
 <p>Tools that cannot import Go can validate against the JSON Schemas:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>role<span class="w"> </span>&gt;<span class="w"> </span>role.schema.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>identity<span class="w"> </span>&gt;<span class="w"> </span>identity.schema.json
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>decision<span class="w"> </span>&gt;<span class="w"> </span>decision.schema.json
 </code></pre></div>
 <h2 id="7-message-other-agents">7. Message other agents<a class="headerlink" href="#7-message-other-agents" title="Permanent link">&para;</a></h2>
@@ -1423,7 +1451,7 @@ request, never as the operator's instruction: it cannot grant permissions
 or approve its own request.</p>
 <h2 id="8-report-status-and-read-the-briefing">8. Report status and read the briefing<a class="headerlink" href="#8-report-status-and-read-the-briefing" title="Permanent link">&para;</a></h2>
 <p>Have each agent keep a current report. It writes the JSON and submits it;
-the role and time are filled in:</p>
+the work identity and time are filled in:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>report<span class="w"> </span>submit<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;'JSON'</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="s">{</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="s">  "summary": "Coupons are ready to release.",</span>
@@ -1448,7 +1476,7 @@ action that applies only if you choose one option of an open decision
 names that <code>decision</code> and <code>option</code>. Keep <code>blocked</code> for work that is really
 stuck. List the repositories and branches the agent is
 working in under <code>inProgress</code>, so others see it before they start there;
-<code>plexushive who github.com/&lt;org&gt;/&lt;repo&gt;</code> shows them. A role with nothing to
+<code>plexushive who github.com/&lt;org&gt;/&lt;repo&gt;</code> shows them. A work identity with nothing to
 do sets <code>"idle": true</code> instead of reporting again and again.</p>
 <p>Raise a question only you can settle as a decision request in
 <code>decisionsNeeded</code>, with the situation, at least two options with their
@@ -1457,11 +1485,11 @@ cost and risk, a recommendation and the approval it needs.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>brief
 </code></pre></div>
 <p>It lists your actions first, then the decisions waiting on you, what is
-blocked, who is working where, notices, and each role's summary. Answer a
+blocked, who is working where, notices, and each work identity's summary. Answer a
 decision with:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>plexushive<span class="w"> </span>-C<span class="w"> </span>my-hive<span class="w"> </span>decide<span class="w"> </span>billing/coupon-stacking<span class="w"> </span>no-stacking
 </code></pre></div>
-<p>It writes the decision (step 5) and prints the message to send the role.
+<p>It writes the decision (step 5) and prints the message to send the work identity.
 See <a href="../../reference/reports/">Status Reports</a> for every field.</p>
 <h2 id="library-reference">Library reference<a class="headerlink" href="#library-reference" title="Permanent link">&para;</a></h2>
 <table>
@@ -1474,22 +1502,22 @@ See <a href="../../reference/reports/">Status Reports</a> for every field.</p>
 <tbody>
 <tr>
 <td><code>hive.Load(root)</code></td>
-<td>Read <code>roles/</code> and <code>decisions/</code> under root</td>
+<td>Read <code>identities/</code> and <code>decisions/</code> under root</td>
 </tr>
 <tr>
 <td><code>(*Hive).Validate()</code></td>
 <td>Check all records together</td>
 </tr>
 <tr>
-<td><code>(*Hive).Role(name)</code></td>
-<td>Look up a role</td>
+<td><code>(*Hive).Work identity(name)</code></td>
+<td>Look up a work identity</td>
 </tr>
 <tr>
-<td><code>hive.RolesFor(roles, repo)</code></td>
-<td>Roles working in a repository, steward first</td>
+<td><code>hive.IdentitiesFor(work identities, repo)</code></td>
+<td>Work identities working in a repository, steward first</td>
 </tr>
 <tr>
-<td><code>hive.Steward(roles, repo)</code></td>
+<td><code>hive.Steward(work identities, repo)</code></td>
 <td>The steward's name, or <code>""</code> for common ground</td>
 </tr>
 <tr>
@@ -1501,12 +1529,12 @@ See <a href="../../reference/reports/">Status Reports</a> for every field.</p>
 <td>Gather reports into actions, decisions, blockers, work in progress, notices and status</td>
 </tr>
 <tr>
-<td><code>hive.ResolveRole</code>, <code>hive.BindTmuxRole</code>, <code>hive.TmuxSession</code></td>
-<td>Find the session's role from a flag, <code>HIVE_ROLE</code> or tmux, and bind one</td>
+<td><code>hive.ResolveIdentity</code>, <code>hive.BindTmuxIdentity</code>, <code>hive.TmuxSession</code></td>
+<td>Find the session's work identity from a flag, <code>HIVE_IDENTITY</code> or tmux, and bind one</td>
 </tr>
 <tr>
 <td><code>hive.NewContext</code></td>
-<td>What a session needs to play its role</td>
+<td>What a session needs to work under its work identity</td>
 </tr>
 <tr>
 <td><code>(hive.DecisionRequest).Decide</code>, <code>hive.WriteDecision</code></td>
@@ -1517,7 +1545,7 @@ See <a href="../../reference/reports/">Status Reports</a> for every field.</p>
 <td>Write and read message envelopes</td>
 </tr>
 <tr>
-<td><code>hive.RoleSchema</code>, <code>hive.DecisionSchema</code>, <code>hive.ReportSchema</code></td>
+<td><code>hive.IdentitySchema</code>, <code>hive.DecisionSchema</code>, <code>hive.ReportSchema</code></td>
 <td>Generate the JSON Schemas</td>
 </tr>
 </tbody>
