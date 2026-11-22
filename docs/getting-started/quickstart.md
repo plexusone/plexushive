@@ -1,12 +1,12 @@
 # Quick Start
 
-Create a hive with one role and one decision, then validate it.
+Create a hive with one work identity and one decision, then validate it.
 
 ```bash
-mkdir -p my-hive/roles my-hive/decisions
+mkdir -p my-hive/work identities my-hive/decisions
 ```
 
-`my-hive/roles/billing.json`:
+`my-hive/identities/billing.json`:
 
 ```json
 {
@@ -29,7 +29,7 @@ mkdir -p my-hive/roles my-hive/decisions
   "status": "accepted",
   "decision": "All charges go through the billing service.",
   "reasons": ["One place to audit every charge."],
-  "roles": ["billing"]
+  "identities": ["billing"]
 }
 ```
 
@@ -37,16 +37,16 @@ Validate it and ask who works in the billing repository:
 
 ```bash
 $ plexushive -C my-hive validate
-1 role and 1 decision are valid
+1 work identity and 1 decision are valid
 
-$ plexushive -C my-hive roles github.com/example/billing
+$ plexushive -C my-hive identities github.com/example/billing
 steward      billing              repository
 ```
 
-Start the agent's session with its role:
+Start the agent's session with its work identity:
 
 ```bash
-HIVE_ROLE=billing claude --resume <session>
+HIVE_IDENTITY=billing claude --resume <session>
 ```
 
 The [User Guide](../guides/user-guide.md) covers each step in depth.

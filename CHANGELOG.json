@@ -6,6 +6,24 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.5.0",
+      "date": "2026-11-22",
+      "breaking": [
+        { "description": "Roles are renamed to work identities: `WorkIdentity` and the `Identity*` types and functions, `identities/` records, `HIVE_IDENTITY`, `--identity`, the `identities` command, and `identity`/`identities` in reports, decisions, briefings and contexts; the `contributor` affinity is `collaborator`", "commit": "ebe0afe" }
+      ],
+      "added": [
+        { "description": "`report show` prints a work identity's stored report as JSON, to edit and submit again", "commit": "8e62f56" },
+        { "description": "Reading accepts the names before v0.5.0: `roles/`, `HIVE_ROLE`, `--role` (deprecated), the `roles` command, a report's `role`, a decision's `roles` and the `contributor` affinity; `whoami` says when it found `HIVE_ROLE`", "commit": "ebe0afe" }
+      ],
+      "tests": [
+        { "description": "Records, variables and flags named before work identities", "commit": "e60be5d" }
+      ],
+      "documentation": [
+        { "description": "Work identities replace roles throughout, with the names before v0.5.0 and how to move a hive" },
+        { "description": "v0.5.0 release notes" }
+      ]
+    },
+    {
       "version": "v0.4.1",
       "date": "2026-11-21",
       "fixed": [

@@ -13,7 +13,7 @@ work by another agent.
 | `reasons` | yes | Why, one entry per reason |
 | `alternatives` | no | `{"option": …, "rejected": …}` for each option not taken |
 | `refs` | no | `INIT-…` and `RMI-…` IDs it belongs to or constrains |
-| `roles` | no | Roles it binds; empty means all |
+| `identities` | no | Work identities it binds; empty means all |
 | `repositories` | no | Repositories it constrains, so an agent can find the decisions that apply to its code |
 | `supersedes` / `supersededBy` | no | Links to the decisions it replaces or that replaced it; both sides must agree |
 
@@ -35,14 +35,14 @@ Rules:
   "id": "stewards-not-owners",
   "title": "Repositories have stewards, not owners",
   "status": "accepted",
-  "decision": "Several roles may change a repository; at most one stewards it and settles conflicts.",
+  "decision": "Several work identities may change a repository; at most one stewards it and settles conflicts.",
   "reasons": [
-    "Work crosses repositories, and one role per repository does not scale."
+    "Work crosses repositories, and one work identity per repository does not scale."
   ],
   "alternatives": [
-    {"option": "One owning role per repository", "rejected": "Forces every cross-repository change through a message."}
+    {"option": "One owning work identity per repository", "rejected": "Forces every cross-repository change through a message."}
   ],
-  "roles": ["billing", "website"],
+  "identities": ["billing", "website"],
   "repositories": ["github.com/example/web"],
   "supersedes": ["one-steward-per-repository"]
 }
@@ -56,5 +56,5 @@ Rules:
 - `title`, `decision` and at least one reason are present
 - an accepted decision has no `supersededBy`; a superseded one has it
 - `refs` are `INIT-<SLUG>-NNN` or `RMI-<SLUG>-NNN`, and repositories are `github.com/<org>/<repo>`
-- `roles` name existing roles
+- `identities` name existing work identities
 - `supersedes` and `supersededBy` agree on both sides

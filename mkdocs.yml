@@ -1,5 +1,5 @@
 site_name: PlexusHive
-site_description: Roles, decisions and messages for coordinating long-lived coding agents
+site_description: Work identities, decisions and messages for coordinating long-lived coding agents
 site_url: https://plexusone.github.io/plexushive/
 repo_url: https://github.com/plexusone/plexushive
 repo_name: plexusone/plexushive
@@ -50,7 +50,7 @@ nav:
       - Quick Start: getting-started/quickstart.md
   - User Guide: guides/user-guide.md
   - Reference:
-      - Roles: reference/roles.md
+      - Work identities: reference/identities.md
       - Decisions: reference/decisions.md
       - Status Reports: reference/reports.md
       - Messages: reference/messages.md
@@ -59,6 +59,7 @@ nav:
   - API Reference: https://pkg.go.dev/github.com/plexusone/plexushive/hive
   - Releases:
       - Changelog: releases/changelog.md
+      - v0.5.0: releases/v0.5.0.md
       - v0.4.1: releases/v0.4.1.md
       - v0.4.0: releases/v0.4.0.md
       - v0.3.0: releases/v0.3.0.md

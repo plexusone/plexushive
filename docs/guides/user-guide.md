@@ -3,18 +3,18 @@
 PlexusHive keeps a written record of what each long-lived coding agent is
 for, where it works, and why things were decided, so the agents can
 coordinate without the operator relaying every message. This guide sets up
-a hive directory, writes roles and decisions, and wires validation into
+a hive directory, writes work identities and decisions, and wires validation into
 tests and agent sessions.
 
 ## Concepts
 
 | Term | Meaning |
 |---|---|
-| **Role** | What one agent is for: its mission, autonomy, the repositories it works in and its peers. Durable; outlives any session. |
-| **Session** | The running agent (for example a terminal session) that plays a role. Renamed and restarted freely; no record names it. |
-| **Steward** | The one role that settles conflicting and breaking changes in a repository. Others may still work there. |
+| **Work identity** | What one agent is for: its mission, autonomy, the repositories it works in and its peers. Durable; outlives any session. |
+| **Session** | The running agent (for example a terminal session) that works under a work identity. Renamed and restarted freely; no record names it. |
+| **Steward** | The one work identity that settles conflicting and breaking changes in a repository. Others may still work there. |
 | **Decision** | One entry in the append-only log: what was decided, why, and what was rejected. |
-| **Report** | One role's current status: done, blocked, next, and decisions it needs. Kept on the machine, not in git. |
+| **Report** | One work identity's current status: done, blocked, next, and decisions it needs. Kept on the machine, not in git. |
 | **Envelope** | The first line of a message between agents: `[hive] type=… from=… ref=…`. |
 
 ## 1. Install the CLI
@@ -30,18 +30,18 @@ products or repositories, make it a private one.
 
 ```text
 my-hive/
-├── roles/
+├── identities/
 │   ├── billing.json
 │   └── website.json
 └── decisions/
     └── stewards-not-owners.json
 ```
 
-Each file holds one record and is named after it: `roles/billing.json`
-holds the role named `billing`. One record per file means agents writing at
+Each file holds one record and is named after it: `identities/billing.json`
+holds the work identity named `billing`. One record per file means agents writing at
 the same time never edit the same file.
 
-## 3. Write a role
+## 3. Write a work identity
 
 ```json
 {
@@ -51,38 +51,38 @@ the same time never edit the same file.
   "autonomy": "prepare",
   "repositories": [
     {"pattern": "github.com/example/billing", "affinity": "steward"},
-    {"pattern": "github.com/example/web", "affinity": "contributor"}
+    {"pattern": "github.com/example/web", "affinity": "collaborator"}
   ],
   "peers": ["website"]
 }
 ```
 
-- Start a role as `draft`; set it to `active` once you confirm it.
+- Start a work identity as `draft`; set it to `active` once you confirm it.
 - Choose the lowest `autonomy` that lets the agent do its job:
   - `observe` reads, analyzes and reports, and changes nothing.
   - `prepare` also makes local changes for you to publish: branches,
     commits, release notes. It never pushes, tags, merges, deploys or sends.
   - `execute` also makes bounded, low-risk changes itself.
 - A `pattern` is one repository, `github.com/<org>/<repo>`, or a whole
-  organization, `github.com/<org>/*`. At most one active role stewards a
+  organization, `github.com/<org>/*`. At most one active work identity stewards a
   pattern, and an exact repository outranks an organization pattern.
-- A repository no role lists is common ground.
+- A repository no work identity lists is common ground.
 
-See which roles work in a repository:
+See which work identities work in a repository:
 
 ```bash
-$ plexushive -C my-hive roles github.com/example/web
+$ plexushive -C my-hive identities github.com/example/web
 steward      website              repository
-contributor  billing              repository
+collaborator billing              repository
 ```
 
-## 4. Bind a session to its role
+## 4. Bind a session to its work identity
 
-A session declares the role it plays with the `HIVE_ROLE` environment
+A session declares its work identity with the `HIVE_IDENTITY` environment
 variable. Keep the binding out of the records, because sessions change:
 
 ```bash
-HIVE_ROLE=billing claude --resume <session>
+HIVE_IDENTITY=billing claude --resume <session>
 ```
 
 In tmux, bind it to the session once, from inside it:
@@ -91,12 +91,12 @@ In tmux, bind it to the session once, from inside it:
 plexushive -C my-hive start billing
 ```
 
-`start` checks the role, sets `HIVE_ROLE` in the tmux session's
-environment and prints the role's context: mission, repositories, peers
+`start` checks the work identity, sets `HIVE_IDENTITY` in the tmux session's
+environment and prints the work identity's context: mission, repositories, peers
 and how to reach them, the decisions that bind it, and how to report. Every
-`plexushive` command run in that session then finds the role, even in an
+`plexushive` command run in that session then finds the work identity, even in an
 agent that was already running, because it reads the binding back from
-tmux. `plexushive whoami` shows the role and where it was found.
+tmux. `plexushive whoami` shows the work identity and where it was found.
 
 A hook that runs when a session starts, or after its context is
 compacted, can run `plexushive -C my-hive context` to give the agent the
@@ -112,10 +112,10 @@ another agent's.
   "id": "stewards-not-owners",
   "title": "Repositories have stewards, not owners",
   "status": "accepted",
-  "decision": "Several roles may change a repository; at most one stewards it.",
-  "reasons": ["Work crosses repositories, and one role per repository does not scale."],
+  "decision": "Several work identities may change a repository; at most one stewards it.",
+  "reasons": ["Work crosses repositories, and one work identity per repository does not scale."],
   "alternatives": [
-    {"option": "One owning role per repository", "rejected": "Forces every cross-repository change through a message."}
+    {"option": "One owning work identity per repository", "rejected": "Forces every cross-repository change through a message."}
   ],
   "repositories": ["github.com/example/web"]
 }
@@ -132,7 +132,7 @@ From the CLI:
 
 ```bash
 $ plexushive -C my-hive validate
-2 roles and 1 decision are valid
+2 work identities and 1 decision are valid
 ```
 
 Or in the hive repository's own tests, so every change is checked:
@@ -161,12 +161,12 @@ Loading is strict: an unknown field, trailing data, or a file named
 differently from its record is an error, so a typo fails instead of being
 silently dropped. Validation then checks each record and the set as a
 whole: unique names, peers that exist, one steward per pattern, decisions
-that name existing roles, and supersede links that agree.
+that name existing work identities, and supersede links that agree.
 
 Tools that cannot import Go can validate against the JSON Schemas:
 
 ```bash
-plexushive schema role > role.schema.json
+plexushive schema identity > identity.schema.json
 plexushive schema decision > decision.schema.json
 ```
 
@@ -194,7 +194,7 @@ or approve its own request.
 ## 8. Report status and read the briefing
 
 Have each agent keep a current report. It writes the JSON and submits it;
-the role and time are filled in:
+the work identity and time are filled in:
 
 ```bash
 plexushive -C my-hive report submit - <<'JSON'
@@ -222,7 +222,7 @@ action that applies only if you choose one option of an open decision
 names that `decision` and `option`. Keep `blocked` for work that is really
 stuck. List the repositories and branches the agent is
 working in under `inProgress`, so others see it before they start there;
-`plexushive who github.com/<org>/<repo>` shows them. A role with nothing to
+`plexushive who github.com/<org>/<repo>` shows them. A work identity with nothing to
 do sets `"idle": true` instead of reporting again and again.
 
 Raise a question only you can settle as a decision request in
@@ -236,31 +236,31 @@ plexushive -C my-hive brief
 ```
 
 It lists your actions first, then the decisions waiting on you, what is
-blocked, who is working where, notices, and each role's summary. Answer a
+blocked, who is working where, notices, and each work identity's summary. Answer a
 decision with:
 
 ```bash
 plexushive -C my-hive decide billing/coupon-stacking no-stacking
 ```
 
-It writes the decision (step 5) and prints the message to send the role.
+It writes the decision (step 5) and prints the message to send the work identity.
 See [Status Reports](../reference/reports.md) for every field.
 
 ## Library reference
 
 | Function | Purpose |
 |---|---|
-| `hive.Load(root)` | Read `roles/` and `decisions/` under root |
+| `hive.Load(root)` | Read `identities/` and `decisions/` under root |
 | `(*Hive).Validate()` | Check all records together |
-| `(*Hive).Role(name)` | Look up a role |
-| `hive.RolesFor(roles, repo)` | Roles working in a repository, steward first |
-| `hive.Steward(roles, repo)` | The steward's name, or `""` for common ground |
+| `(*Hive).Work identity(name)` | Look up a work identity |
+| `hive.IdentitiesFor(work identities, repo)` | Work identities working in a repository, steward first |
+| `hive.Steward(work identities, repo)` | The steward's name, or `""` for common ground |
 | `hive.WriteReport`, `hive.LoadReports`, `hive.ReportsDir` | Store and read status reports |
 | `hive.NewBriefing` | Gather reports into actions, decisions, blockers, work in progress, notices and status |
-| `hive.ResolveRole`, `hive.BindTmuxRole`, `hive.TmuxSession` | Find the session's role from a flag, `HIVE_ROLE` or tmux, and bind one |
-| `hive.NewContext` | What a session needs to play its role |
+| `hive.ResolveIdentity`, `hive.BindTmuxIdentity`, `hive.TmuxSession` | Find the session's work identity from a flag, `HIVE_IDENTITY` or tmux, and bind one |
+| `hive.NewContext` | What a session needs to work under its work identity |
 | `(hive.DecisionRequest).Decide`, `hive.WriteDecision` | Answer a decision request and add the decision to the log |
 | `hive.Format`, `hive.Parse` | Write and read message envelopes |
-| `hive.RoleSchema`, `hive.DecisionSchema`, `hive.ReportSchema` | Generate the JSON Schemas |
+| `hive.IdentitySchema`, `hive.DecisionSchema`, `hive.ReportSchema` | Generate the JSON Schemas |
 
 Full API documentation: [pkg.go.dev](https://pkg.go.dev/github.com/plexusone/plexushive/hive).

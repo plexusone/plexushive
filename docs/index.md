@@ -1,7 +1,7 @@
 # PlexusHive
 
-Formats and tools for coordinating long-lived coding agents: the **role**
-each agent plays, the **decisions** that bind them, the **status reports**
+Formats and tools for coordinating long-lived coding agents: the **work identity**
+each agent works under, the **decisions** that bind them, the **status reports**
 they file, and the **envelope** they put on messages to each other.
 
 When a dozen agent sessions each work for days across hundreds of
@@ -12,10 +12,10 @@ JSON files that every agent can read and tests can validate.
 
 ## Principles
 
-- **Roles, not sessions.** A role is durable. The session playing it
-  declares it with `HIVE_ROLE` or `plexushive start`, so renaming or
+- **Work identities, not sessions.** A work identity is durable. A session working under it
+  declares it with `HIVE_IDENTITY` or `plexushive start`, so renaming or
   restarting a session changes nothing in the records.
-- **Stewards, not owners.** Several roles may work in a repository; at most
+- **Stewards, not owners.** Several work identities may work in a repository; at most
   one stewards it and settles conflicts.
 - **An append-only decision log.** Decisions are superseded, never
   rewritten.
@@ -29,15 +29,15 @@ JSON files that every agent can read and tests can validate.
 
 ```text
 my-hive/
-├── roles/<name>.json      one file per role
-└── decisions/<id>.json    the append-only decision log
+├── identities/<name>.json  one file per work identity
+└── decisions/<id>.json     the append-only decision log
 ```
 
 ```bash
-plexushive -C my-hive validate                        # check every role and decision
-plexushive -C my-hive roles github.com/example/web    # who works there, steward first
+plexushive -C my-hive validate                        # check every work identity and decision
+plexushive -C my-hive identities github.com/example/web  # who works there, steward first
 plexushive -C my-hive brief                           # your actions, decisions, blockers, work in progress
-plexushive -C my-hive start billing                   # bind a role to this tmux session
+plexushive -C my-hive start billing                   # bind a work identity to this tmux session
 ```
 
 ## Next steps
