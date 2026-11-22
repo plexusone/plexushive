@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -995,6 +995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.6.0/" class="md-nav__link">
         
   
@@ -1443,7 +1471,7 @@ the <code>export</code> to use instead.</p>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>Report at handoffs: when work is ready for the operator, when blocked or
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>unblocked, when a decision is needed, when starting or stopping in a
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>repository, after the operator acts for you, and when another work identity&#39;s work
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>repository, after the operator acts for you, and when another work identity's work
 <a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>changes your plan. Before working in a repository another work identity stewards:
 <a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>  plexushive -C /path/to/my-hive who github.com/&lt;org&gt;/&lt;repo&gt;
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>Submit (plexushive schema report gives the format):
@@ -1555,7 +1583,13 @@ rest.</p>
 <a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>Status (2)
 <a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a>  billing        2h       Coupons are in review; the refund export waits on the website.
 <a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>  website        2h       Launch page is ready for review.
+<a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a>
+<a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>Open items: 1 draft, 1 deferred; plexushive open lists them
 </code></pre></div>
+<p>The last line counts the <a href="../open-items/">open items</a> still needing
+something, including design questions no report carries. A request counts
+as answered once its open item has the operator's answer, or a decision
+with its ID binds its work identity.</p>
 <p>A step several work identities ask for is listed once with all their names. An
 action that applies under an option of an open decision is marked <code>only if
 decided: &lt;identity&gt;/&lt;id&gt; = &lt;option&gt;</code>; once decided, it is kept for that option
@@ -1587,24 +1621,46 @@ work in progress there, and the operator actions waiting on it.</p>
 <a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  website          configure  Set the analytics key for the launch page.
 </code></pre></div>
 <h2 id="decide">decide<a class="headerlink" href="#decide" title="Permanent link">&para;</a></h2>
-<p>Answers a decision request from a work identity's current report. The chosen option
-becomes the decision and the others its alternatives; the request's
-situation and evidence become its reasons, after <code>--reason</code> when given.
-The decision is written to <code>decisions/&lt;id&gt;.json</code> under the request's ID,
-the item is marked decided in <code>open-items.json</code> when it is listed there,
-and the command prints the message to send the work identity. It never replaces an
-existing decision: a changed decision is a new one that supersedes it.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason &quot;Partners can wait a release.&quot;
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>wrote decisions/coupon-stacking.json
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>marked billing/coupon-stacking decided in open-items.json
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>send to billing:
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
+<p>Answers a decision request from a work identity's current report, or from an
+open item when the report is unreadable. The answer (option, <code>--reason</code> and
+date) is recorded on the request's <a href="../open-items/">open item</a>, which is
+added if it is not listed yet: a question from a report becomes <code>decided</code>,
+and one from a design record <code>answered</code> until its work identity has written
+the answer into the document. The command prints the message to send.</p>
+<p>Most answers are point decisions that unblock work, so no decision file is
+written; the work identity records the outcome where it belongs, such as a
+commit, a changelog or an ADR. For a working rule that binds the agents, add
+<code>--record</code>: the chosen option becomes <code>decisions/&lt;id&gt;.json</code>, the others its
+alternatives, and the request's situation and evidence its reasons. A
+decision is a new file and never replaces an existing one.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason "Partners can wait a release."
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>marked billing/coupon-stacking decided in open-items.json
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>send to billing:
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Reason: Partners can wait a release. Act on it, record the outcome where it belongs (a commit, a changelog, an ADR), and drop the request from your report.
 </code></pre></div>
-<p>Commit the new decision with the rest of the hive directory.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--reason</code></td>
+<td>Why, sent with the answer and recorded on the open item</td>
+</tr>
+<tr>
+<td><code>--record</code></td>
+<td>Also write the answer as a decision in <code>decisions/</code></td>
+</tr>
+</tbody>
+</table>
+<p>Commit <code>open-items.json</code>, and any new decision, with the rest of the hive.</p>
 <h2 id="open">open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <p>Lists <a href="../open-items/">open items</a>: open questions with their
-recommendation first, then drafts that still need options, then deferred
-ones. Give a work identity to list only its items.</p>
+recommendation first, then answered design questions waiting to be written
+into their document, drafts that still need options, then deferred ones. Give a work identity to list only its items.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>$ plexushive -C my-hive open
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Open, waiting on the operator (1)
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  billing/coupon-stacking
@@ -1726,10 +1782,10 @@ and prints each change; <code>--dry-run</code> prints without writing. See
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
