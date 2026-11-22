@@ -23,7 +23,7 @@ func TestValidate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(out, "3 roles and 2 decisions are valid") {
+	if !strings.Contains(out, "3 work identities and 2 decisions are valid") {
 		t.Fatalf("output: %q", out)
 	}
 	if _, err := run(t, "-C", t.TempDir(), "validate"); err == nil {
@@ -32,43 +32,43 @@ func TestValidate(t *testing.T) {
 }
 
 func TestCount(t *testing.T) {
-	if got := count(1, "role"); got != "1 role" {
+	if got := count(1, "work identity", "work identities"); got != "1 work identity" {
 		t.Fatal(got)
 	}
-	if got := count(0, "decision"); got != "0 decisions" {
+	if got := count(0, "decision", "decisions"); got != "0 decisions" {
 		t.Fatal(got)
 	}
 }
 
-func TestRoles(t *testing.T) {
+func TestIdentities(t *testing.T) {
 	tests := []struct{ repo, want string }{
 		{"github.com/example/web", "steward      website"},
 		{"github.com/example-docs/guide", "organization"},
 		{"github.com/other/x", "common ground"},
 	}
 	for _, tt := range tests {
-		out, err := run(t, "-C", example, "roles", tt.repo)
+		out, err := run(t, "-C", example, "identities", tt.repo)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if !strings.Contains(out, tt.want) {
-			t.Fatalf("roles %s: %q does not contain %q", tt.repo, out, tt.want)
+			t.Fatalf("work identities %s: %q does not contain %q", tt.repo, out, tt.want)
 		}
 	}
-	if _, err := run(t, "-C", example, "roles", "example/web"); err == nil {
+	if _, err := run(t, "-C", example, "identities", "example/web"); err == nil {
 		t.Fatal("want error for a malformed repository")
 	}
-	if _, err := run(t, "-C", t.TempDir(), "roles", "github.com/example/web"); err == nil {
+	if _, err := run(t, "-C", t.TempDir(), "identities", "github.com/example/web"); err == nil {
 		t.Fatal("want error for an empty directory")
 	}
 }
 
 func TestSchema(t *testing.T) {
-	out, err := run(t, "schema", "role")
+	out, err := run(t, "schema", "identity")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(out, `"title": "Agent role"`) {
+	if !strings.Contains(out, `"title": "Agent work identity"`) {
 		t.Fatalf("output: %.200q", out)
 	}
 	if _, err := run(t, "schema", "agent"); err == nil {

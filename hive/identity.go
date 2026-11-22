@@ -1,17 +1,19 @@
 // Package hive holds the formats that coordinate the long-lived agent
-// sessions: roles (what each agent is for and where it works), decisions
-// (the append-only record of why), and the envelope agents put on messages
-// to each other.
+// sessions: work identities (what each agent is for and where it works),
+// decisions (the append-only record of why), and the envelope agents put on
+// messages to each other.
 //
-// A role is durable; the session playing it is not. Sessions are renamed,
-// restarted and replaced, so nothing here names a session. A session
-// declares the role it plays with the HIVE_ROLE environment variable.
+// A work identity is durable; the sessions that work under it are not.
+// Sessions are renamed, restarted and replaced, so nothing here names a
+// session. A session declares its work identity with the HIVE_IDENTITY
+// environment variable. Role is left to mean an access level, as in
+// role-based access control; a work identity is not a role.
 //
 // The records live in a hive directory, usually in a private repository,
 // one JSON file per record:
 //
-//	roles/<name>.json      one file per role
-//	decisions/<id>.json    the append-only decision log
+//	identities/<name>.json  one file per work identity
+//	decisions/<id>.json     the append-only decision log
 //
 // Load reads a hive directory and Validate checks it as a whole. The Go
 // types are the source of truth; the JSON Schemas under schema/ are
@@ -25,20 +27,24 @@ import (
 	"strings"
 )
 
-// RoleEnv is the environment variable a session sets to the name of the
-// role it plays.
-const RoleEnv = "HIVE_ROLE"
+// IdentityEnv is the environment variable a session sets to the name of
+// the work identity it works under.
+const IdentityEnv = "HIVE_IDENTITY"
 
-// RoleStatus is where a role is in its life.
-type RoleStatus string
+// LegacyIdentityEnv is IdentityEnv's name before roles became work
+// identities; it is still read, after IdentityEnv.
+const LegacyIdentityEnv = "HIVE_ROLE"
+
+// IdentityStatus is where a work identity is in its life.
+type IdentityStatus string
 
 const (
-	// RoleDraft is proposed and not yet confirmed by the operator.
-	RoleDraft RoleStatus = "draft"
-	// RoleActive is confirmed and in force.
-	RoleActive RoleStatus = "active"
-	// RoleRetired is kept for history; no session plays it.
-	RoleRetired RoleStatus = "retired"
+	// IdentityDraft is proposed and not yet confirmed by the operator.
+	IdentityDraft IdentityStatus = "draft"
+	// IdentityActive is confirmed and in force.
+	IdentityActive IdentityStatus = "active"
+	// IdentityRetired is kept for history; no session works under it.
+	IdentityRetired IdentityStatus = "retired"
 )
 
 // Autonomy is how far an agent may go without asking, in increasing order.
@@ -57,51 +63,54 @@ const (
 	AutonomyExecute Autonomy = "execute"
 )
 
-// Affinity is how a role relates to a repository. Several roles may work in
-// the same repository; affinity says who settles conflicts there.
+// Affinity is how a work identity relates to a repository. Several work
+// identities may work in the same repository; affinity says who settles
+// conflicts there.
 type Affinity string
 
 const (
 	// AffinitySteward settles conflicting changes and reviews breaking ones.
 	// A repository has at most one steward.
 	AffinitySteward Affinity = "steward"
-	// AffinityContributor works in the repository regularly.
-	AffinityContributor Affinity = "contributor"
+	// AffinityCollaborator works in the repository regularly. Before
+	// v0.5.0 it was named contributor, which is still read.
+	AffinityCollaborator Affinity = "collaborator"
 )
 
-// RepositoryAffinity ties a role to one repository, or to every repository
-// in an organization.
+// RepositoryAffinity ties a work identity to one repository, or to every
+// repository in an organization.
 type RepositoryAffinity struct {
 	// Pattern is github.com/<org>/<repo>, or github.com/<org>/* for every
 	// repository in the organization. An exact repository takes precedence
 	// over an organization pattern.
 	Pattern string `json:"pattern" jsonschema:"pattern=^github\\.com/[A-Za-z0-9_.-]+/([A-Za-z0-9_.-]+|\\*)$"`
-	// Affinity is steward or contributor.
-	Affinity Affinity `json:"affinity" jsonschema:"enum=steward,enum=contributor"`
+	// Affinity is steward or collaborator.
+	Affinity Affinity `json:"affinity" jsonschema:"enum=steward,enum=collaborator"`
 }
 
-// Role records what one long-lived agent is for and where it works,
-// independently of the session that plays it.
-type Role struct {
-	// Name is the role's stable name, the name other agents address it by
-	// and the value of HIVE_ROLE in the session that plays it.
+// WorkIdentity records what one long-lived agent is for and where it
+// works, independently of the sessions that work under it.
+type WorkIdentity struct {
+	// Name is the work identity's stable name, the name other agents
+	// address it by and the value of HIVE_IDENTITY in the sessions that work
+	// under it.
 	Name string `json:"name" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
-	// Status is draft until the operator confirms the role.
-	Status RoleStatus `json:"status" jsonschema:"enum=draft,enum=active,enum=retired"`
-	// Mission says, in one or two sentences, what the role is responsible
-	// for.
+	// Status is draft until the operator confirms the work identity.
+	Status IdentityStatus `json:"status" jsonschema:"enum=draft,enum=active,enum=retired"`
+	// Mission says, in one or two sentences, what the work identity is
+	// responsible for.
 	Mission string `json:"mission"`
-	// Autonomy is how far the role may go without asking.
+	// Autonomy is how far the work identity may go without asking.
 	Autonomy Autonomy `json:"autonomy" jsonschema:"enum=observe,enum=prepare,enum=execute"`
-	// Repositories are where the role works. A repository no role lists is
-	// common ground any role may change.
+	// Repositories are where the work identity works. A repository no
+	// work identity lists is common ground any of them may change.
 	Repositories []RepositoryAffinity `json:"repositories,omitempty"`
-	// Initiatives are the initiatives the role works on, as INIT-<SLUG>-NNN.
+	// Initiatives are the initiatives it works on, as INIT-<SLUG>-NNN.
 	Initiatives []string `json:"initiatives,omitempty"`
-	// Peers are roles this one works with most.
+	// Peers are the work identities this one works with most.
 	Peers []string `json:"peers,omitempty"`
-	// Notes is free text for the operator: open questions while the role
-	// is a draft, or constraints that do not fit another field.
+	// Notes is free text for the operator: open questions while the work
+	// identity is a draft, or constraints that do not fit another field.
 	Notes string `json:"notes,omitempty"`
 }
 
@@ -112,10 +121,10 @@ var (
 	initiativePattern = regexp.MustCompile(`^INIT-[A-Z0-9]+-[0-9]{3}$`)
 )
 
-// Validate checks one role on its own. Checks that need the other roles,
-// such as peers existing and repositories having one steward, are in
-// ValidateRoles.
-func (r Role) Validate() error {
+// Validate checks one work identity on its own. Checks that need the
+// others, such as peers existing and repositories having one steward, are
+// in ValidateIdentities.
+func (r WorkIdentity) Validate() error {
 	var errs []string
 	if !namePattern.MatchString(r.Name) {
 		errs = append(errs, fmt.Sprintf("name %q must match %s", r.Name, namePattern))
@@ -124,7 +133,7 @@ func (r Role) Validate() error {
 		errs = append(errs, fmt.Sprintf("name %q is reserved for the operator", Operator))
 	}
 	switch r.Status {
-	case RoleDraft, RoleActive, RoleRetired:
+	case IdentityDraft, IdentityActive, IdentityRetired:
 	default:
 		errs = append(errs, fmt.Sprintf("status %q must be draft, active or retired", r.Status))
 	}
@@ -146,9 +155,9 @@ func (r Role) Validate() error {
 		}
 		seen[a.Pattern] = true
 		switch a.Affinity {
-		case AffinitySteward, AffinityContributor:
+		case AffinitySteward, AffinityCollaborator:
 		default:
-			errs = append(errs, fmt.Sprintf("repository %q: affinity %q must be steward or contributor", a.Pattern, a.Affinity))
+			errs = append(errs, fmt.Sprintf("repository %q: affinity %q must be steward or collaborator", a.Pattern, a.Affinity))
 		}
 	}
 	for _, i := range r.Initiatives {
@@ -158,38 +167,38 @@ func (r Role) Validate() error {
 	}
 	for _, p := range r.Peers {
 		if p == r.Name {
-			errs = append(errs, "a role cannot be its own peer")
+			errs = append(errs, "a work identity cannot be its own peer")
 		}
 	}
 	if len(errs) > 0 {
-		return fmt.Errorf("role %s: %s", r.Name, strings.Join(errs, "; "))
+		return fmt.Errorf("work identity %s: %s", r.Name, strings.Join(errs, "; "))
 	}
 	return nil
 }
 
-// ValidateRoles checks a set of roles together: each is valid, names are
-// unique, peers name existing roles, and no pattern has two stewards among
-// roles that are not retired.
-func ValidateRoles(roles []Role) error {
+// ValidateIdentities checks a set of work identities together: each is
+// valid, names are unique, peers name existing identities, and no pattern
+// has two stewards among identities that are not retired.
+func ValidateIdentities(identities []WorkIdentity) error {
 	var errs []string
 	byName := map[string]bool{}
-	for _, r := range roles {
+	for _, r := range identities {
 		if err := r.Validate(); err != nil {
 			errs = append(errs, err.Error())
 		}
 		if byName[r.Name] {
-			errs = append(errs, fmt.Sprintf("role %s: duplicate name", r.Name))
+			errs = append(errs, fmt.Sprintf("work identity %s: duplicate name", r.Name))
 		}
 		byName[r.Name] = true
 	}
 	steward := map[string]string{}
-	for _, r := range roles {
+	for _, r := range identities {
 		for _, p := range r.Peers {
 			if !byName[p] {
-				errs = append(errs, fmt.Sprintf("role %s: peer %q has no role", r.Name, p))
+				errs = append(errs, fmt.Sprintf("work identity %s: peer %q has no work identity", r.Name, p))
 			}
 		}
-		if r.Status == RoleRetired {
+		if r.Status == IdentityRetired {
 			continue
 		}
 		for _, a := range r.Repositories {
@@ -204,33 +213,33 @@ func ValidateRoles(roles []Role) error {
 		}
 	}
 	if len(errs) > 0 {
-		return fmt.Errorf("roles: %s", strings.Join(errs, "\n  "))
+		return fmt.Errorf("work identities: %s", strings.Join(errs, "\n  "))
 	}
 	return nil
 }
 
-// Match is one role's affinity for a repository.
+// Match is one work identity's affinity for a repository.
 type Match struct {
-	Role     string
+	Identity string
 	Affinity Affinity
-	// Exact is true when the role names the repository itself rather than
-	// its organization.
+	// Exact is true when the work identity names the repository itself
+	// rather than its organization.
 	Exact bool
 }
 
-// RolesFor returns the roles, not retired, that work in repo
-// (github.com/<org>/<repo>): the steward first, then contributors by name.
-// An exact steward outranks an organization steward, which is then
-// reported as a contributor, so at most one steward is returned.
-func RolesFor(roles []Role, repo string) ([]Match, error) {
+// IdentitiesFor returns the work identities, not retired, that work in
+// repo (github.com/<org>/<repo>): the steward first, then collaborators by
+// name. An exact steward outranks an organization steward, which is then
+// reported as a collaborator, so at most one steward is returned.
+func IdentitiesFor(identities []WorkIdentity, repo string) ([]Match, error) {
 	if !repositoryPattern.MatchString(repo) {
 		return nil, fmt.Errorf("hive: repository %q must be github.com/<org>/<repo>", repo)
 	}
 	org := repo[:strings.LastIndex(repo, "/")+1] + "*"
 	var out []Match
 	exactSteward := false
-	for _, r := range roles {
-		if r.Status == RoleRetired {
+	for _, r := range identities {
+		if r.Status == IdentityRetired {
 			continue
 		}
 		var best *Match
@@ -238,7 +247,7 @@ func RolesFor(roles []Role, repo string) ([]Match, error) {
 			if a.Pattern != repo && a.Pattern != org {
 				continue
 			}
-			m := Match{Role: r.Name, Affinity: a.Affinity, Exact: a.Pattern == repo}
+			m := Match{Identity: r.Name, Affinity: a.Affinity, Exact: a.Pattern == repo}
 			if best == nil || rank(m) > rank(*best) {
 				best = &m
 			}
@@ -253,7 +262,7 @@ func RolesFor(roles []Role, repo string) ([]Match, error) {
 	}
 	for i, m := range out {
 		if exactSteward && !m.Exact && m.Affinity == AffinitySteward {
-			out[i].Affinity = AffinityContributor
+			out[i].Affinity = AffinityCollaborator
 		}
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -261,13 +270,13 @@ func RolesFor(roles []Role, repo string) ([]Match, error) {
 		if si != sj {
 			return si
 		}
-		return out[i].Role < out[j].Role
+		return out[i].Identity < out[j].Identity
 	})
 	return out, nil
 }
 
-// rank orders one role's matches for the same repository: steward over
-// contributor, then exact over organization.
+// rank orders one work identity's matches for the same repository:
+// steward over collaborator, then exact over organization.
 func rank(m Match) int {
 	n := 0
 	if m.Affinity == AffinitySteward {
@@ -279,15 +288,15 @@ func rank(m Match) int {
 	return n
 }
 
-// Steward returns the role that stewards repo, or "" when no role does and
-// the repository is common ground.
-func Steward(roles []Role, repo string) (string, error) {
-	matches, err := RolesFor(roles, repo)
+// Steward returns the work identity that stewards repo, or "" when none
+// does and the repository is common ground.
+func Steward(identities []WorkIdentity, repo string) (string, error) {
+	matches, err := IdentitiesFor(identities, repo)
 	if err != nil {
 		return "", err
 	}
 	if len(matches) > 0 && matches[0].Affinity == AffinitySteward {
-		return matches[0].Role, nil
+		return matches[0].Identity, nil
 	}
 	return "", nil
 }

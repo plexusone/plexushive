@@ -22,16 +22,16 @@ func TestExample(t *testing.T) {
 	if err := h.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if len(h.Roles) != 3 || len(h.Decisions) != 2 {
-		t.Fatalf("loaded %d roles and %d decisions", len(h.Roles), len(h.Decisions))
+	if len(h.Identities) != 3 || len(h.Decisions) != 2 {
+		t.Fatalf("loaded %d work identities and %d decisions", len(h.Identities), len(h.Decisions))
 	}
-	if r, ok := h.Role("billing"); !ok || r.Autonomy != AutonomyPrepare {
-		t.Fatalf("Role(billing) = %+v, %v", r, ok)
+	if r, ok := h.Identity("billing"); !ok || r.Autonomy != AutonomyPrepare {
+		t.Fatalf("Work identity(billing) = %+v, %v", r, ok)
 	}
-	if _, ok := h.Role("nobody"); ok {
-		t.Fatal("Role(nobody) found")
+	if _, ok := h.Identity("nobody"); ok {
+		t.Fatal("Work identity(nobody) found")
 	}
-	s, err := Steward(h.Roles, "github.com/example/web")
+	s, err := Steward(h.Identities, "github.com/example/web")
 	if err != nil || s != "website" {
 		t.Fatalf("Steward(web) = %q, %v", s, err)
 	}
@@ -39,10 +39,10 @@ func TestExample(t *testing.T) {
 
 func TestLoadErrors(t *testing.T) {
 	if _, err := Load(t.TempDir()); err == nil {
-		t.Fatal("want error for a directory without roles/")
+		t.Fatal("want error for a directory without identities/")
 	}
 	root := t.TempDir()
-	if err := os.Mkdir(filepath.Join(root, RolesDir), 0o755); err != nil {
+	if err := os.Mkdir(filepath.Join(root, IdentitiesDir), 0o755); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := Load(root); err == nil {
@@ -78,8 +78,8 @@ func TestSchemas(t *testing.T) {
 	}
 }
 
-func validRole() Role {
-	return Role{Name: "alpha", Status: RoleActive, Mission: "Own product A.", Autonomy: AutonomyPrepare,
+func validRole() WorkIdentity {
+	return WorkIdentity{Name: "alpha", Status: IdentityActive, Mission: "Own product A.", Autonomy: AutonomyPrepare,
 		Repositories: []RepositoryAffinity{{Pattern: "github.com/example/a", Affinity: AffinitySteward}}}
 }
 
@@ -90,25 +90,25 @@ func validDecision() Decision {
 func TestRoleValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		edit    func(*Role)
+		edit    func(*WorkIdentity)
 		wantErr string
 	}{
-		{"valid", func(*Role) {}, ""},
-		{"org pattern", func(r *Role) {
-			r.Repositories = []RepositoryAffinity{{Pattern: "github.com/example/*", Affinity: AffinityContributor}}
+		{"valid", func(*WorkIdentity) {}, ""},
+		{"org pattern", func(r *WorkIdentity) {
+			r.Repositories = []RepositoryAffinity{{Pattern: "github.com/example/*", Affinity: AffinityCollaborator}}
 		}, ""},
-		{"bad name", func(r *Role) { r.Name = "Alpha" }, "name"},
-		{"bad status", func(r *Role) { r.Status = "paused" }, "status"},
-		{"no mission", func(r *Role) { r.Mission = " " }, "mission"},
-		{"bad autonomy", func(r *Role) { r.Autonomy = "full" }, "autonomy"},
-		{"bad pattern", func(r *Role) { r.Repositories[0].Pattern = "example/a" }, "must be github.com"},
-		{"partial glob", func(r *Role) { r.Repositories[0].Pattern = "github.com/example/a*" }, "must be github.com"},
-		{"bad affinity", func(r *Role) { r.Repositories[0].Affinity = "owner" }, "affinity"},
-		{"repeated pattern", func(r *Role) {
-			r.Repositories = append(r.Repositories, RepositoryAffinity{Pattern: "github.com/example/a", Affinity: AffinityContributor})
+		{"bad name", func(r *WorkIdentity) { r.Name = "Alpha" }, "name"},
+		{"bad status", func(r *WorkIdentity) { r.Status = "paused" }, "status"},
+		{"no mission", func(r *WorkIdentity) { r.Mission = " " }, "mission"},
+		{"bad autonomy", func(r *WorkIdentity) { r.Autonomy = "full" }, "autonomy"},
+		{"bad pattern", func(r *WorkIdentity) { r.Repositories[0].Pattern = "example/a" }, "must be github.com"},
+		{"partial glob", func(r *WorkIdentity) { r.Repositories[0].Pattern = "github.com/example/a*" }, "must be github.com"},
+		{"bad affinity", func(r *WorkIdentity) { r.Repositories[0].Affinity = "owner" }, "affinity"},
+		{"repeated pattern", func(r *WorkIdentity) {
+			r.Repositories = append(r.Repositories, RepositoryAffinity{Pattern: "github.com/example/a", Affinity: AffinityCollaborator})
 		}, "twice"},
-		{"bad initiative", func(r *Role) { r.Initiatives = []string{"INIT-x-1"} }, "initiative"},
-		{"self peer", func(r *Role) { r.Peers = []string{"alpha"} }, "own peer"},
+		{"bad initiative", func(r *WorkIdentity) { r.Initiatives = []string{"INIT-x-1"} }, "initiative"},
+		{"self peer", func(r *WorkIdentity) { r.Peers = []string{"alpha"} }, "own peer"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -119,72 +119,72 @@ func TestRoleValidate(t *testing.T) {
 	}
 }
 
-func TestValidateRoles(t *testing.T) {
+func TestValidateIdentities(t *testing.T) {
 	a := validRole()
 	b := validRole()
 	b.Name = "beta"
-	b.Repositories = []RepositoryAffinity{{Pattern: "github.com/example/a", Affinity: AffinityContributor}}
+	b.Repositories = []RepositoryAffinity{{Pattern: "github.com/example/a", Affinity: AffinityCollaborator}}
 
-	t.Run("shared as contributor", func(t *testing.T) {
+	t.Run("shared as collaborator", func(t *testing.T) {
 		b := b
 		b.Peers = []string{"alpha"}
-		checkErr(t, ValidateRoles([]Role{a, b}), "")
+		checkErr(t, ValidateIdentities([]WorkIdentity{a, b}), "")
 	})
 	t.Run("duplicate name", func(t *testing.T) {
-		checkErr(t, ValidateRoles([]Role{a, a}), "duplicate name")
+		checkErr(t, ValidateIdentities([]WorkIdentity{a, a}), "duplicate name")
 	})
 	t.Run("unknown peer", func(t *testing.T) {
 		b := b
 		b.Peers = []string{"gamma"}
-		checkErr(t, ValidateRoles([]Role{a, b}), "peer")
+		checkErr(t, ValidateIdentities([]WorkIdentity{a, b}), "peer")
 	})
 	t.Run("two stewards", func(t *testing.T) {
 		b := b
 		b.Repositories = a.Repositories
-		checkErr(t, ValidateRoles([]Role{a, b}), "two stewards")
+		checkErr(t, ValidateIdentities([]WorkIdentity{a, b}), "two stewards")
 	})
 	t.Run("retired steward does not conflict", func(t *testing.T) {
 		b := b
 		b.Repositories = a.Repositories
-		b.Status = RoleRetired
-		checkErr(t, ValidateRoles([]Role{a, b}), "")
+		b.Status = IdentityRetired
+		checkErr(t, ValidateIdentities([]WorkIdentity{a, b}), "")
 	})
 }
 
 func TestRolesFor(t *testing.T) {
 	aff := func(p string, a Affinity) RepositoryAffinity { return RepositoryAffinity{Pattern: p, Affinity: a} }
-	roles := []Role{
+	identities := []WorkIdentity{
 		{Name: "orgwide", Repositories: []RepositoryAffinity{aff("github.com/acme/*", AffinitySteward)}},
 		{Name: "app", Repositories: []RepositoryAffinity{
-			aff("github.com/acme/app", AffinitySteward), aff("github.com/acme/*", AffinityContributor)}},
-		{Name: "helper", Repositories: []RepositoryAffinity{aff("github.com/acme/app", AffinityContributor)}},
-		{Name: "gone", Status: RoleRetired, Repositories: []RepositoryAffinity{aff("github.com/acme/app", AffinityContributor)}},
+			aff("github.com/acme/app", AffinitySteward), aff("github.com/acme/*", AffinityCollaborator)}},
+		{Name: "helper", Repositories: []RepositoryAffinity{aff("github.com/acme/app", AffinityCollaborator)}},
+		{Name: "gone", Status: IdentityRetired, Repositories: []RepositoryAffinity{aff("github.com/acme/app", AffinityCollaborator)}},
 	}
 	tests := []struct {
 		repo, steward string
 		want          []Match
 	}{
 		{"github.com/acme/app", "app", []Match{
-			{Role: "app", Affinity: AffinitySteward, Exact: true},
-			{Role: "helper", Affinity: AffinityContributor, Exact: true},
-			{Role: "orgwide", Affinity: AffinityContributor},
+			{Identity: "app", Affinity: AffinitySteward, Exact: true},
+			{Identity: "helper", Affinity: AffinityCollaborator, Exact: true},
+			{Identity: "orgwide", Affinity: AffinityCollaborator},
 		}},
 		{"github.com/acme/lib", "orgwide", []Match{
-			{Role: "orgwide", Affinity: AffinitySteward},
-			{Role: "app", Affinity: AffinityContributor},
+			{Identity: "orgwide", Affinity: AffinitySteward},
+			{Identity: "app", Affinity: AffinityCollaborator},
 		}},
 		{"github.com/other/x", "", nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.repo, func(t *testing.T) {
-			got, err := RolesFor(roles, tt.repo)
+			got, err := IdentitiesFor(identities, tt.repo)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Fatalf("RolesFor:\n got %+v\nwant %+v", got, tt.want)
 			}
-			s, err := Steward(roles, tt.repo)
+			s, err := Steward(identities, tt.repo)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -193,10 +193,10 @@ func TestRolesFor(t *testing.T) {
 			}
 		})
 	}
-	if _, err := RolesFor(roles, "acme/app"); err == nil {
+	if _, err := IdentitiesFor(identities, "acme/app"); err == nil {
 		t.Fatal("want error for a malformed repository")
 	}
-	if _, err := Steward(roles, "github.com/acme/*"); err == nil {
+	if _, err := Steward(identities, "github.com/acme/*"); err == nil {
 		t.Fatal("want error for a pattern passed as a repository")
 	}
 }
@@ -249,11 +249,11 @@ func TestValidateDecisions(t *testing.T) {
 		d := validDecision()
 		checkErr(t, ValidateDecisions([]Decision{d, d}, nil), "duplicate id")
 	})
-	t.Run("unknown role", func(t *testing.T) {
+	t.Run("unknown work identity", func(t *testing.T) {
 		d := validDecision()
-		d.Roles = []string{"alpha"}
+		d.Identities = []string{"alpha"}
 		checkErr(t, ValidateDecisions([]Decision{d}, nil), "does not exist")
-		checkErr(t, ValidateDecisions([]Decision{d}, []Role{validRole()}), "")
+		checkErr(t, ValidateDecisions([]Decision{d}, []WorkIdentity{validRole()}), "")
 	})
 }
 
@@ -268,14 +268,14 @@ func TestLoadRejects(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			root := t.TempDir()
-			dir := filepath.Join(root, RolesDir)
+			dir := filepath.Join(root, IdentitiesDir)
 			if err := os.Mkdir(dir, 0o755); err != nil {
 				t.Fatal(err)
 			}
 			if err := os.WriteFile(filepath.Join(dir, tt.file), []byte(tt.body), 0o600); err != nil {
 				t.Fatal(err)
 			}
-			_, err := LoadRoles(root)
+			_, err := LoadIdentities(root)
 			checkErr(t, err, tt.wantErr)
 		})
 	}

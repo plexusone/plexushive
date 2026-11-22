@@ -3,18 +3,15 @@ package hive
 import (
 	"errors"
 	"reflect"
-	"strings"
 	"testing"
 )
 
 // fakeTmux replaces Tmux with an in-memory session environment.
-func fakeTmux(t *testing.T, session string, env map[string]string) *[]string {
+func fakeTmux(t *testing.T, session string, env map[string]string) {
 	t.Helper()
 	t.Setenv("TMUX", "/tmp/tmux-test,1,0")
-	var calls []string
 	saved := Tmux
 	Tmux = func(args ...string) (string, error) {
-		calls = append(calls, strings.Join(args, " "))
 		switch args[0] {
 		case "display-message":
 			return session, nil
@@ -31,32 +28,32 @@ func fakeTmux(t *testing.T, session string, env map[string]string) *[]string {
 		return "", errors.New("unexpected tmux call")
 	}
 	t.Cleanup(func() { Tmux = saved })
-	return &calls
 }
 
-func TestResolveRole(t *testing.T) {
-	t.Setenv(RoleEnv, "")
+func TestResolveIdentity(t *testing.T) {
+	t.Setenv(IdentityEnv, "")
+	t.Setenv(LegacyIdentityEnv, "")
 	t.Setenv("TMUX", "")
-	if role, src, err := ResolveRole(""); err != nil || role != "" || src != "" {
-		t.Fatalf("outside tmux: %q %q %v", role, src, err)
+	if identity, src, err := ResolveIdentity(""); err != nil || identity != "" || src != "" {
+		t.Fatalf("outside tmux: %q %q %v", identity, src, err)
 	}
-	if role, src, _ := ResolveRole("given"); role != "given" || src != SourceGiven {
-		t.Fatalf("given: %q %q", role, src)
+	if identity, src, _ := ResolveIdentity("given"); identity != "given" || src != SourceGiven {
+		t.Fatalf("given: %q %q", identity, src)
 	}
 	env := map[string]string{}
 	fakeTmux(t, "web", env)
-	if role, _, err := ResolveRole(""); err != nil || role != "" {
-		t.Fatalf("unbound: %q %v", role, err)
+	if identity, _, err := ResolveIdentity(""); err != nil || identity != "" {
+		t.Fatalf("unbound: %q %v", identity, err)
 	}
-	if err := BindTmuxRole("website"); err != nil {
+	if err := BindTmuxIdentity("website"); err != nil {
 		t.Fatal(err)
 	}
-	if role, src, err := ResolveRole(""); err != nil || role != "website" || src != SourceTmux {
-		t.Fatalf("tmux: %q %q %v", role, src, err)
+	if identity, src, err := ResolveIdentity(""); err != nil || identity != "website" || src != SourceTmux {
+		t.Fatalf("tmux: %q %q %v", identity, src, err)
 	}
-	t.Setenv(RoleEnv, "billing")
-	if role, src, _ := ResolveRole(""); role != "billing" || src != SourceEnv {
-		t.Fatalf("env wins over tmux: %q %q", role, src)
+	t.Setenv(IdentityEnv, "billing")
+	if identity, src, _ := ResolveIdentity(""); identity != "billing" || src != SourceEnv {
+		t.Fatalf("env wins over tmux: %q %q", identity, src)
 	}
 	if name, err := TmuxSession(); err != nil || name != "web" {
 		t.Fatalf("session: %q %v", name, err)
@@ -65,7 +62,7 @@ func TestResolveRole(t *testing.T) {
 
 func TestTmuxErrors(t *testing.T) {
 	t.Setenv("TMUX", "")
-	if err := BindTmuxRole("x"); err == nil {
+	if err := BindTmuxIdentity("x"); err == nil {
 		t.Fatal("bound outside tmux")
 	}
 	if name, err := TmuxSession(); err != nil || name != "" {
@@ -75,12 +72,12 @@ func TestTmuxErrors(t *testing.T) {
 	saved := Tmux
 	t.Cleanup(func() { Tmux = saved })
 	Tmux = func(...string) (string, error) { return "", errors.New("no server running") }
-	if _, err := TmuxRole(); err == nil {
+	if _, err := TmuxIdentity(); err == nil {
 		t.Fatal("tmux failure hidden")
 	}
-	Tmux = func(...string) (string, error) { return "-" + RoleEnv, nil }
-	if role, err := TmuxRole(); err != nil || role != "" {
-		t.Fatalf("removed variable: %q %v", role, err)
+	Tmux = func(...string) (string, error) { return "-" + IdentityEnv, nil }
+	if identity, err := TmuxIdentity(); err != nil || identity != "" {
+		t.Fatalf("removed variable: %q %v", identity, err)
 	}
 }
 
@@ -94,23 +91,23 @@ func TestNewContext(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := NewContext(h, reports, "nobody"); err == nil {
-		t.Fatal("unknown role accepted")
+		t.Fatal("unknown work identity accepted")
 	}
-	h.Decisions = append(h.Decisions, Decision{ID: "coupon-stacking", Status: DecisionAccepted, Roles: []string{"billing"}})
+	h.Decisions = append(h.Decisions, Decision{ID: "coupon-stacking", Status: DecisionAccepted, Identities: []string{"billing"}})
 	c, err := NewContext(h, reports, "billing")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.Report == nil || c.Report.Role != "billing" || !reflect.DeepEqual(c.Answered, []string{"coupon-stacking"}) {
+	if c.Report == nil || c.Report.Identity != "billing" || !reflect.DeepEqual(c.Answered, []string{"coupon-stacking"}) {
 		t.Fatalf("report/answered: %+v %v", c.Report, c.Answered)
 	}
 	for _, d := range c.Decisions {
-		if d.Status != DecisionAccepted || (len(d.Roles) > 0 && !contains(d.Roles, "billing")) {
+		if d.Status != DecisionAccepted || (len(d.Identities) > 0 && !contains(d.Identities, "billing")) {
 			t.Fatalf("decision that does not bind billing: %+v", d)
 		}
 	}
 	for _, p := range c.Peers {
-		if p.Role == "website" && (p.Session == nil || p.Session.Tmux != "web") {
+		if p.Identity == "website" && (p.Session == nil || p.Session.Tmux != "web") {
 			t.Fatalf("peer session: %+v", p)
 		}
 	}

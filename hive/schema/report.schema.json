@@ -400,7 +400,7 @@
     },
     "Report": {
       "properties": {
-        "role": {
+        "identity": {
           "type": "string",
           "pattern": "^[a-z][a-z0-9-]*$"
         },
@@ -463,7 +463,7 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "role",
+        "identity",
         "generated"
       ]
     },
@@ -529,5 +529,5 @@
     }
   },
   "title": "Status report",
-  "description": "One role's current status: the operator's actions it waits on, its work in progress, what it finished, what is blocked and on whom, what it does next, the decisions it needs and notices for other roles. Reports are kept outside version control, so they can describe unpublished work plainly."
+  "description": "One work identity's current status: the operator's actions it waits on, its work in progress, what it finished, what is blocked and on whom, what it does next, the decisions it needs and notices for other work identities. Reports are kept outside version control, so they can describe unpublished work plainly."
 }

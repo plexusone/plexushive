@@ -10,11 +10,11 @@ import (
 	"github.com/plexusone/plexushive/hive"
 )
 
-// copyHive copies the example roles and decisions to a temporary hive.
+// copyHive copies the example work identities and decisions to a temporary hive.
 func copyHive(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
-	for _, sub := range []string{"roles", "decisions"} {
+	for _, sub := range []string{"identities", "decisions"} {
 		if err := os.Mkdir(filepath.Join(root, sub), 0o750); err != nil {
 			t.Fatal(err)
 		}
@@ -85,7 +85,7 @@ func TestWho(t *testing.T) {
 	}
 	for _, want := range []string{
 		"steward      website          agent website-1, tmux web",
-		"contributor  billing",
+		"collaborator billing",
 		"billing          refund-export",
 		"website          account-link",
 		"website          push       Push the launch page branch.",
@@ -106,8 +106,8 @@ func TestWho(t *testing.T) {
 func TestKeepAsked(t *testing.T) {
 	first := time.Date(2026, 11, 18, 9, 0, 0, 0, time.UTC)
 	gen := time.Date(2026, 11, 19, 9, 0, 0, 0, time.UTC)
-	prev := []hive.Report{{Role: "a", DecisionsNeeded: []hive.DecisionRequest{{ID: "old", Asked: first}}}}
-	r := hive.Report{Role: "a", Generated: gen, DecisionsNeeded: []hive.DecisionRequest{{ID: "old"}, {ID: "new"}}}
+	prev := []hive.Report{{Identity: "a", DecisionsNeeded: []hive.DecisionRequest{{ID: "old", Asked: first}}}}
+	r := hive.Report{Identity: "a", Generated: gen, DecisionsNeeded: []hive.DecisionRequest{{ID: "old"}, {ID: "new"}}}
 	keepAsked(&r, prev)
 	if !r.DecisionsNeeded[0].Asked.Equal(first) || !r.DecisionsNeeded[1].Asked.Equal(gen) {
 		t.Fatalf("asked: %+v", r.DecisionsNeeded)

@@ -6,97 +6,99 @@ import (
 	"strings"
 )
 
-// Briefing gathers every role's report into what the operator reads first:
-// actions to take, decisions to make, what is blocked, who is working where,
-// notices, then each role's status.
+// Briefing gathers every work identity's report into what the operator reads
+// first: actions to take, decisions to make, what is blocked, who is working
+// where, notices, then each work identity's status.
 type Briefing struct {
-	// Actions are the operator's steps, grouped by kind in ActionKinds
-	// order, then by role. The same step asked for by several roles is
-	// listed once. A step that applies under an option of a decision the
+	// Actions are the operator's steps, grouped by kind in ActionKinds order,
+	// then by work identity. The same step asked for by several work identities
+	// is listed once. A step that applies under an option of a decision the
 	// operator chose against is left out.
-	Actions []RoleAction `json:"actions"`
-	// Decisions are the open decision requests, by role then ID.
-	Decisions []RoleDecision `json:"decisions"`
-	// Answered are decision requests the decision log already answers; the
-	// role should read the decision and drop the request from its report.
-	Answered []RoleDecision `json:"answered"`
+	Actions []IdentityAction `json:"actions"`
+	// Decisions are the open decision requests, by work identity then ID.
+	Decisions []IdentityDecision `json:"decisions"`
+	// Answered are decision requests the decision log already answers; the work
+	// identity should read the decision and drop the request from its report.
+	Answered []IdentityDecision `json:"answered"`
 	// Blocked are the blockers, those waiting on the operator first.
-	Blocked []RoleBlocker `json:"blocked"`
+	Blocked []IdentityBlocker `json:"blocked"`
 	// InProgress is the work in progress, by repository.
 	InProgress []RepositoryWork `json:"inProgress"`
-	// Notices are what roles told the others, by role.
-	Notices []RoleNotice `json:"notices"`
-	// Reports are the reports from current roles, by role.
+	// Notices are what work identities told the others, by work identity.
+	Notices []IdentityNotice `json:"notices"`
+	// Reports are the reports from current identities, by work identity.
 	Reports []Report `json:"reports"`
-	// Idle are the roles that reported they have nothing to do.
+	// Idle are the work identities that reported they have nothing to do.
 	Idle []string `json:"idle"`
-	// Waiting are the roles whose only open work waits on the operator's
-	// answer to their decision requests.
+	// Waiting are the work identities whose only open work waits on the
+	// operator's answer to their decision requests.
 	Waiting []string `json:"waiting"`
-	// Missing are active roles that have not reported.
+	// Missing are active work identities that have not reported.
 	Missing []string `json:"missing"`
-	// Ignored are reports from roles that do not exist or are retired.
+	// Ignored are reports from work identities that do not exist or are
+	// retired.
 	Ignored []string `json:"ignored"`
 	// Unreadable are report files that could not be decoded; the caller
 	// sets them from ReadReports with SetUnreadable.
 	Unreadable []UnreadableReport `json:"unreadable"`
 }
 
-// RoleAction is an operator action and the roles that asked for it. Role
-// is the first of Roles. Condition, when set, is the open decision and
-// option the action applies under, as "<role>/<id> = <option>".
-type RoleAction struct {
-	Role      string   `json:"role"`
-	Roles     []string `json:"roles"`
-	Action    Action   `json:"action"`
-	Condition string   `json:"condition,omitempty"`
+// IdentityAction is an operator action and the work identities that asked for
+// it. Identity is the first of Identities. Condition, when set, is the open
+// decision and option the action applies under, as "<identity>/<id> =
+// <option>".
+type IdentityAction struct {
+	Identity   string   `json:"identity"`
+	Identities []string `json:"identities"`
+	Action     Action   `json:"action"`
+	Condition  string   `json:"condition,omitempty"`
 }
 
-// RoleDecision is a decision request and the role that raised it. Key,
-// "<role>/<id>", is unique across the briefing.
-type RoleDecision struct {
-	Key     string          `json:"key"`
-	Role    string          `json:"role"`
-	Request DecisionRequest `json:"request"`
+// IdentityDecision is a decision request and the work identity that raised it.
+// Key, "<identity>/<id>", is unique across the briefing.
+type IdentityDecision struct {
+	Key      string          `json:"key"`
+	Identity string          `json:"identity"`
+	Request  DecisionRequest `json:"request"`
 }
 
-// RoleBlocker is a blocker and the role it blocks.
-type RoleBlocker struct {
-	Role    string  `json:"role"`
-	Blocker Blocker `json:"blocker"`
+// IdentityBlocker is a blocker and the work identity it blocks.
+type IdentityBlocker struct {
+	Identity string  `json:"identity"`
+	Blocker  Blocker `json:"blocker"`
 }
 
-// RoleWork is work in progress and the role doing it.
-type RoleWork struct {
-	Role string `json:"role"`
-	Work Work   `json:"work"`
+// IdentityWork is work in progress and the work identity doing it.
+type IdentityWork struct {
+	Identity string `json:"identity"`
+	Work     Work   `json:"work"`
 }
 
 // RepositoryWork is the work in progress in one repository. Shared is set
-// when more than one role is working there.
+// when more than one work identity is working there.
 type RepositoryWork struct {
-	Repository string     `json:"repository"`
-	Shared     bool       `json:"shared"`
-	Work       []RoleWork `json:"work"`
+	Repository string         `json:"repository"`
+	Shared     bool           `json:"shared"`
+	Work       []IdentityWork `json:"work"`
 }
 
-// RoleNotice is a notice and the role that raised it.
-type RoleNotice struct {
-	Role   string `json:"role"`
-	Notice Notice `json:"notice"`
+// IdentityNotice is a notice and the work identity that raised it.
+type IdentityNotice struct {
+	Identity string `json:"identity"`
+	Notice   Notice `json:"notice"`
 }
 
-// NewBriefing builds a briefing from the roles, the decision log and the
+// NewBriefing builds a briefing from the identities, the decision log and the
 // current reports.
-func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing {
+func NewBriefing(identities []WorkIdentity, decisions []Decision, reports []Report) Briefing {
 	b := Briefing{
-		Actions: []RoleAction{}, Decisions: []RoleDecision{}, Answered: []RoleDecision{},
-		Blocked: []RoleBlocker{}, InProgress: []RepositoryWork{}, Notices: []RoleNotice{},
+		Actions: []IdentityAction{}, Decisions: []IdentityDecision{}, Answered: []IdentityDecision{},
+		Blocked: []IdentityBlocker{}, InProgress: []RepositoryWork{}, Notices: []IdentityNotice{},
 		Reports: []Report{}, Idle: []string{}, Waiting: []string{}, Missing: []string{}, Ignored: []string{},
 		Unreadable: []UnreadableReport{},
 	}
-	byName := map[string]Role{}
-	for _, r := range roles {
+	byName := map[string]WorkIdentity{}
+	for _, r := range identities {
 		byName[r.Name] = r
 	}
 	decided := map[string]Decision{}
@@ -105,19 +107,19 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 	}
 	actionAt := map[string]int{}
 	reported := map[string]bool{}
-	work := map[string][]RoleWork{}
+	work := map[string][]IdentityWork{}
 	for _, r := range reports {
-		if role, ok := byName[r.Role]; !ok || role.Status == RoleRetired {
-			b.Ignored = append(b.Ignored, r.Role)
+		if identity, ok := byName[r.Identity]; !ok || identity.Status == IdentityRetired {
+			b.Ignored = append(b.Ignored, r.Identity)
 			continue
 		}
 		b.Reports = append(b.Reports, r)
-		reported[r.Role] = true
+		reported[r.Identity] = true
 		if r.Idle {
-			b.Idle = append(b.Idle, r.Role)
+			b.Idle = append(b.Idle, r.Identity)
 		}
 		if waitsOnlyOnDecisions(r, decided) {
-			b.Waiting = append(b.Waiting, r.Role)
+			b.Waiting = append(b.Waiting, r.Identity)
 		}
 		for _, a := range r.OperatorActions {
 			condition := ""
@@ -127,23 +129,23 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 				case ok && d.Option != "" && a.Option != "" && d.Option != a.Option:
 					continue
 				case !ok && a.Option != "":
-					condition = r.Role + "/" + a.Decision + " = " + a.Option
+					condition = r.Identity + "/" + a.Decision + " = " + a.Option
 				}
 			}
 			key := actionKey(a)
 			if i, ok := actionAt[key]; ok && key != "" {
-				if !slices.Contains(b.Actions[i].Roles, r.Role) {
-					b.Actions[i].Roles = append(b.Actions[i].Roles, r.Role)
+				if !slices.Contains(b.Actions[i].Identities, r.Identity) {
+					b.Actions[i].Identities = append(b.Actions[i].Identities, r.Identity)
 				}
 				continue
 			}
 			if key != "" {
 				actionAt[key] = len(b.Actions)
 			}
-			b.Actions = append(b.Actions, RoleAction{Role: r.Role, Roles: []string{r.Role}, Action: a, Condition: condition})
+			b.Actions = append(b.Actions, IdentityAction{Identity: r.Identity, Identities: []string{r.Identity}, Action: a, Condition: condition})
 		}
 		for _, d := range r.DecisionsNeeded {
-			rd := RoleDecision{Key: r.Role + "/" + d.ID, Role: r.Role, Request: d}
+			rd := IdentityDecision{Key: r.Identity + "/" + d.ID, Identity: r.Identity, Request: d}
 			if _, ok := decided[d.ID]; ok {
 				b.Answered = append(b.Answered, rd)
 			} else {
@@ -151,16 +153,16 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 			}
 		}
 		for _, bl := range r.Blocked {
-			b.Blocked = append(b.Blocked, RoleBlocker{Role: r.Role, Blocker: bl})
+			b.Blocked = append(b.Blocked, IdentityBlocker{Identity: r.Identity, Blocker: bl})
 		}
 		for _, w := range r.InProgress {
-			work[w.Repository] = append(work[w.Repository], RoleWork{Role: r.Role, Work: w})
+			work[w.Repository] = append(work[w.Repository], IdentityWork{Identity: r.Identity, Work: w})
 		}
 		for _, n := range r.Notices {
-			b.Notices = append(b.Notices, RoleNotice{Role: r.Role, Notice: n})
+			b.Notices = append(b.Notices, IdentityNotice{Identity: r.Identity, Notice: n})
 		}
 	}
-	sort.Slice(b.Reports, func(i, j int) bool { return b.Reports[i].Role < b.Reports[j].Role })
+	sort.Slice(b.Reports, func(i, j int) bool { return b.Reports[i].Identity < b.Reports[j].Identity })
 	kindRank := map[ActionKind]int{}
 	for i, k := range ActionKinds {
 		kindRank[k] = i
@@ -170,9 +172,9 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 		if ki != kj {
 			return ki < kj
 		}
-		return b.Actions[i].Role < b.Actions[j].Role
+		return b.Actions[i].Identity < b.Actions[j].Identity
 	})
-	byKey := func(s []RoleDecision) func(i, j int) bool {
+	byKey := func(s []IdentityDecision) func(i, j int) bool {
 		return func(i, j int) bool { return s[i].Key < s[j].Key }
 	}
 	sort.SliceStable(b.Decisions, byKey(b.Decisions))
@@ -182,13 +184,13 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 		if oi != oj {
 			return oi
 		}
-		return b.Blocked[i].Role < b.Blocked[j].Role
+		return b.Blocked[i].Identity < b.Blocked[j].Identity
 	})
 	for repo, ws := range work {
-		sort.SliceStable(ws, func(i, j int) bool { return ws[i].Role < ws[j].Role })
+		sort.SliceStable(ws, func(i, j int) bool { return ws[i].Identity < ws[j].Identity })
 		shared := false
 		for _, w := range ws[1:] {
-			shared = shared || w.Role != ws[0].Role
+			shared = shared || w.Identity != ws[0].Identity
 		}
 		b.InProgress = append(b.InProgress, RepositoryWork{Repository: repo, Shared: shared, Work: ws})
 	}
@@ -198,9 +200,9 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 		}
 		return b.InProgress[i].Repository < b.InProgress[j].Repository
 	})
-	sort.SliceStable(b.Notices, func(i, j int) bool { return b.Notices[i].Role < b.Notices[j].Role })
-	for _, r := range roles {
-		if r.Status == RoleActive && !reported[r.Name] {
+	sort.SliceStable(b.Notices, func(i, j int) bool { return b.Notices[i].Identity < b.Notices[j].Identity })
+	for _, r := range identities {
+		if r.Status == IdentityActive && !reported[r.Name] {
 			b.Missing = append(b.Missing, r.Name)
 		}
 	}
@@ -211,11 +213,11 @@ func NewBriefing(roles []Role, decisions []Decision, reports []Report) Briefing 
 	return b
 }
 
-// actionKey identifies the same step asked for by several roles. A push
-// to the same repository and branch is one step, however each role wrote
-// the command, since one push sends every commit on the branch. Any other
-// action is the same step when its kind, repository, branch and command
-// match. Actions with neither are never merged.
+// actionKey identifies the same step asked for by several work identities. A
+// push to the same repository and branch is one step, however each work
+// identity wrote the command, since one push sends every commit on the branch.
+// Any other action is the same step when its kind, repository, branch and
+// command match. Actions with neither are never merged.
 func actionKey(a Action) string {
 	if a.Kind == ActionPush && a.Repository != "" && a.Branch != "" {
 		return strings.Join([]string{string(a.Kind), a.Repository, a.Branch}, "\x00")
@@ -227,9 +229,9 @@ func actionKey(a Action) string {
 	return strings.Join([]string{string(a.Kind), a.Repository, a.Branch, cmd}, "\x00")
 }
 
-// waitsOnlyOnDecisions reports whether a role's only open work is waiting
-// for the operator's answers: it has an unanswered decision request, and no
-// action, work in progress or blocker that does not wait on one of its
+// waitsOnlyOnDecisions reports whether a work identity's only open work is
+// waiting for the operator's answers: it has an unanswered decision request,
+// and no action, work in progress or blocker that does not wait on one of its
 // requests.
 func waitsOnlyOnDecisions(r Report, decided map[string]Decision) bool {
 	if r.Idle || len(r.OperatorActions) > 0 || len(r.InProgress) > 0 {
@@ -250,10 +252,10 @@ func waitsOnlyOnDecisions(r Report, decided map[string]Decision) bool {
 }
 
 // SetUnreadable records the reports ReadReports could not decode. Their
-// roles did report, so they are no longer listed as missing.
+// work identities did report, so they are no longer listed as missing.
 func (b *Briefing) SetUnreadable(u []UnreadableReport) {
 	b.Unreadable = append([]UnreadableReport{}, u...)
 	b.Missing = slices.DeleteFunc(b.Missing, func(name string) bool {
-		return slices.ContainsFunc(u, func(x UnreadableReport) bool { return x.Role == name })
+		return slices.ContainsFunc(u, func(x UnreadableReport) bool { return x.Identity == name })
 	})
 }

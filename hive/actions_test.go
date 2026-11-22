@@ -56,7 +56,7 @@ func TestLegacyShapes(t *testing.T) {
 
 func linkedReport() Report {
 	return Report{
-		Role:      "a",
+		Identity:  "a",
 		Generated: time.Date(2026, 11, 20, 0, 0, 0, 0, time.UTC),
 		OperatorActions: []Action{
 			{ID: "push", Kind: ActionPush, Description: "push", Repository: "github.com/o/r", PullRequests: []string{"#12"}},
@@ -109,7 +109,7 @@ func TestActionLinks(t *testing.T) {
 		})
 	}
 	item := Item{Description: "x", Repositories: []string{"github.com/o/r"}, PullRequests: []string{"#4"}, State: StateUncommitted}
-	r = Report{Role: "a", Generated: time.Now(), Done: []Item{item},
+	r = Report{Identity: "a", Generated: time.Now(), Done: []Item{item},
 		OperatorActions: []Action{{ID: "deploy-v0.3.0", Kind: ActionDeploy, Description: "d", Repository: "github.com/o/r", PullRequests: []string{"#5"}}}}
 	if err := r.Validate(); err != nil {
 		t.Fatalf("#<n> with one repository, before normalizing: %v", err)
@@ -121,19 +121,19 @@ func TestActionLinks(t *testing.T) {
 }
 
 func TestBriefingMergesAndConditions(t *testing.T) {
-	roles := []Role{{Name: "a", Status: RoleActive}, {Name: "b", Status: RoleActive}, {Name: "c", Status: RoleActive}}
+	identities := []WorkIdentity{{Name: "a", Status: IdentityActive}, {Name: "b", Status: IdentityActive}, {Name: "c", Status: IdentityActive}}
 	push := Action{Kind: ActionPush, Description: "Push infra.", Command: "git -C infra  push", Repository: "github.com/o/infra", Branch: "main"}
 	same := push
 	same.Command = "cd infra && git push origin main"
 	same.Description = "Push my infra commits."
 	a := linkedReport()
 	a.OperatorActions = append(a.OperatorActions, push)
-	b := Report{Role: "b", OperatorActions: []Action{same, {Kind: ActionReview, Description: "no command"}}}
-	c := Report{Role: "c", DecisionsNeeded: []DecisionRequest{{ID: "q"}},
+	b := Report{Identity: "b", OperatorActions: []Action{same, {Kind: ActionReview, Description: "no command"}}}
+	c := Report{Identity: "c", DecisionsNeeded: []DecisionRequest{{ID: "q"}},
 		Blocked: []Blocker{{Item: Item{Description: "x"}, WaitingOn: []string{Operator}, Decision: "q"}}}
 
-	br := NewBriefing(roles, nil, []Report{a, b, c})
-	var infra *RoleAction
+	br := NewBriefing(identities, nil, []Report{a, b, c})
+	var infra *IdentityAction
 	for i := range br.Actions {
 		if br.Actions[i].Action.Repository == "github.com/o/infra" {
 			if infra != nil {
@@ -142,7 +142,7 @@ func TestBriefingMergesAndConditions(t *testing.T) {
 			infra = &br.Actions[i]
 		}
 	}
-	if infra == nil || !reflect.DeepEqual(infra.Roles, []string{"a", "b"}) || infra.Role != "a" {
+	if infra == nil || !reflect.DeepEqual(infra.Identities, []string{"a", "b"}) || infra.Identity != "a" {
 		t.Fatalf("merged: %+v", infra)
 	}
 	if len(br.Actions) != 5 {
@@ -156,17 +156,17 @@ func TestBriefingMergesAndConditions(t *testing.T) {
 		t.Fatalf("waiting: %v", br.Waiting)
 	}
 
-	br = NewBriefing(roles, []Decision{{ID: "land", Option: "later"}}, []Report{a})
+	br = NewBriefing(identities, []Decision{{ID: "land", Option: "later"}}, []Report{a})
 	if findAction(br, ActionMerge) != nil {
 		t.Fatal("action for the option not chosen is listed")
 	}
-	br = NewBriefing(roles, []Decision{{ID: "land", Option: "now"}}, []Report{a})
+	br = NewBriefing(identities, []Decision{{ID: "land", Option: "now"}}, []Report{a})
 	if m := findAction(br, ActionMerge); m == nil || m.Condition != "" {
 		t.Fatalf("decided option: %+v", m)
 	}
 }
 
-func findAction(b Briefing, kind ActionKind) *RoleAction {
+func findAction(b Briefing, kind ActionKind) *IdentityAction {
 	for i := range b.Actions {
 		if b.Actions[i].Action.Kind == kind {
 			return &b.Actions[i]
@@ -182,8 +182,8 @@ func TestReadReportsSkipsUnreadable(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, body := range map[string]string{
-		"newer.json":    `{"role":"newer","generated":"2026-11-21T00:00:00Z","futureField":1}`,
-		"misnamed.json": `{"role":"other","generated":"2026-11-21T00:00:00Z"}`,
+		"newer.json":    `{"identity":"newer","generated":"2026-11-21T00:00:00Z","futureField":1}`,
+		"misnamed.json": `{"identity":"other","generated":"2026-11-21T00:00:00Z"}`,
 	} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
 			t.Fatal(err)
@@ -193,10 +193,10 @@ func TestReadReportsSkipsUnreadable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(reports) != 1 || reports[0].Role != "a" || len(bad) != 2 {
+	if len(reports) != 1 || reports[0].Identity != "a" || len(bad) != 2 {
 		t.Fatalf("reports %+v, unreadable %+v", reports, bad)
 	}
-	if bad[0].Role != "misnamed" || !strings.Contains(bad[1].String(), `newer.json: json: unknown field "futureField"`) {
+	if bad[0].Identity != "misnamed" || !strings.Contains(bad[1].String(), `newer.json: json: unknown field "futureField"`) {
 		t.Fatalf("unreadable: %+v", bad)
 	}
 	if _, err := LoadReports(dir); err == nil {

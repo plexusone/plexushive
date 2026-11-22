@@ -33,9 +33,9 @@ func ReportsDir() (string, error) {
 	return filepath.Join(base, "reports"), nil
 }
 
-// WriteReport normalizes and validates r and writes it to dir as <role>.json, replacing
-// the role's previous report. The write is atomic: a reader sees the old
-// report or the new one, never part of either.
+// WriteReport normalizes and validates r and writes it to dir as
+// <identity>.json, replacing the work identity's previous report. The write is
+// atomic: a reader sees the old report or the new one, never part of either.
 func WriteReport(dir string, r Report) error {
 	r.Normalize()
 	if err := r.Validate(); err != nil {
@@ -48,13 +48,13 @@ func WriteReport(dir string, r Report) error {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return fmt.Errorf("hive: %w", err)
 	}
-	if err := fs.WriteFileAtomic(filepath.Join(dir, r.Role+".json"), append(data, '\n'), 0o600); err != nil {
+	if err := fs.WriteFileAtomic(filepath.Join(dir, r.Identity+".json"), append(data, '\n'), 0o600); err != nil {
 		return fmt.Errorf("hive: %w", err)
 	}
 	return nil
 }
 
-// LoadReports reads every <role>.json in dir and fails on any report it
+// LoadReports reads every <identity>.json in dir and fails on any report it
 // cannot read. A directory that does not exist yet holds no reports.
 func LoadReports(dir string) ([]Report, error) {
 	reports, unreadable, err := ReadReports(dir)
@@ -70,18 +70,18 @@ func LoadReports(dir string) ([]Report, error) {
 // UnreadableReport is a report file that could not be decoded, such as one
 // written by a newer version with fields this version does not know.
 type UnreadableReport struct {
-	Role  string `json:"role"`
-	Error string `json:"error"`
+	Identity string `json:"identity"`
+	Error    string `json:"error"`
 }
 
 func (u UnreadableReport) String() string {
-	return u.Role + ".json: " + u.Error
+	return u.Identity + ".json: " + u.Error
 }
 
-// ReadReports reads every <role>.json in dir. A report that cannot be
-// decoded is returned in unreadable rather than failing the rest, so one
-// role writing a newer format does not stop every other role from reading
-// the briefing. err is set only when the directory or a file cannot be
+// ReadReports reads every <identity>.json in dir. A report that cannot be
+// decoded is returned in unreadable rather than failing the rest, so one work
+// identity writing a newer format does not stop every other work identity from
+// reading the briefing. err is set only when the directory or a file cannot be
 // read at all.
 func ReadReports(dir string) (reports []Report, unreadable []UnreadableReport, err error) {
 	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
@@ -90,11 +90,11 @@ func ReadReports(dir string) (reports []Report, unreadable []UnreadableReport, e
 	err = eachJSON(dir, func(stem string, data []byte) error {
 		var r Report
 		if err := decodeStrict(data, &r); err != nil {
-			unreadable = append(unreadable, UnreadableReport{Role: stem, Error: err.Error()})
+			unreadable = append(unreadable, UnreadableReport{Identity: stem, Error: err.Error()})
 			return nil
 		}
-		if r.Role != stem {
-			unreadable = append(unreadable, UnreadableReport{Role: stem, Error: fmt.Sprintf("role %q does not match the file name", r.Role)})
+		if r.Identity != stem {
+			unreadable = append(unreadable, UnreadableReport{Identity: stem, Error: fmt.Sprintf("work identity %q does not match the file name", r.Identity)})
 			return nil
 		}
 		reports = append(reports, r)

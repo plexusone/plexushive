@@ -40,9 +40,9 @@ type Decision struct {
 	// Refs are the initiatives and roadmap items the decision belongs to or
 	// constrains: INIT-<SLUG>-NNN or RMI-<SLUG>-NNN.
 	Refs []string `json:"refs,omitempty"`
-	// Roles are the roles the decision binds, by name. Empty means it binds
-	// every role.
-	Roles []string `json:"roles,omitempty"`
+	// Identities are the work identities the decision binds, by name. Empty
+	// means it binds every work identity.
+	Identities []string `json:"identities,omitempty"`
 	// Repositories are the repositories the decision constrains, as
 	// github.com/<org>/<repo>, so an agent can find the decisions that
 	// apply to the code it works on.
@@ -113,8 +113,8 @@ func (d Decision) Validate() error {
 
 // ValidateDecisions checks the log as a whole: each decision is valid, IDs
 // are unique, references between decisions resolve both ways, and named
-// roles exist.
-func ValidateDecisions(decisions []Decision, roles []Role) error {
+// work identities exist.
+func ValidateDecisions(decisions []Decision, identities []WorkIdentity) error {
 	var errs []string
 	byID := map[string]Decision{}
 	for _, d := range decisions {
@@ -127,13 +127,13 @@ func ValidateDecisions(decisions []Decision, roles []Role) error {
 		byID[d.ID] = d
 	}
 	known := map[string]bool{}
-	for _, r := range roles {
+	for _, r := range identities {
 		known[r.Name] = true
 	}
 	for _, d := range decisions {
-		for _, r := range d.Roles {
+		for _, r := range d.Identities {
 			if !known[r] {
-				errs = append(errs, fmt.Sprintf("decision %s: role %q does not exist", d.ID, r))
+				errs = append(errs, fmt.Sprintf("decision %s: work identity %q does not exist", d.ID, r))
 			}
 		}
 		for _, s := range d.Supersedes {

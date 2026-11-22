@@ -77,6 +77,71 @@ func (d *DecisionRequest) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("asked %q must be a date or an RFC 3339 time", v.Asked)
 }
 
+// Records written before roles became work identities still load: a
+// report's role is its identity, a decision's roles are its identities, and
+// a contributor is a collaborator. Only reading accepts the old names.
+
+// UnmarshalJSON reads a report, accepting role for identity.
+func (r *Report) UnmarshalJSON(data []byte) error {
+	type plain Report
+	v := struct {
+		*plain
+		Role string `json:"role"`
+	}{plain: (*plain)(r)}
+	if err := decodeStrict(data, &v); err != nil {
+		return err
+	}
+	return legacyName("role", v.Role, &r.Identity)
+}
+
+// UnmarshalJSON reads a decision, accepting roles for identities.
+func (d *Decision) UnmarshalJSON(data []byte) error {
+	type plain Decision
+	v := struct {
+		*plain
+		Roles []string `json:"roles"`
+	}{plain: (*plain)(d)}
+	if err := decodeStrict(data, &v); err != nil {
+		return err
+	}
+	if len(v.Roles) > 0 && len(d.Identities) > 0 {
+		return fmt.Errorf("roles and identities both given; identities replaces roles")
+	}
+	if len(v.Roles) > 0 {
+		d.Identities = v.Roles
+	}
+	return nil
+}
+
+// UnmarshalJSON reads an affinity, accepting contributor for collaborator.
+func (a *Affinity) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("affinity must be a string")
+	}
+	if s == legacyContributor {
+		s = string(AffinityCollaborator)
+	}
+	*a = Affinity(s)
+	return nil
+}
+
+// legacyContributor is the name collaborator had before v0.5.0.
+const legacyContributor = "contributor"
+
+// legacyName moves an old field's value into its replacement, refusing
+// two different values.
+func legacyName(field, old string, current *string) error {
+	if old == "" {
+		return nil
+	}
+	if *current != "" && *current != old {
+		return fmt.Errorf("%s %q and identity %q differ; identity replaces %s", field, old, *current, field)
+	}
+	*current = old
+	return nil
+}
+
 // stringOrList reads raw as a list of strings, or as one string.
 func stringOrList(field string, raw json.RawMessage) ([]string, error) {
 	if len(raw) == 0 || string(raw) == "null" {

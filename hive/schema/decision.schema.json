@@ -59,7 +59,7 @@
           },
           "type": "array"
         },
-        "roles": {
+        "identities": {
           "items": {
             "type": "string"
           },

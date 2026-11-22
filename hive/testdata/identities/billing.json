@@ -5,7 +5,7 @@
   "autonomy": "prepare",
   "repositories": [
     {"pattern": "github.com/example/billing", "affinity": "steward"},
-    {"pattern": "github.com/example/web", "affinity": "contributor"}
+    {"pattern": "github.com/example/web", "affinity": "collaborator"}
   ],
   "initiatives": ["INIT-BILLING-001"],
   "peers": ["website"]

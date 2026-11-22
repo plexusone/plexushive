@@ -34,7 +34,7 @@ func TestReportSubmit(t *testing.T) {
 	at := time.Date(2026, 11, 19, 12, 0, 0, 0, time.UTC)
 	fixClock(t, at)
 	dir := t.TempDir()
-	t.Setenv(hive.RoleEnv, "billing")
+	t.Setenv(hive.IdentityEnv, "billing")
 
 	out, err := runIn(t, `{"summary":"working"}`, "-C", example, "report", "submit", "--reports", dir)
 	if err != nil {
@@ -47,12 +47,12 @@ func TestReportSubmit(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(reports) != 1 || reports[0].Role != "billing" || !reports[0].Generated.Equal(at) {
+	if len(reports) != 1 || reports[0].Identity != "billing" || !reports[0].Generated.Equal(at) {
 		t.Fatalf("stored: %+v", reports)
 	}
 
 	file := filepath.Join(t.TempDir(), "r.json")
-	if err := os.WriteFile(file, []byte(`{"role":"website","generated":"2026-11-19T10:00:00Z"}`), 0o600); err != nil {
+	if err := os.WriteFile(file, []byte(`{"identity":"website","generated":"2026-11-19T10:00:00Z"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if out, err := runIn(t, "", "-C", example, "report", "submit", file, "--reports", dir); err != nil {
@@ -61,10 +61,10 @@ func TestReportSubmit(t *testing.T) {
 
 	t.Setenv(hive.ReportsEnv, dir)
 	bad := map[string]string{
-		"unknown role":  `{"role":"nobody"}`,
-		"unknown field": `{"extra":1}`,
-		"not json":      `x`,
-		"invalid":       `{"done":[{"description":""}]}`,
+		"unknown work identity": `{"identity":"nobody"}`,
+		"unknown field":         `{"extra":1}`,
+		"not json":              `x`,
+		"invalid":               `{"done":[{"description":""}]}`,
 	}
 	for name, in := range bad {
 		if _, err := runIn(t, in, "-C", example, "report", "submit", "-"); err == nil {
@@ -100,7 +100,7 @@ func TestBrief(t *testing.T) {
 		"billing        2h",
 		"website        2h",
 		"Your actions (3)",
-		"then the role: Open the pull request.",
+		"then the work identity: Open the pull request.",
 		"  configure\n    website        Set the analytics key for the launch page.",
 		"after: push-launch",
 		"credentials: web/prod/ANALYTICS_KEY",
@@ -109,7 +109,7 @@ func TestBrief(t *testing.T) {
 		"  push\n    website        Push the launch page branch.",
 		"$ git -C web push -u origin launch-page",
 		"Tag the coupon release. [irreversible]",
-		"github.com/example/web  [more than one role]",
+		"github.com/example/web  [more than one work identity]",
 		"billing        refund-export",
 		"then: The refund report for finance.",
 		"Notices (1)",
@@ -121,7 +121,7 @@ func TestBrief(t *testing.T) {
 		}
 	}
 	if strings.Contains(out, "No report") {
-		t.Errorf("no role should be missing:\n%s", out)
+		t.Errorf("no work identity should be missing:\n%s", out)
 	}
 
 	empty := t.TempDir()
@@ -150,11 +150,11 @@ func TestBrief(t *testing.T) {
 		t.Error("want error for an empty hive directory")
 	}
 	bad := t.TempDir()
-	if err := os.WriteFile(filepath.Join(bad, "x.json"), []byte(`{"role":"y"}`), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(bad, "x.json"), []byte(`{"identity":"y"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	out, err = run(t, "-C", example, "brief", "--reports", bad)
-	if err != nil || !strings.Contains(out, `x.json: role "y" does not match the file name`) {
+	if err != nil || !strings.Contains(out, `x.json: work identity "y" does not match the file name`) {
 		t.Errorf("misnamed report: %v\n%s", err, out)
 	}
 }

@@ -105,19 +105,20 @@ type Action struct {
 	// a public Go module or a push to a public repository.
 	Irreversible bool `json:"irreversible,omitempty"`
 	// Ongoing marks an action that is kept up rather than done once, such
-	// as keeping a local webhook listener running while a role tests.
+	// as keeping a local webhook listener running while a work identity tests.
 	Ongoing bool `json:"ongoing,omitempty"`
-	// FollowUp is what the role does once the operator has acted, such as
-	// opening a pull request or recording a deploy.
+	// FollowUp is what the work identity does once the operator has acted, such
+	// as opening a pull request or recording a deploy.
 	FollowUp string `json:"followUp,omitempty"`
-	// Unblocks says what waits on this action, including other roles' work.
+	// Unblocks says what waits on this action, including other work identities'
+	// work.
 	Unblocks []string `json:"unblocks,omitempty"`
 	// Refs are the initiatives and roadmap items it belongs to.
 	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
 }
 
-// Work is something a role is doing now, and where. Two roles in the same
-// repository is what a briefing warns about.
+// Work is something a work identity is doing now, and where. Two work
+// identities in the same repository is what a briefing warns about.
 type Work struct {
 	// Description says what, in a sentence.
 	Description string `json:"description"`
@@ -141,8 +142,8 @@ type Work struct {
 	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
 }
 
-// Notice tells other roles about something that affects them, such as a
-// bug in a shared dependency or a change to a shared file.
+// Notice tells other work identities about something that affects them, such as
+// a bug in a shared dependency or a change to a shared file.
 type Notice struct {
 	// Title states it in a few words.
 	Title string `json:"title"`
@@ -150,15 +151,15 @@ type Notice struct {
 	Description string `json:"description"`
 	// Repositories are the repositories it affects.
 	Repositories []string `json:"repositories,omitempty" jsonschema:"pattern=^github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"`
-	// Modules are the Go modules or packages it affects, so roles that
-	// depend on them can find it.
+	// Modules are the Go modules or packages it affects, so work identities
+	// that depend on them can find it.
 	Modules []string `json:"modules,omitempty"`
 	// Refs are the initiatives and roadmap items it concerns.
 	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
 }
 
-// Session says how to reach the session playing a role. It is reported,
-// not recorded with the role, because sessions come and go.
+// Session says how to reach the session working under a work identity. It is
+// reported, not recorded with the work identity, because sessions come and go.
 type Session struct {
 	// Tmux is the tmux session name.
 	Tmux string `json:"tmux,omitempty"`

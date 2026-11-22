@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/plexusone/plexushive/hive/schema/role.schema.json",
-  "$ref": "#/$defs/Role",
+  "$id": "https://github.com/plexusone/plexushive/hive/schema/identity.schema.json",
+  "$ref": "#/$defs/WorkIdentity",
   "$defs": {
     "RepositoryAffinity": {
       "properties": {
@@ -13,7 +13,7 @@
           "type": "string",
           "enum": [
             "steward",
-            "contributor"
+            "collaborator"
           ]
         }
       },
@@ -24,7 +24,7 @@
         "affinity"
       ]
     },
-    "Role": {
+    "WorkIdentity": {
       "properties": {
         "name": {
           "type": "string",
@@ -81,6 +81,6 @@
       ]
     }
   },
-  "title": "Agent role",
-  "description": "What one long-lived agent is for, independently of the session that plays it: its mission, autonomy, the repositories it works in and its peers."
+  "title": "Agent work identity",
+  "description": "What one long-lived agent is for, independently of the sessions that work under it: its mission, autonomy, the repositories it works in and its peers."
 }

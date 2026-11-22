@@ -15,11 +15,11 @@ import (
 func startCmd(hiveDir *string) *cobra.Command {
 	var reports string
 	cmd := &cobra.Command{
-		Use:   "start <role>",
-		Short: "Bind a role to this tmux session and print what the session needs to play it",
-		Long: "Checks that the role exists and is not retired, binds it to the current\n" +
-			"tmux session (so agents already running in it can find it), and prints\n" +
-			"the role's context: mission, repositories, peers, binding decisions and\n" +
+		Use:   "start <identity>",
+		Short: "Bind a work identity to this tmux session and print what the session needs to work under it",
+		Long: "Checks that the work identity exists and is not retired, binds it to the\n" +
+			"current tmux session (so agents already running in it can find it), and\n" +
+			"prints its context: mission, repositories, peers, binding decisions and\n" +
 			"how to report. Outside tmux it prints the export to use instead.",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -28,7 +28,7 @@ func startCmd(hiveDir *string) *cobra.Command {
 				return err
 			}
 			if hive.InTmux() {
-				if err := hive.BindTmuxRole(args[0]); err != nil {
+				if err := hive.BindTmuxIdentity(args[0]); err != nil {
 					return err
 				}
 				name, err := hive.TmuxSession()
@@ -37,7 +37,7 @@ func startCmd(hiveDir *string) *cobra.Command {
 				}
 				cmd.Printf("bound %s to the tmux session %s\n\n", args[0], name)
 			} else {
-				cmd.Printf("not in tmux: run export %s=%s in this session's shell\n\n", hive.RoleEnv, args[0])
+				cmd.Printf("not in tmux: run export %s=%s in this session's shell\n\n", hive.IdentityEnv, args[0])
 			}
 			printContext(cmd, c, *hiveDir)
 			return nil
@@ -47,27 +47,28 @@ func startCmd(hiveDir *string) *cobra.Command {
 	return cmd
 }
 
-func contextCmd(hiveDir, role *string) *cobra.Command {
+func contextCmd(hiveDir, identity *string) *cobra.Command {
 	var reports string
 	var asJSON bool
 	cmd := &cobra.Command{
-		Use:   "context [role]",
-		Short: "Print what a session needs to play its role, such as after it starts or compacts",
-		Long: "Prints the role's context without binding anything. The role is the\n" +
-			"argument, else --role, $" + hive.RoleEnv + " or the tmux session's. A\n" +
-			"session-start or compaction hook runs it to put the context back.",
+		Use:   "context [identity]",
+		Short: "Print what a session needs to work under its work identity, such as after it starts or compacts",
+		Long: "Prints the work identity's context without binding anything. The identity\n" +
+			"is the argument, else --identity, $" + hive.IdentityEnv + " or the tmux session's\n" +
+			"(then $" + hive.LegacyIdentityEnv + "). A session-start or compaction hook runs it\n" +
+			"to put the context back.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			name := *role
+			name := *identity
 			if len(args) == 1 {
 				name = args[0]
 			}
-			name, _, err := hive.ResolveRole(name)
+			name, _, err := hive.ResolveIdentity(name)
 			if err != nil {
 				return err
 			}
 			if name == "" {
-				return errors.New("plexushive: no role: pass one, or bind one with plexushive start <role>")
+				return errors.New("plexushive: no work identity: pass one, or bind one with plexushive start <identity>")
 			}
 			c, err := loadContext(cmd, *hiveDir, reports, name)
 			if err != nil {
@@ -90,13 +91,13 @@ func contextCmd(hiveDir, role *string) *cobra.Command {
 	return cmd
 }
 
-func whoamiCmd(role *string) *cobra.Command {
+func whoamiCmd(identity *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "whoami",
-		Short: "Show the role this session plays and where that was found",
+		Short: "Show the work identity this session works under and where that was found",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			name, source, err := hive.ResolveRole(*role)
+			name, source, err := hive.ResolveIdentity(*identity)
 			if err != nil {
 				return err
 			}
@@ -105,9 +106,12 @@ func whoamiCmd(role *string) *cobra.Command {
 				return err
 			}
 			if name == "" {
-				cmd.Println("no role: bind one with plexushive start <role>")
+				cmd.Println("no work identity: bind one with plexushive start <identity>")
 			} else {
 				cmd.Printf("%s (from %s)\n", name, sourceText(source))
+				if source.Legacy() {
+					cmd.Printf("%s is the old name: bind again with plexushive start %s\n", hive.LegacyIdentityEnv, name)
+				}
 			}
 			if session != "" {
 				cmd.Printf("tmux session %s\n", session)
@@ -117,18 +121,22 @@ func whoamiCmd(role *string) *cobra.Command {
 	}
 }
 
-func sourceText(s hive.RoleSource) string {
+func sourceText(s hive.IdentitySource) string {
 	switch s {
 	case hive.SourceGiven:
-		return "--role"
+		return "--identity"
 	case hive.SourceEnv:
-		return "$" + hive.RoleEnv
+		return "$" + hive.IdentityEnv
+	case hive.SourceLegacyEnv:
+		return "$" + hive.LegacyIdentityEnv
+	case hive.SourceLegacyTmux:
+		return "the tmux session's " + hive.LegacyIdentityEnv
 	default:
 		return "the tmux session"
 	}
 }
 
-func loadContext(cmd *cobra.Command, hiveDir, reports, role string) (hive.Context, error) {
+func loadContext(cmd *cobra.Command, hiveDir, reports, identity string) (hive.Context, error) {
 	h, err := hive.Load(hiveDir)
 	if err != nil {
 		return hive.Context{}, err
@@ -141,12 +149,12 @@ func loadContext(cmd *cobra.Command, hiveDir, reports, role string) (hive.Contex
 	if err != nil {
 		return hive.Context{}, err
 	}
-	return hive.NewContext(h, rs, role)
+	return hive.NewContext(h, rs, identity)
 }
 
 func printContext(cmd *cobra.Command, c hive.Context, hiveDir string) {
-	r := c.Role
-	cmd.Printf("Role %s (%s, autonomy %s)\n  %s\n", r.Name, r.Status, r.Autonomy, r.Mission)
+	r := c.Identity
+	cmd.Printf("Work identity %s (%s, autonomy %s)\n  %s\n", r.Name, r.Status, r.Autonomy, r.Mission)
 	if len(r.Repositories) > 0 {
 		cmd.Println("\nRepositories")
 		for _, a := range r.Repositories {
@@ -163,7 +171,7 @@ func printContext(cmd *cobra.Command, c hive.Context, hiveDir string) {
 			if p.Session != nil {
 				how = reach(*p.Session)
 			}
-			cmd.Println(strings.TrimRight(fmt.Sprintf("  %-20s %s", p.Role, how), " "))
+			cmd.Println(strings.TrimRight(fmt.Sprintf("  %-20s %s", p.Identity, how), " "))
 		}
 	}
 	if r.Notes != "" {
@@ -188,8 +196,9 @@ func printContext(cmd *cobra.Command, c hive.Context, hiveDir string) {
 	}
 	cmd.Printf("\nReport at handoffs: when work is ready for the operator, when blocked or\n"+
 		"unblocked, when a decision is needed, when starting or stopping in a\n"+
-		"repository, after the operator acts for you, and when another role's work\n"+
-		"changes your plan. Before working in a repository another role stewards:\n"+
+		"repository, after the operator acts for you, and when another work\n"+
+		"identity's work changes your plan. Before working in a repository another\n"+
+		"work identity stewards:\n"+
 		"  plexushive -C %s who github.com/<org>/<repo>\n"+
 		"Submit (plexushive schema report gives the format):\n"+
 		"  plexushive -C %s report submit <file>\n", dir, dir)

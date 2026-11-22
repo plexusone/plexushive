@@ -1,5 +1,5 @@
 {
-  "role": "website",
+  "identity": "website",
   "generated": "2026-11-19T08:30:00Z",
   "session": {"tmux": "web", "agent": "website-1"},
   "summary": "Launch page is ready for review.",

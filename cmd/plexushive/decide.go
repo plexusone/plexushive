@@ -13,16 +13,16 @@ import (
 func decideCmd(hiveDir *string) *cobra.Command {
 	var reports, reason string
 	cmd := &cobra.Command{
-		Use:   "decide <role>/<id> <option>",
+		Use:   "decide <identity>/<id> <option>",
 		Short: "Answer a decision request and add the decision to the log",
-		Long: "Finds the request in the role's current report, writes the chosen\n" +
-			"option to decisions/<id>.json and prints the message to send the role.\n" +
+		Long: "Finds the request in the work identity's current report, writes the\n" +
+			"chosen option to decisions/<id>.json and prints the message to send it.\n" +
 			"The decision is a new file to commit; it never replaces an existing one.",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			role, id, ok := strings.Cut(args[0], "/")
+			identity, id, ok := strings.Cut(args[0], "/")
 			if !ok {
-				return fmt.Errorf("plexushive: %q must be <role>/<id>", args[0])
+				return fmt.Errorf("plexushive: %q must be <identity>/<id>", args[0])
 			}
 			h, err := hive.Load(*hiveDir)
 			if err != nil {
@@ -36,15 +36,15 @@ func decideCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			req, ok := findRequest(rs, role, id)
+			req, ok := findRequest(rs, identity, id)
 			if !ok {
-				return fmt.Errorf("plexushive: the %s report has no decision request %q", role, id)
+				return fmt.Errorf("plexushive: the %s report has no decision request %q", identity, id)
 			}
-			d, err := req.Decide(role, args[1], reason)
+			d, err := req.Decide(identity, args[1], reason)
 			if err != nil {
 				return err
 			}
-			if err := hive.ValidateDecisions(append(h.Decisions, d), h.Roles); err != nil {
+			if err := hive.ValidateDecisions(append(h.Decisions, d), h.Identities); err != nil {
 				return err
 			}
 			if err := hive.WriteDecision(*hiveDir, d); err != nil {
@@ -53,7 +53,7 @@ func decideCmd(hiveDir *string) *cobra.Command {
 			env := hive.Envelope{Type: hive.MessageStatus, From: hive.Operator}
 			cmd.Printf("wrote decisions/%s.json\n", d.ID)
 			cmd.Printf("send to %s:\n%s decided %s: %s. Read decisions/%s.json and drop the request from your report.\n",
-				role, env.String(), d.ID, args[1], d.ID)
+				identity, env.String(), d.ID, args[1], d.ID)
 			return nil
 		},
 	}
@@ -62,9 +62,9 @@ func decideCmd(hiveDir *string) *cobra.Command {
 	return cmd
 }
 
-func findRequest(rs []hive.Report, role, id string) (hive.DecisionRequest, bool) {
+func findRequest(rs []hive.Report, identity, id string) (hive.DecisionRequest, bool) {
 	for _, r := range rs {
-		if r.Role != role {
+		if r.Identity != identity {
 			continue
 		}
 		for _, d := range r.DecisionsNeeded {
@@ -88,7 +88,7 @@ func whoCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			matches, err := hive.RolesFor(h.Roles, repo)
+			matches, err := hive.IdentitiesFor(h.Identities, repo)
 			if err != nil {
 				return err
 			}
@@ -103,17 +103,17 @@ func whoCmd(hiveDir *string) *cobra.Command {
 			sessions := map[string]string{}
 			for _, r := range rs {
 				if r.Session != nil {
-					sessions[r.Role] = reach(*r.Session)
+					sessions[r.Identity] = reach(*r.Session)
 				}
 			}
-			cmd.Println("Roles")
+			cmd.Println("Work identities")
 			if len(matches) == 0 {
 				cmd.Println("  none: the repository is common ground")
 			}
 			for _, m := range matches {
-				cmd.Println(strings.TrimRight(fmt.Sprintf("  %-12s %-16s %s", m.Affinity, m.Role, sessions[m.Role]), " "))
+				cmd.Println(strings.TrimRight(fmt.Sprintf("  %-12s %-16s %s", m.Affinity, m.Identity, sessions[m.Identity]), " "))
 			}
-			b := hive.NewBriefing(h.Roles, h.Decisions, rs)
+			b := hive.NewBriefing(h.Identities, h.Decisions, rs)
 			cmd.Println("In progress")
 			for _, rw := range b.InProgress {
 				if rw.Repository != repo {
@@ -124,13 +124,13 @@ func whoCmd(hiveDir *string) *cobra.Command {
 					if w.Work.State != "" {
 						where += " (" + string(w.Work.State) + ")"
 					}
-					cmd.Printf("  %-16s %-24s %s\n", w.Role, where, w.Work.Description)
+					cmd.Printf("  %-16s %-24s %s\n", w.Identity, where, w.Work.Description)
 				}
 			}
 			cmd.Println("Waiting on the operator")
 			for _, a := range b.Actions {
 				if a.Action.Repository == repo {
-					cmd.Printf("  %-16s %-10s %s\n", strings.Join(a.Roles, ", "), a.Action.Kind, a.Action.Description)
+					cmd.Printf("  %-16s %-10s %s\n", strings.Join(a.Identities, ", "), a.Action.Kind, a.Action.Description)
 				}
 			}
 			return nil

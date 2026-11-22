@@ -17,7 +17,7 @@ func validRequest() DecisionRequest {
 }
 
 func validReport() Report {
-	return Report{Role: "alpha", Generated: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC),
+	return Report{Identity: "alpha", Generated: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC),
 		Done:            []Item{{Description: "did", Refs: []string{"RMI-A-001"}, Repositories: []string{"github.com/example/a"}}},
 		Blocked:         []Blocker{{Item: Item{Description: "stuck"}, WaitingOn: []string{Operator}}},
 		Next:            []Item{{Description: "will"}},
@@ -31,8 +31,8 @@ func TestReportValidate(t *testing.T) {
 		wantErr string
 	}{
 		{"valid", func(*Report) {}, ""},
-		{"minimal", func(r *Report) { *r = Report{Role: "alpha", Generated: r.Generated} }, ""},
-		{"bad role", func(r *Report) { r.Role = "Alpha" }, "role"},
+		{"minimal", func(r *Report) { *r = Report{Identity: "alpha", Generated: r.Generated} }, ""},
+		{"bad work identity", func(r *Report) { r.Identity = "Alpha" }, "work identity"},
 		{"no time", func(r *Report) { r.Generated = time.Time{} }, "generated"},
 		{"empty done", func(r *Report) { r.Done[0].Description = " " }, "done: description"},
 		{"bad next ref", func(r *Report) { r.Next[0].Refs = []string{"X"} }, "next: ref"},
@@ -77,19 +77,19 @@ func TestDecisionRequestValidate(t *testing.T) {
 }
 
 func TestValidateReports(t *testing.T) {
-	roles := []Role{validRole(), {Name: "gone", Status: RoleRetired}}
+	identities := []WorkIdentity{validRole(), {Name: "gone", Status: IdentityRetired}}
 	rep := validReport()
-	checkErr(t, ValidateReports([]Report{rep}, roles), "")
-	checkErr(t, ValidateReports([]Report{rep, rep}, roles), "more than one")
+	checkErr(t, ValidateReports([]Report{rep}, identities), "")
+	checkErr(t, ValidateReports([]Report{rep, rep}, identities), "more than one")
 	unknown := rep
-	unknown.Role = "beta"
-	checkErr(t, ValidateReports([]Report{unknown}, roles), "does not exist")
-	retired := Report{Role: "gone", Generated: rep.Generated}
-	checkErr(t, ValidateReports([]Report{retired}, roles), "retired")
-	waits := Report{Role: "alpha", Generated: rep.Generated, Blocked: []Blocker{{Item: Item{Description: "x"}, WaitingOn: []string{"nobody"}}}}
-	checkErr(t, ValidateReports([]Report{waits}, roles), "not a role")
-	invalid := Report{Role: "alpha"}
-	checkErr(t, ValidateReports([]Report{invalid}, roles), "generated")
+	unknown.Identity = "beta"
+	checkErr(t, ValidateReports([]Report{unknown}, identities), "does not exist")
+	retired := Report{Identity: "gone", Generated: rep.Generated}
+	checkErr(t, ValidateReports([]Report{retired}, identities), "retired")
+	waits := Report{Identity: "alpha", Generated: rep.Generated, Blocked: []Blocker{{Item: Item{Description: "x"}, WaitingOn: []string{"nobody"}}}}
+	checkErr(t, ValidateReports([]Report{waits}, identities), "not a work identity")
+	invalid := Report{Identity: "alpha"}
+	checkErr(t, ValidateReports([]Report{invalid}, identities), "generated")
 }
 
 func TestOperatorIsReserved(t *testing.T) {
@@ -119,10 +119,10 @@ func TestWriteLoadReports(t *testing.T) {
 	if !reflect.DeepEqual(got, []Report{rep}) {
 		t.Fatalf("round trip:\n got %+v\nwant %+v", got, rep)
 	}
-	if err := WriteReport(dir, Report{Role: "alpha"}); err == nil {
+	if err := WriteReport(dir, Report{Identity: "alpha"}); err == nil {
 		t.Fatal("want error writing an invalid report")
 	}
-	if err := os.WriteFile(filepath.Join(dir, "beta.json"), []byte(`{"role":"alpha","generated":"2026-01-02T03:04:05Z"}`), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "beta.json"), []byte(`{"identity":"alpha","generated":"2026-01-02T03:04:05Z"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := LoadReports(dir); err == nil {
@@ -172,17 +172,17 @@ func TestBriefing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ValidateReports(reports, h.Roles); err != nil {
+	if err := ValidateReports(reports, h.Identities); err != nil {
 		t.Fatal(err)
 	}
-	b := NewBriefing(h.Roles, h.Decisions, reports)
-	if len(b.Decisions) != 1 || b.Decisions[0].Role != "billing" || b.Decisions[0].Request.ID != "coupon-stacking" {
+	b := NewBriefing(h.Identities, h.Decisions, reports)
+	if len(b.Decisions) != 1 || b.Decisions[0].Identity != "billing" || b.Decisions[0].Request.ID != "coupon-stacking" {
 		t.Fatalf("decisions: %+v", b.Decisions)
 	}
-	if len(b.Blocked) != 2 || b.Blocked[0].Blocker.WaitingOn[0] != Operator || b.Blocked[1].Role != "billing" {
+	if len(b.Blocked) != 2 || b.Blocked[0].Blocker.WaitingOn[0] != Operator || b.Blocked[1].Identity != "billing" {
 		t.Fatalf("blocked: %+v", b.Blocked)
 	}
-	if len(b.Reports) != 2 || b.Reports[0].Role != "billing" {
+	if len(b.Reports) != 2 || b.Reports[0].Identity != "billing" {
 		t.Fatalf("reports: %+v", b.Reports)
 	}
 	if b.Missing == nil || len(b.Missing) != 0 {
@@ -198,34 +198,34 @@ func TestBriefing(t *testing.T) {
 	if len(b.InProgress) != 1 || !b.InProgress[0].Shared || len(b.InProgress[0].Work) != 2 {
 		t.Fatalf("in progress: %+v", b.InProgress)
 	}
-	if len(b.Notices) != 1 || b.Notices[0].Role != "billing" {
+	if len(b.Notices) != 1 || b.Notices[0].Identity != "billing" {
 		t.Fatalf("notices: %+v", b.Notices)
 	}
-	b = NewBriefing(h.Roles, h.Decisions, reports[:1])
+	b = NewBriefing(h.Identities, h.Decisions, reports[:1])
 	if !reflect.DeepEqual(b.Missing, []string{"website"}) {
 		t.Fatalf("missing: %v", b.Missing)
 	}
 	two := []Report{
-		{Role: "b", DecisionsNeeded: []DecisionRequest{{ID: "z"}, {ID: "a"}}},
-		{Role: "a", DecisionsNeeded: []DecisionRequest{{ID: "m"}}},
+		{Identity: "b", DecisionsNeeded: []DecisionRequest{{ID: "z"}, {ID: "a"}}},
+		{Identity: "a", DecisionsNeeded: []DecisionRequest{{ID: "m"}}},
 	}
-	b = NewBriefing([]Role{{Name: "a", Status: RoleActive}, {Name: "b", Status: RoleActive}}, nil, two)
-	if b.Decisions[0].Role != "a" || b.Decisions[1].Request.ID != "a" {
+	b = NewBriefing([]WorkIdentity{{Name: "a", Status: IdentityActive}, {Name: "b", Status: IdentityActive}}, nil, two)
+	if b.Decisions[0].Identity != "a" || b.Decisions[1].Request.ID != "a" {
 		t.Fatalf("decision order: %+v", b.Decisions)
 	}
 }
 
 func TestBriefingAnsweredIdleIgnored(t *testing.T) {
-	roles := []Role{
-		{Name: "a", Status: RoleActive},
-		{Name: "old", Status: RoleRetired},
+	identities := []WorkIdentity{
+		{Name: "a", Status: IdentityActive},
+		{Name: "old", Status: IdentityRetired},
 	}
 	reports := []Report{
-		{Role: "a", Idle: true, DecisionsNeeded: []DecisionRequest{{ID: "done-already"}}},
-		{Role: "old"},
-		{Role: "ghost"},
+		{Identity: "a", Idle: true, DecisionsNeeded: []DecisionRequest{{ID: "done-already"}}},
+		{Identity: "old"},
+		{Identity: "ghost"},
 	}
-	b := NewBriefing(roles, []Decision{{ID: "done-already"}}, reports)
+	b := NewBriefing(identities, []Decision{{ID: "done-already"}}, reports)
 	if len(b.Decisions) != 0 || len(b.Answered) != 1 || b.Answered[0].Key != "a/done-already" {
 		t.Fatalf("answered: %+v / %+v", b.Decisions, b.Answered)
 	}
@@ -239,7 +239,7 @@ func TestBriefingAnsweredIdleIgnored(t *testing.T) {
 
 func TestReportNewFieldsInvalid(t *testing.T) {
 	r := Report{
-		Role:      "a",
+		Identity:  "a",
 		Generated: time.Date(2026, 11, 19, 0, 0, 0, 0, time.UTC),
 		OperatorActions: []Action{
 			{Kind: "launch", Description: ""},
@@ -279,7 +279,7 @@ func TestDecide(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if d.ID != "coupon-stacking" || d.Status != DecisionAccepted || d.Option != "stack-two" || !reflect.DeepEqual(d.Roles, []string{"billing"}) {
+	if d.ID != "coupon-stacking" || d.Status != DecisionAccepted || d.Option != "stack-two" || !reflect.DeepEqual(d.Identities, []string{"billing"}) {
 		t.Fatalf("decision: %+v", d)
 	}
 	if !strings.Contains(d.Decision, "Allow at most two coupons.") || !strings.Contains(d.Decision, "recommended no-stacking") {

@@ -32,7 +32,7 @@ const EnvelopePrefix = "[hive]"
 //	Please add a coupon endpoint to the payments API…
 type Envelope struct {
 	Type MessageType
-	// From is the sender's role name.
+	// From is the sender's work identity name.
 	From string
 	// Ref is an initiative or roadmap item ID, when there is one.
 	Ref string
@@ -46,7 +46,7 @@ func (e Envelope) Validate() error {
 		return fmt.Errorf("hive: envelope type %q must be question, request, status or decision-needed", e.Type)
 	}
 	if !namePattern.MatchString(e.From) {
-		return fmt.Errorf("hive: envelope from %q must be a role name", e.From)
+		return fmt.Errorf("hive: envelope from %q must be a work identity name", e.From)
 	}
 	if e.Ref != "" && !refPattern.MatchString(e.Ref) {
 		return fmt.Errorf("hive: envelope ref %q must be INIT-<SLUG>-NNN or RMI-<SLUG>-NNN", e.Ref)

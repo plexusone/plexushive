@@ -8,41 +8,41 @@ import (
 )
 
 // Operator is the name a blocker waits on when it waits on the human
-// operator rather than on another role.
+// operator rather than on another work identity.
 const Operator = "operator"
 
-// Report is one role's status at a point in time: what it finished, what is
-// blocked, what it does next and what it needs the operator to decide. A
-// role keeps one current report, replaced each time it reports; history,
-// when wanted, is the caller's concern.
+// Report is one work identity's status at a point in time: what it finished,
+// what is blocked, what it does next and what it needs the operator to decide.
+// A work identity keeps one current report, replaced each time it reports;
+// history, when wanted, is the caller's concern.
 type Report struct {
-	// Role is the reporting role's name.
-	Role string `json:"role" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
+	// Identity is the reporting work identity's name.
+	Identity string `json:"identity" jsonschema:"pattern=^[a-z][a-z0-9-]*$"`
 	// Generated is when the report was written. Readers use it to show how
 	// fresh the report is.
 	Generated time.Time `json:"generated"`
-	// Session says how to reach the session playing the role.
+	// Session says how to reach the session working under the work identity.
 	Session *Session `json:"session,omitempty"`
 	// Summary is one or two sentences for a briefing.
 	Summary string `json:"summary,omitempty"`
-	// Idle says the role has nothing to do until it is given work. An idle
-	// role's report does not go stale.
+	// Idle says the work identity has nothing to do until it is given work. An
+	// idle work identity's report does not go stale.
 	Idle bool `json:"idle,omitempty"`
 	// OperatorActions are steps only the operator takes, such as pushes,
 	// tags and deploys, for work that is ready.
 	OperatorActions []Action `json:"operatorActions,omitempty"`
-	// InProgress is what the role is doing now, and in which repository
-	// and branch.
+	// InProgress is what the work identity is doing now, and in which
+	// repository and branch.
 	InProgress []Work `json:"inProgress,omitempty"`
 	// Done is what was finished since the previous report.
 	Done []Item `json:"done,omitempty"`
 	// Blocked is what cannot move, and on whom it waits.
 	Blocked []Blocker `json:"blocked,omitempty"`
-	// Next is what the role does next, in order.
+	// Next is what the work identity does next, in order.
 	Next []Item `json:"next,omitempty"`
 	// DecisionsNeeded are questions only the operator can settle.
 	DecisionsNeeded []DecisionRequest `json:"decisionsNeeded,omitempty"`
-	// Notices tell other roles about something that affects them.
+	// Notices tell other work identities about something that affects them.
 	Notices []Notice `json:"notices,omitempty"`
 }
 
@@ -68,13 +68,13 @@ type Item struct {
 	Paths []string `json:"paths,omitempty"`
 }
 
-// Blocker is work that cannot move until another role, or the operator,
-// does something other than a routine action.
+// Blocker is work that cannot move until another work identity, or the
+// operator, does something other than a routine action.
 type Blocker struct {
 	Item
-	// WaitingOn are the roles, or "operator", that must act, in order: a
-	// push that waits on another role's release and then on the operator's
-	// yes lists both.
+	// WaitingOn are the identities, or "operator", that must act, in order: a
+	// push that waits on another work identity's release and then on the
+	// operator's yes lists both.
 	WaitingOn []string `json:"waitingOn" jsonschema:"minItems=1,pattern=^[a-z][a-z0-9-]*$"`
 	// Decision is the ID of the decision request, in the same report, whose
 	// answer unblocks it.
@@ -82,7 +82,8 @@ type Blocker struct {
 	// Credentials are the IDs, in the credential registry, of credentials
 	// it waits on.
 	Credentials []string `json:"credentials,omitempty" jsonschema:"pattern=^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$"`
-	// Unblocks says what else waits on this, including other roles' work.
+	// Unblocks says what else waits on this, including other work identities'
+	// work.
 	Unblocks []string `json:"unblocks,omitempty"`
 }
 
@@ -99,10 +100,10 @@ type DecisionRequest struct {
 	Evidence []string `json:"evidence,omitempty"`
 	// Options are the choices, at least two.
 	Options []Option `json:"options"`
-	// Recommendation is the name of the option the role recommends.
+	// Recommendation is the name of the option the work identity recommends.
 	Recommendation string `json:"recommendation"`
 	// Approval says what the operator's answer authorizes, such as a
-	// push, a spend or a change to another role's repository.
+	// push, a spend or a change to another work identity's repository.
 	Approval string `json:"approval"`
 	// Refs are the initiatives and roadmap items it concerns.
 	Refs []string `json:"refs,omitempty" jsonschema:"pattern=^(INIT|RMI)-[A-Z0-9]+-[0-9]{3}$"`
@@ -127,11 +128,11 @@ type Option struct {
 }
 
 // Validate checks one report on its own. ValidateReports also checks the
-// names it uses against the roles.
+// names it uses against the work identities.
 func (r Report) Validate() error {
 	var errs []string
-	if !namePattern.MatchString(r.Role) {
-		errs = append(errs, fmt.Sprintf("role %q must match %s", r.Role, namePattern))
+	if !namePattern.MatchString(r.Identity) {
+		errs = append(errs, fmt.Sprintf("work identity %q must match %s", r.Identity, namePattern))
 	}
 	if r.Generated.IsZero() {
 		errs = append(errs, "generated is required")
@@ -152,11 +153,11 @@ func (r Report) Validate() error {
 	for _, b := range r.Blocked {
 		errs = append(errs, b.problems("blocked")...)
 		if len(b.WaitingOn) == 0 {
-			errs = append(errs, "blocked: waitingOn needs a role or "+Operator)
+			errs = append(errs, "blocked: waitingOn needs a work identity or "+Operator)
 		}
 		for _, w := range b.WaitingOn {
 			if !namePattern.MatchString(w) {
-				errs = append(errs, fmt.Sprintf("blocked: waitingOn %q must be a role name or %q", w, Operator))
+				errs = append(errs, fmt.Sprintf("blocked: waitingOn %q must be a work identity name or %q", w, Operator))
 			}
 		}
 		if b.Decision != "" && !ids[b.Decision] {
@@ -180,7 +181,7 @@ func (r Report) Validate() error {
 		}
 	}
 	if len(errs) > 0 {
-		return fmt.Errorf("report %s: %s", r.Role, strings.Join(errs, "; "))
+		return fmt.Errorf("report %s: %s", r.Identity, strings.Join(errs, "; "))
 	}
 	return nil
 }
@@ -253,13 +254,13 @@ func (d DecisionRequest) Validate() error {
 	return nil
 }
 
-// ValidateReports checks reports against the roles: each is valid, comes
-// from a role that is not retired, at most one per role, and blockers wait
-// on an existing role or the operator.
-func ValidateReports(reports []Report, roles []Role) error {
+// ValidateReports checks reports against the work identities: each is valid,
+// comes from a work identity that is not retired, at most one per work
+// identity, and blockers wait on an existing work identity or the operator.
+func ValidateReports(reports []Report, identities []WorkIdentity) error {
 	var errs []string
-	byName := map[string]Role{}
-	for _, r := range roles {
+	byName := map[string]WorkIdentity{}
+	for _, r := range identities {
 		byName[r.Name] = r
 	}
 	seen := map[string]bool{}
@@ -267,21 +268,21 @@ func ValidateReports(reports []Report, roles []Role) error {
 		if err := rep.Validate(); err != nil {
 			errs = append(errs, err.Error())
 		}
-		if seen[rep.Role] {
-			errs = append(errs, fmt.Sprintf("report %s: more than one report", rep.Role))
+		if seen[rep.Identity] {
+			errs = append(errs, fmt.Sprintf("report %s: more than one report", rep.Identity))
 		}
-		seen[rep.Role] = true
-		role, ok := byName[rep.Role]
+		seen[rep.Identity] = true
+		identity, ok := byName[rep.Identity]
 		switch {
 		case !ok:
-			errs = append(errs, fmt.Sprintf("report %s: role does not exist", rep.Role))
-		case role.Status == RoleRetired:
-			errs = append(errs, fmt.Sprintf("report %s: role is retired", rep.Role))
+			errs = append(errs, fmt.Sprintf("report %s: work identity does not exist", rep.Identity))
+		case identity.Status == IdentityRetired:
+			errs = append(errs, fmt.Sprintf("report %s: work identity is retired", rep.Identity))
 		}
 		for _, b := range rep.Blocked {
 			for _, w := range b.WaitingOn {
 				if _, ok := byName[w]; !ok && w != Operator {
-					errs = append(errs, fmt.Sprintf("report %s: waits on %q, which is not a role", rep.Role, w))
+					errs = append(errs, fmt.Sprintf("report %s: waits on %q, which is not a work identity", rep.Identity, w))
 				}
 			}
 		}
@@ -373,9 +374,9 @@ func afterCycle(byID map[string]Action) string {
 	return ""
 }
 
-// Normalize fills in what a role may abbreviate: a pull request given as
-// #<n> becomes its URL when the action or item names exactly one
-// repository. WriteReport normalizes before it validates.
+// Normalize fills in what a work identity may abbreviate: a pull request given
+// as #<n> becomes its URL when the action or item names exactly one repository.
+// WriteReport normalizes before it validates.
 func (r *Report) Normalize() {
 	for i := range r.OperatorActions {
 		a := &r.OperatorActions[i]

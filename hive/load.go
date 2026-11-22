@@ -13,20 +13,23 @@ import (
 
 // Directories under the hive root.
 const (
-	RolesDir     = "roles"
-	DecisionsDir = "decisions"
+	IdentitiesDir = "identities"
+	// LegacyIdentitiesDir is IdentitiesDir's name before roles became work
+	// identities; it is read when IdentitiesDir does not exist.
+	LegacyIdentitiesDir = "roles"
+	DecisionsDir        = "decisions"
 )
 
 // Hive is the contents of a hive directory.
 type Hive struct {
-	Roles     []Role
-	Decisions []Decision
+	Identities []WorkIdentity
+	Decisions  []Decision
 }
 
-// Load reads the roles and decisions under root. It checks the files'
+// Load reads the work identities and decisions under root. It checks the files'
 // syntax and names; call Validate to check their content.
 func Load(root string) (*Hive, error) {
-	roles, err := LoadRoles(root)
+	identities, err := LoadIdentities(root)
 	if err != nil {
 		return nil, err
 	}
@@ -34,30 +37,36 @@ func Load(root string) (*Hive, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Hive{Roles: roles, Decisions: decisions}, nil
+	return &Hive{Identities: identities, Decisions: decisions}, nil
 }
 
-// Validate checks the roles and decisions together.
+// Validate checks the work identities and decisions together.
 func (h *Hive) Validate() error {
-	return errors.Join(ValidateRoles(h.Roles), ValidateDecisions(h.Decisions, h.Roles))
+	return errors.Join(ValidateIdentities(h.Identities), ValidateDecisions(h.Decisions, h.Identities))
 }
 
-// Role returns the role named name, or false when there is none.
-func (h *Hive) Role(name string) (Role, bool) {
-	for _, r := range h.Roles {
+// Identity returns the work identity named name, or false when there is none.
+func (h *Hive) Identity(name string) (WorkIdentity, bool) {
+	for _, r := range h.Identities {
 		if r.Name == name {
 			return r, true
 		}
 	}
-	return Role{}, false
+	return WorkIdentity{}, false
 }
 
-// LoadRoles reads every roles/*.json under root. A file must be named after
-// the role it holds.
-func LoadRoles(root string) ([]Role, error) {
-	var out []Role
-	err := eachJSON(filepath.Join(root, RolesDir), func(stem string, data []byte) error {
-		var r Role
+// LoadIdentities reads every identities/*.json under root, or
+// roles/*.json when root has no identities directory but one written before
+// v0.5.0. A file must be named after the work identity it holds; a root
+// with both directories is refused, since one of them would be ignored.
+func LoadIdentities(root string) ([]WorkIdentity, error) {
+	dir, err := identitiesDir(root)
+	if err != nil {
+		return nil, err
+	}
+	var out []WorkIdentity
+	err = eachJSON(dir, func(stem string, data []byte) error {
+		var r WorkIdentity
 		if err := decodeStrict(data, &r); err != nil {
 			return err
 		}
@@ -68,6 +77,21 @@ func LoadRoles(root string) ([]Role, error) {
 		return nil
 	})
 	return out, err
+}
+
+// identitiesDir returns the directory LoadIdentities reads.
+func identitiesDir(root string) (string, error) {
+	current := filepath.Join(root, IdentitiesDir)
+	legacy := filepath.Join(root, LegacyIdentitiesDir)
+	_, errCurrent := os.Stat(current)
+	_, errLegacy := os.Stat(legacy)
+	switch {
+	case errCurrent == nil && errLegacy == nil:
+		return "", fmt.Errorf("hive: %s and %s both exist; move every record into %s", current, legacy, IdentitiesDir)
+	case errCurrent != nil && errLegacy == nil:
+		return legacy, nil
+	}
+	return current, nil
 }
 
 // LoadDecisions reads every decisions/*.json under root. A file must be

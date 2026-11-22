@@ -39,25 +39,25 @@ func readReports(cmd *cobra.Command, dir string) ([]hive.Report, []hive.Unreadab
 	return rs, bad, err
 }
 
-func reportCmd(hiveDir, role *string) *cobra.Command {
+func reportCmd(hiveDir, identity *string) *cobra.Command {
 	cmd := &cobra.Command{Use: "report", Short: "Write status reports"}
 	var reports string
 	submit := &cobra.Command{
 		Use:   "submit [file|-]",
-		Short: "Validate a report and store it as the role's current report",
-		Long: "Reads a report as JSON from a file or standard input. An empty role is\n" +
-			"taken from --role, else $" + hive.RoleEnv + ", else the tmux session's\n" +
-			"environment. An empty generated time is set to now, and inside tmux an\n" +
-			"empty session.tmux is set to the session's name. The role must exist in\n" +
-			"the hive directory.",
+		Short: "Validate a report and store it as the work identity's current report",
+		Long: "Reads a report as JSON from a file or standard input. An empty identity\n" +
+			"is taken from --identity, else $" + hive.IdentityEnv + ", else the tmux session's\n" +
+			"environment (then $" + hive.LegacyIdentityEnv + "). An empty generated time is set to\n" +
+			"now, and inside tmux an empty session.tmux is set to the session's name.\n" +
+			"The work identity must exist in the hive directory.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := readReport(cmd.InOrStdin(), args)
 			if err != nil {
 				return err
 			}
-			if r.Role == "" {
-				if r.Role, _, err = hive.ResolveRole(*role); err != nil {
+			if r.Identity == "" {
+				if r.Identity, _, err = hive.ResolveIdentity(*identity); err != nil {
 					return err
 				}
 			}
@@ -72,7 +72,7 @@ func reportCmd(hiveDir, role *string) *cobra.Command {
 				return err
 			}
 			r.Normalize()
-			if err := hive.ValidateReports([]hive.Report{r}, h.Roles); err != nil {
+			if err := hive.ValidateReports([]hive.Report{r}, h.Identities); err != nil {
 				return err
 			}
 			dir, err := resolveReports(reports)
@@ -89,30 +89,31 @@ func reportCmd(hiveDir, role *string) *cobra.Command {
 			if err := hive.WriteReport(dir, r); err != nil {
 				return err
 			}
-			cmd.Printf("stored the %s report\n", r.Role)
+			cmd.Printf("stored the %s report\n", r.Identity)
 			return nil
 		},
 	}
 	reportsFlag(submit, &reports)
 	show := &cobra.Command{
-		Use:   "show [role]",
-		Short: "Print a role's stored report as JSON, to edit and submit again",
-		Long: "Prints the role's current report exactly as stored. The role is the\n" +
-			"argument, else --role, $" + hive.RoleEnv + " or the tmux session's. Edit\n" +
+		Use:   "show [identity]",
+		Short: "Print a work identity's stored report as JSON, to edit and submit again",
+		Long: "Prints the work identity's current report exactly as stored. The\n" +
+			"identity is the argument, else --identity, $" + hive.IdentityEnv + " or the tmux\n" +
+			"session's. Edit\n" +
 			"the output and pass it to report submit to change one part without\n" +
 			"retyping the rest.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			name := *role
+			name := *identity
 			if len(args) == 1 {
 				name = args[0]
 			}
-			name, _, err := hive.ResolveRole(name)
+			name, _, err := hive.ResolveIdentity(name)
 			if err != nil {
 				return err
 			}
 			if name == "" {
-				return errors.New("plexushive: no role: pass one, or bind one with plexushive start <role>")
+				return errors.New("plexushive: no work identity: pass one, or bind one with plexushive start <identity>")
 			}
 			dir, err := resolveReports(reports)
 			if err != nil {
@@ -123,7 +124,7 @@ func reportCmd(hiveDir, role *string) *cobra.Command {
 				return err
 			}
 			for _, r := range rs {
-				if r.Role == name {
+				if r.Identity == name {
 					out, err := json.MarshalIndent(r, "", "  ")
 					if err != nil {
 						return fmt.Errorf("plexushive: %w", err)
@@ -158,12 +159,12 @@ func fillTmux(r *hive.Report) error {
 }
 
 // keepAsked fills in when each decision request was first asked: from the
-// role's previous report when it carried the same request, else the
+// work identity's previous report when it carried the same request, else the
 // report's generated time.
 func keepAsked(r *hive.Report, prev []hive.Report) {
 	asked := map[string]time.Time{}
 	for _, p := range prev {
-		if p.Role == r.Role {
+		if p.Identity == r.Identity {
 			for _, d := range p.DecisionsNeeded {
 				asked[d.ID] = d.Asked
 			}
@@ -206,7 +207,7 @@ func briefCmd(hiveDir *string) *cobra.Command {
 	var asJSON bool
 	cmd := &cobra.Command{
 		Use:   "brief",
-		Short: "Show operator actions, decisions needed, blockers, work in progress and each role's status",
+		Short: "Show operator actions, decisions needed, blockers, work in progress and each work identity's status",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			h, err := hive.Load(*hiveDir)
@@ -221,7 +222,7 @@ func briefCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			b := hive.NewBriefing(h.Roles, h.Decisions, rs)
+			b := hive.NewBriefing(h.Identities, h.Decisions, rs)
 			b.SetUnreadable(bad)
 			if asJSON {
 				out, err := json.MarshalIndent(b, "", "  ")
@@ -267,7 +268,7 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	}
 	cmd.Printf("\nBlocked (%d)\n", len(b.Blocked))
 	for _, bl := range b.Blocked {
-		cmd.Printf("  %-14s waiting on %-12s %s\n", bl.Role, strings.Join(bl.Blocker.WaitingOn, ", then "), bl.Blocker.Description)
+		cmd.Printf("  %-14s waiting on %-12s %s\n", bl.Identity, strings.Join(bl.Blocker.WaitingOn, ", then "), bl.Blocker.Description)
 		if len(bl.Blocker.Credentials) > 0 {
 			cmd.Printf("  %-14s %-23s credentials: %s\n", "", "", strings.Join(bl.Blocker.Credentials, ", "))
 		}
@@ -279,7 +280,7 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	for _, rw := range b.InProgress {
 		shared := ""
 		if rw.Shared {
-			shared = "  [more than one role]"
+			shared = "  [more than one work identity]"
 		}
 		cmd.Printf("  %s%s\n", rw.Repository, shared)
 		for _, w := range rw.Work {
@@ -290,13 +291,13 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 			if w.Work.State != "" {
 				where += " (" + string(w.Work.State) + ")"
 			}
-			cmd.Printf("    %-14s %-24s %s\n", w.Role, where, w.Work.Description)
+			cmd.Printf("    %-14s %-24s %s\n", w.Identity, where, w.Work.Description)
 		}
 	}
 	if len(b.Notices) > 0 {
 		cmd.Printf("\nNotices (%d)\n", len(b.Notices))
 		for _, n := range b.Notices {
-			cmd.Printf("  %-14s %s\n", n.Role, n.Notice.Title)
+			cmd.Printf("  %-14s %s\n", n.Identity, n.Notice.Title)
 		}
 	}
 	cmd.Printf("\nStatus (%d)\n", len(b.Reports))
@@ -305,19 +306,19 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 		switch {
 		case r.Idle:
 			state = "idle"
-		case slices.Contains(b.Waiting, r.Role):
+		case slices.Contains(b.Waiting, r.Identity):
 			state = "decision"
 		}
-		cmd.Printf("  %-14s %-8s %s\n", r.Role, state, r.Summary)
+		cmd.Printf("  %-14s %-8s %s\n", r.Identity, state, r.Summary)
 	}
 	if len(b.Missing) > 0 {
 		cmd.Printf("\nNo report: %s\n", strings.Join(b.Missing, ", "))
 	}
 	if len(b.Ignored) > 0 {
-		cmd.Printf("Ignored reports from unknown or retired roles: %s\n", strings.Join(b.Ignored, ", "))
+		cmd.Printf("Ignored reports from unknown or retired work identities: %s\n", strings.Join(b.Ignored, ", "))
 	}
 	if len(b.Unreadable) > 0 {
-		cmd.Printf("\nUnreadable reports (upgrade plexushive, or ask the role to resubmit)\n")
+		cmd.Printf("\nUnreadable reports (upgrade plexushive, or ask the work identity to resubmit)\n")
 		for _, u := range b.Unreadable {
 			cmd.Printf("  %s\n", u)
 		}
@@ -326,7 +327,7 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 
 // printAction prints one operator action: who asked, what, the condition
 // it applies under, what it waits on, and how to do it.
-func printAction(cmd *cobra.Command, a hive.RoleAction) {
+func printAction(cmd *cobra.Command, a hive.IdentityAction) {
 	var marks []string
 	if a.Action.Irreversible {
 		marks = append(marks, "irreversible")
@@ -338,9 +339,9 @@ func printAction(cmd *cobra.Command, a hive.RoleAction) {
 	if len(marks) > 0 {
 		mark = " [" + strings.Join(marks, ", ") + "]"
 	}
-	who := strings.Join(a.Roles, ", ")
+	who := strings.Join(a.Identities, ", ")
 	if who == "" {
-		who = a.Role
+		who = a.Identity
 	}
 	cmd.Printf("    %-14s %s%s\n", who, a.Action.Description, mark)
 	note := func(label, text string) {
@@ -368,7 +369,7 @@ func printAction(cmd *cobra.Command, a hive.RoleAction) {
 		note(fmt.Sprintf("%d. ", i+1), step)
 	}
 	if a.Action.FollowUp != "" {
-		note("then the role: ", a.Action.FollowUp)
+		note("then the work identity: ", a.Action.FollowUp)
 	}
 }
 

@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-// Decide turns a decision request into the decision that answers it: the
-// chosen option becomes the decision, the others its alternatives. reason,
-// when given, is the first reason; the request's situation and evidence
-// follow. The decision binds the requesting role and keeps the request's ID,
-// refs and repositories, so the role finds its answer under the ID it asked
+// Decide turns a decision request into the decision that answers it: the chosen
+// option becomes the decision, the others its alternatives. reason, when given,
+// is the first reason; the request's situation and evidence follow. The
+// decision binds the requesting work identity and keeps the request's ID, refs
+// and repositories, so the work identity finds its answer under the ID it asked
 // with.
-func (d DecisionRequest) Decide(role, option, reason string) (Decision, error) {
+func (d DecisionRequest) Decide(identity, option, reason string) (Decision, error) {
 	var chosen *Option
 	for i := range d.Options {
 		if d.Options[i].Name == option {
@@ -36,11 +36,11 @@ func (d DecisionRequest) Decide(role, option, reason string) (Decision, error) {
 		Option:       chosen.Name,
 		Decision:     fmt.Sprintf("%s Approved: %s", strings.TrimSpace(chosen.Description), strings.TrimSpace(d.Approval)),
 		Refs:         d.Refs,
-		Roles:        []string{role},
+		Identities:   []string{identity},
 		Repositories: d.Repositories,
 	}
 	if option != d.Recommendation {
-		out.Decision = fmt.Sprintf("%s (%s recommended %s.)", out.Decision, role, d.Recommendation)
+		out.Decision = fmt.Sprintf("%s (%s recommended %s.)", out.Decision, identity, d.Recommendation)
 	}
 	if strings.TrimSpace(reason) != "" {
 		out.Reasons = append(out.Reasons, strings.TrimSpace(reason))

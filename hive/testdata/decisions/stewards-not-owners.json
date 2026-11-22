@@ -10,7 +10,7 @@
   "alternatives": [
     {"option": "One owning role per repository", "rejected": "Forces every cross-repository change through a message."}
   ],
-  "roles": ["billing", "website"],
+  "identities": ["billing", "website"],
   "repositories": ["github.com/example/web"],
   "supersedes": ["one-steward-per-repository"]
 }
