@@ -10,7 +10,8 @@ import (
 	"github.com/plexusone/plexushive/hive"
 )
 
-// copyHive copies the example work identities and decisions to a temporary hive.
+// copyHive copies the example work identities, decisions and open items to
+// a temporary hive.
 func copyHive(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -32,6 +33,13 @@ func copyHive(t *testing.T) string {
 			}
 		}
 	}
+	data, err := os.ReadFile(filepath.Join(example, hive.OpenItemsFile))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, hive.OpenItemsFile), data, 0o600); err != nil { //nolint:gosec // test copies a fixture file into a temporary directory
+		t.Fatal(err)
+	}
 	return root
 }
 
@@ -47,6 +55,7 @@ func TestDecide(t *testing.T) {
 		"send to billing:",
 		"[hive] type=status from=operator",
 		"decided coupon-stacking: stack-two",
+		"marked billing/coupon-stacking decided in open-items.json",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q:\n%s", want, out)
@@ -58,6 +67,9 @@ func TestDecide(t *testing.T) {
 	}
 	if err := h.Validate(); err != nil {
 		t.Fatal(err)
+	}
+	if it, ok := h.Open.Item("billing/coupon-stacking"); !ok || it.Status != hive.ItemDecided || it.Decision != "coupon-stacking" {
+		t.Fatalf("open item after deciding: %+v", it)
 	}
 	out, err = run(t, "-C", root, "brief", "--reports", reports)
 	if err != nil || !strings.Contains(out, "Answered, still in reports (1)") || !strings.Contains(out, "Decisions needed (0)") {
