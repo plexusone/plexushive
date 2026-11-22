@@ -106,3 +106,15 @@ func TestOpenSync(t *testing.T) {
 		t.Fatalf("second sync: %v %q", err, out)
 	}
 }
+
+func TestOpenShowsAnswers(t *testing.T) {
+	fixClock(t, time.Date(2026, 11, 22, 9, 0, 0, 0, time.UTC))
+	root := copyHive(t)
+	if _, err := run(t, "-C", root, "decide", "billing/coupon-stacking", "stack-two", "--reason", "Partners first.", "--reports", example+"/reports"); err != nil {
+		t.Fatal(err)
+	}
+	out, err := run(t, "-C", root, "open", "billing", "--all")
+	if err != nil || !strings.Contains(out, "Decided (1)") || !strings.Contains(out, "answered stack-two on 2026-11-22 (Partners first.)") {
+		t.Fatalf("open --all: %v\n%s", err, out)
+	}
+}
