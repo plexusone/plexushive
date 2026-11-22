@@ -222,7 +222,7 @@ func briefCmd(hiveDir *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			b := hive.NewBriefing(h.Identities, h.Decisions, rs)
+			b := hive.NewHiveBriefing(h, rs)
 			b.SetUnreadable(bad)
 			if asJSON {
 				out, err := json.MarshalIndent(b, "", "  ")
@@ -233,6 +233,7 @@ func briefCmd(hiveDir *string) *cobra.Command {
 				return nil
 			}
 			printBriefing(cmd, b, now())
+			printOpenSummary(cmd, h.Open)
 			return nil
 		},
 	}
@@ -263,6 +264,10 @@ func printBriefing(cmd *cobra.Command, b hive.Briefing, at time.Time) {
 	if len(b.Answered) > 0 {
 		cmd.Printf("\nAnswered, still in reports (%d)\n", len(b.Answered))
 		for _, d := range b.Answered {
+			if d.Option != "" {
+				cmd.Printf("  %s: answered %s\n", d.Key, d.Option)
+				continue
+			}
 			cmd.Printf("  %s: see decisions/%s.json\n", d.Key, d.Request.ID)
 		}
 	}
@@ -385,5 +390,23 @@ func age(d time.Duration) string {
 		return fmt.Sprintf("%dh", int(d/time.Hour))
 	default:
 		return fmt.Sprintf("%dd", int(d/(24*time.Hour)))
+	}
+}
+
+// printOpenSummary counts the open items still needing something, so the
+// briefing points at questions no report carries.
+func printOpenSummary(cmd *cobra.Command, o hive.OpenItems) {
+	counts := map[hive.ItemStatus]int{}
+	for _, it := range o.Items {
+		counts[it.Status]++
+	}
+	var parts []string
+	for _, st := range hive.ItemStatuses {
+		if !st.Closed() && counts[st] > 0 {
+			parts = append(parts, fmt.Sprintf("%d %s", counts[st], st))
+		}
+	}
+	if len(parts) > 0 {
+		cmd.Printf("\nOpen items: %s; plexushive open lists them\n", strings.Join(parts, ", "))
 	}
 }

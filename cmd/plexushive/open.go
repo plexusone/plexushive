@@ -19,7 +19,8 @@ func openCmd(hiveDir *string) *cobra.Command {
 		Use:   "open [identity]",
 		Short: "List the questions waiting on the operator, by status and work identity",
 		Long: "Lists open-items.json: open questions with their recommendation first,\n" +
-			"then drafts that still need options, then deferred ones. Decided and\n" +
+			"then answered design questions waiting to be written into their document,\n" +
+			"drafts that still need options, then deferred ones. Decided and\n" +
 			"withdrawn items are shown with --all or --status. Give a work identity\n" +
 			"to list only its items. Run open sync to bring the list up to date.",
 		Args: cobra.MaximumNArgs(1),
@@ -53,7 +54,7 @@ func openCmd(hiveDir *string) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringSliceVar(&statuses, "status", nil, "only these statuses: draft, open, deferred, decided, withdrawn")
+	cmd.Flags().StringSliceVar(&statuses, "status", nil, "only these statuses: draft, open, answered, deferred, decided, withdrawn")
 	cmd.Flags().BoolVar(&all, "all", false, "include decided and withdrawn items")
 	cmd.Flags().BoolVar(&asJSON, "json", false, "print the items as JSON")
 	cmd.AddCommand(openSyncCmd(hiveDir))
@@ -65,7 +66,7 @@ func wantedStatuses(statuses []string, all bool) (map[hive.ItemStatus]bool, erro
 	for _, s := range statuses {
 		st := hive.ItemStatus(s)
 		if !slices.Contains(hive.ItemStatuses, st) {
-			return nil, fmt.Errorf("plexushive: status %q must be draft, open, deferred, decided or withdrawn", s)
+			return nil, fmt.Errorf("plexushive: status %q must be draft, open, answered, deferred, decided or withdrawn", s)
 		}
 		want[st] = true
 	}
@@ -79,6 +80,7 @@ func wantedStatuses(statuses []string, all bool) (map[hive.ItemStatus]bool, erro
 
 var statusHeadings = map[hive.ItemStatus]string{
 	hive.ItemOpen:      "Open, waiting on the operator",
+	hive.ItemAnswered:  "Answered, waiting on its work identity to write it into the document",
 	hive.ItemDraft:     "Draft, waiting on its work identity for options",
 	hive.ItemDeferred:  "Deferred",
 	hive.ItemDecided:   "Decided",
@@ -116,6 +118,13 @@ func printOpenItems(cmd *cobra.Command, items []hive.OpenItem) {
 			var details []string
 			if st == hive.ItemOpen && it.Request.Recommendation != "" {
 				details = append(details, "recommends "+it.Request.Recommendation)
+			}
+			if a := it.Answer; a != nil {
+				answer := "answered " + a.Option + " on " + a.Answered
+				if a.Reason != "" {
+					answer += " (" + a.Reason + ")"
+				}
+				details = append(details, answer)
 			}
 			if it.Decision != "" {
 				details = append(details, "decisions/"+it.Decision+".json")

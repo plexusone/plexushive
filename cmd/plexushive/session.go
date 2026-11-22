@@ -187,6 +187,14 @@ func printContext(cmd *cobra.Command, c hive.Context, hiveDir string) {
 	} else {
 		cmd.Printf("  generated %s\n", c.Report.Generated.Format("2006-01-02 15:04 MST"))
 		for _, id := range c.Answered {
+			if a, ok := c.Answers[id]; ok {
+				reason := ""
+				if a.Reason != "" {
+					reason = " (" + a.Reason + ")"
+				}
+				cmd.Printf("  answered: %s: %s%s; act on it, record the outcome where it belongs, and drop the request\n", id, a.Option, reason)
+				continue
+			}
 			cmd.Printf("  answered: %s (decisions/%s.json); act on it and drop the request\n", id, id)
 		}
 	}
