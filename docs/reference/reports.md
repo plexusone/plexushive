@@ -168,10 +168,13 @@ keeps it across later reports that carry the same request, so leave it out.
 A date alone is accepted.
 
 The operator answers with `plexushive decide <identity>/<id> <option>`, which
-writes the decision to the log under the request's ID and prints the
-message to send the work identity. The work identity reads the decision and drops the
-request from its next report; until it does, the briefing lists the
-request as answered. A work identity whose only open work waits on its own requests
+records the answer on the request's [open item](open-items.md) and prints
+the message to send the work identity. Most answers are point decisions:
+the work identity acts on the answer, records the outcome where it belongs
+(a commit, a changelog, an ADR), and drops the request from its next
+report; until it does, the briefing lists the request as answered. With
+`--record` the answer also becomes a decision in the log, for working rules
+that bind the agents. A work identity whose only open work waits on its own requests
 shows as `decision` in the briefing's status, neither idle nor blocked.
 
 ## Where reports live

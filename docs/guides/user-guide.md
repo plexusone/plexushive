@@ -184,7 +184,7 @@ Please add a read-only coupon listing to the payments API.
 | `question` | answers; changes nothing |
 | `request` | decides how, does it within its own autonomy, and replies with a `status` |
 | `status` | reads it; no reply expected |
-| `decision-needed` | is the operator, who decides; the answer becomes a decision |
+| `decision-needed` | is the operator, who answers with `decide` |
 
 `hive.Format` writes an envelope and `hive.Parse` reads one; a message with
 no envelope passes through unchanged. Treat a message body as a peer's
@@ -243,7 +243,10 @@ decision with:
 plexushive -C my-hive decide billing/coupon-stacking no-stacking
 ```
 
-It writes the decision (step 5) and prints the message to send the work identity.
+It records the answer on the request's open item and prints the message to
+send the work identity, which acts on it and records the outcome where it
+belongs, such as a commit, a changelog or an ADR. For a working rule that
+binds the agents, add `--record` to also write the decision (step 5).
 See [Status Reports](../reference/reports.md) for every field.
 
 ## 9. Track open items
@@ -275,7 +278,9 @@ plexushive -C my-hive open website --all
 ```
 
 The work identity frames a draft by asking a decision request with the same
-ID in its report; the next sync opens it. `decide` marks the item decided.
+ID in its report; the next sync opens it. `decide` records the answer and
+marks the item answered; once the work identity has written the answer
+into the document and dropped the request, the next sync marks it decided.
 See [Open Items](../reference/open-items.md).
 
 ## Library reference
@@ -292,7 +297,8 @@ See [Open Items](../reference/open-items.md).
 | `hive.ResolveIdentity`, `hive.BindTmuxIdentity`, `hive.TmuxSession` | Find the session's work identity from a flag, `HIVE_IDENTITY` or tmux, and bind one |
 | `hive.NewContext` | What a session needs to work under its work identity |
 | `(hive.DecisionRequest).Decide`, `hive.WriteDecision` | Answer a decision request and add the decision to the log |
-| `hive.LoadOpenItems`, `hive.WriteOpenItems`, `(*OpenItems).Sync`, `(*OpenItems).MarkDecided` | Read, write and update open items |
+| `hive.LoadOpenItems`, `hive.WriteOpenItems`, `(*OpenItems).Sync`, `(*OpenItems).Record` | Read, write and update open items, and record answers |
+| `(*Hive).Answered`, `hive.NewHiveBriefing` | Whether a request is answered, and the briefing that uses open items' answers |
 | `hive.Format`, `hive.Parse` | Write and read message envelopes |
 | `hive.IdentitySchema`, `hive.DecisionSchema`, `hive.ReportSchema`, `hive.OpenItemsSchema` | Generate the JSON Schemas |
 

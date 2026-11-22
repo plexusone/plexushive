@@ -6,6 +6,25 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.7.0",
+      "date": "2026-11-22",
+      "changed": [
+        { "description": "`decide` records the answer on the request's open item instead of writing a decision; `--record` also writes `decisions/<id>.json`, for working rules that bind the agents", "commit": "3672576" },
+        { "description": "A design record's question is `answered` until its work identity writes the answer into the document and drops the request, when `open sync` decides it", "commit": "34baea7" }
+      ],
+      "added": [
+        { "description": "Open items carry the operator's `answer` (option, reason, date); `OpenItems.Record`, `Hive.Answered` and `NewHiveBriefing`", "commit": "34baea7" },
+        { "description": "`brief`, `context` and `open` show answers; `brief` counts the open items still needing something", "commit": "3672576" }
+      ],
+      "tests": [
+        { "description": "Answers on open items, `decide --record` and design questions", "commit": "c365153" }
+      ],
+      "documentation": [
+        { "description": "Point decisions and working rules: where each answer is recorded" },
+        { "description": "v0.7.0 release notes" }
+      ]
+    },
+    {
       "version": "v0.6.0",
       "date": "2026-11-22",
       "added": [

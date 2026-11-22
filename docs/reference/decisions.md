@@ -1,8 +1,12 @@
 # Decisions
 
 The decision log holds what was decided, why, and what was considered and
-rejected. Write one when a choice will constrain later work, especially
-work by another agent.
+rejected. Write one when a choice is a working rule that will constrain
+later work, especially work by another agent, such as how agents report or
+who publishes. Most answers to decision requests are point decisions that
+unblock work: `decide` records them on their [open item](open-items.md),
+and their lasting record is the result, such as a commit, a changelog
+entry or an ADR. `decide --record` adds one to the log.
 
 | Field | Required | Meaning |
 |---|---|---|

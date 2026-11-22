@@ -6,7 +6,7 @@
 [![Docs][docs-godoc-svg]][docs-godoc-url]
 [![Docs][docs-mkdoc-svg]][docs-mkdoc-url]
 [![License][license-svg]][license-url]
-![coverage](https://img.shields.io/badge/coverage-96.2%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-96.4%25-brightgreen)
 
  [go-ci-svg]: https://github.com/plexusone/plexushive/actions/workflows/go-ci.yaml/badge.svg?branch=main
  [go-ci-url]: https://github.com/plexusone/plexushive/actions/workflows/go-ci.yaml
@@ -172,7 +172,9 @@ the answer.
 ## Decisions
 
 The decision log holds what was decided, why, and what was considered and
-rejected. Write one when a choice will constrain later work, especially
+rejected. It is for working rules that bind the agents, such as how they
+report or who publishes; most answers to decision requests are point
+decisions, recorded on their open item and in the result itself, not here. Write one when a choice will constrain later work, especially
 work by another agent.
 
 | Field | Required | Meaning |
@@ -210,11 +212,12 @@ key (`<identity>/<request id>`), its source, a status and the request:
 | `draft` | A question with no options yet, such as one copied from an ADR |
 | `open` | A complete decision request waiting on the operator |
 | `deferred` | Waits on something its note names |
-| `decided` | Answered by the decision it names |
+| `answered` | A design record's question the operator answered; waits on its work identity to write the answer into the document |
+| `decided` | Answered: by the operator's `answer`, a decision in the log, or both |
 | `withdrawn` | Dropped by its work identity without a decision |
 
-`plexushive open` lists them by status and work identity, `decide` marks
-the item it answers, and `open sync` adds new requests from the reports,
+`plexushive open` lists them by status and work identity, `decide` records
+the operator's answer on the item, and `open sync` adds new requests from the reports,
 opens a draft once its work identity asks it with options, marks answered
 items and withdraws dropped ones. A design record can be accepted once
 none of its items are draft or open.
@@ -294,7 +297,7 @@ work identities, and each work identity's status.
 plexushive -C my-hive report submit report.json               # the work identity from --identity, HIVE_IDENTITY or tmux
 plexushive -C my-hive brief                                   # or --json for other programs
 plexushive -C my-hive who github.com/example/web              # steward, work in progress, waiting actions
-plexushive -C my-hive decide billing/coupon-stacking no-stacking  # answer: writes the decision
+plexushive -C my-hive decide billing/coupon-stacking no-stacking  # answer; --record also logs a decision
 ```
 
 Actions can wait on each other (`after`), apply only under one option of a
@@ -303,9 +306,11 @@ ID, and say what the work identity does afterwards. The briefing lists a step
 several work identities ask for once.
 
 A decision request names the situation, at least two options with their
-cost and risk, a recommendation and what a yes approves. `decide` writes
-the answer to the decision log under the request's ID, so the work identity finds
-it there. Reports are kept out of the hive repository: in `$HIVE_REPORTS`
+cost and risk, a recommendation and what a yes approves. `decide` records
+the answer on the request's open item and prints the message to send; the
+work identity acts on it and records the outcome where it belongs, such as
+a commit, a changelog or an ADR. `decide --record` also writes the answer
+to the decision log, for working rules that bind the agents. Reports are kept out of the hive repository: in `$HIVE_REPORTS`
 when set, otherwise under the per-user data directory. See
 [Status Reports](docs/reference/reports.md) for every field.
 

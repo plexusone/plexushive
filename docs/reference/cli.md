@@ -177,7 +177,14 @@ Notices (1)
 Status (2)
   billing        2h       Coupons are in review; the refund export waits on the website.
   website        2h       Launch page is ready for review.
+
+Open items: 1 draft, 1 deferred; plexushive open lists them
 ```
+
+The last line counts the [open items](open-items.md) still needing
+something, including design questions no report carries. A request counts
+as answered once its open item has the operator's answer, or a decision
+with its ID binds its work identity.
 
 A step several work identities ask for is listed once with all their names. An
 action that applies under an option of an open decision is marked `only if
@@ -217,29 +224,39 @@ Waiting on the operator
 
 ## decide
 
-Answers a decision request from a work identity's current report. The chosen option
-becomes the decision and the others its alternatives; the request's
-situation and evidence become its reasons, after `--reason` when given.
-The decision is written to `decisions/<id>.json` under the request's ID,
-the item is marked decided in `open-items.json` when it is listed there,
-and the command prints the message to send the work identity. It never replaces an
-existing decision: a changed decision is a new one that supersedes it.
+Answers a decision request from a work identity's current report, or from an
+open item when the report is unreadable. The answer (option, `--reason` and
+date) is recorded on the request's [open item](open-items.md), which is
+added if it is not listed yet: a question from a report becomes `decided`,
+and one from a design record `answered` until its work identity has written
+the answer into the document. The command prints the message to send.
+
+Most answers are point decisions that unblock work, so no decision file is
+written; the work identity records the outcome where it belongs, such as a
+commit, a changelog or an ADR. For a working rule that binds the agents, add
+`--record`: the chosen option becomes `decisions/<id>.json`, the others its
+alternatives, and the request's situation and evidence its reasons. A
+decision is a new file and never replaces an existing one.
 
 ```text
 $ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason "Partners can wait a release."
-wrote decisions/coupon-stacking.json
 marked billing/coupon-stacking decided in open-items.json
 send to billing:
-[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
+[hive] type=status from=operator decided coupon-stacking: no-stacking. Reason: Partners can wait a release. Act on it, record the outcome where it belongs (a commit, a changelog, an ADR), and drop the request from your report.
 ```
 
-Commit the new decision with the rest of the hive directory.
+| Flag | Meaning |
+|---|---|
+| `--reason` | Why, sent with the answer and recorded on the open item |
+| `--record` | Also write the answer as a decision in `decisions/` |
+
+Commit `open-items.json`, and any new decision, with the rest of the hive.
 
 ## open
 
 Lists [open items](open-items.md): open questions with their
-recommendation first, then drafts that still need options, then deferred
-ones. Give a work identity to list only its items.
+recommendation first, then answered design questions waiting to be written
+into their document, drafts that still need options, then deferred ones. Give a work identity to list only its items.
 
 ```text
 $ plexushive -C my-hive open

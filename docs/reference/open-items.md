@@ -39,7 +39,8 @@ list, so the operator can see everything still undecided, by work identity.
 | `items[].source` | yes | `kind` is `report`, `adr` or `document`; a document names its `repository`, `path` and, for an ADR, its `document` ID |
 | `items[].status` | yes | See below |
 | `items[].request` | yes | A [decision request](reports.md); a draft has only `id` and `title` |
-| `items[].decision` | when decided | The ID of the decision that answers it |
+| `items[].answer` | when answered | The operator's answer: `option`, `reason` and the date `answered` |
+| `items[].decision` | no | The ID of a decision in the log that also records the answer (`decide --record`) |
 | `items[].related` | no | Keys of items to decide together with this one |
 | `items[].note` | when deferred or withdrawn | Why, or what the operator should weigh |
 
@@ -48,9 +49,10 @@ list, so the operator can see everything still undecided, by work identity.
 | Status | Meaning | Becomes |
 |---|---|---|
 | `draft` | A question with no options yet | `open` when its work identity asks it in a report |
-| `open` | A complete decision request waiting on the operator | `decided`, or `withdrawn` if dropped |
+| `open` | A complete decision request waiting on the operator | `decided` (from a report) or `answered` (from a document) when the operator answers; `withdrawn` if dropped |
+| `answered` | A document's question the operator answered, waiting for its work identity to write the answer into the document | `decided` once its work identity drops the request |
 | `deferred` | Waits on something the note names | `open` when asked again |
-| `decided` | Answered by `decision` | |
+| `decided` | Answered, by `answer`, `decision` or both | |
 | `withdrawn` | Dropped by its work identity without a decision | `open` if asked again |
 
 A design record moves from proposed to accepted once none of its items
@@ -58,12 +60,18 @@ are `draft` or `open`.
 
 ## Keeping the list current
 
-- `plexushive decide` marks the item it answers as decided.
+- `plexushive decide` records the operator's answer on the item, adding the
+  item first if the request is not listed yet. Most answers are point
+  decisions: the work identity acts on the answer and records the outcome
+  where it belongs, such as a commit, a changelog or an ADR. With
+  `--record` the answer also becomes a decision in the log, for working
+  rules that bind the agents.
 - `plexushive open sync` reads the reports and the decision log: it adds
   requests not yet listed, opens a draft or deferred item when its work
   identity asks a request with the same ID, refreshes open requests,
   marks items answered by a decision with the same ID (binding their work
-  identity or every identity) as decided, and withdraws a report's
+  identity or every identity) as decided, decides an answered item once
+  its work identity drops the request, and withdraws a report's
   question its work identity has dropped without a decision. A work
   identity without a readable report is left as it is, and an open
   question from a document is never withdrawn by a sync.
@@ -82,7 +90,8 @@ rest of the hive.
 - keys are unique and are `<identity>/<request id>`, and the work identity exists
 - request IDs match `^[a-z][a-z0-9-]*$` and every item has a title
 - an open item is a complete decision request: options, a recommendation among them, situation and approval
-- a decided item names an existing decision, and no other item names one
+- an answered item has its answer and comes from a document; a decided item has its answer or names a decision
+- an answer is one of the request's options and is dated `YYYY-MM-DD`; only answered and decided items carry an answer or a decision, and a named decision exists
 - deferred and withdrawn items have a note
 - an `adr` or `document` source names its repository and path
 - related keys are listed
