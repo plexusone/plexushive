@@ -24,6 +24,8 @@ const (
 type Hive struct {
 	Identities []WorkIdentity
 	Decisions  []Decision
+	// Open is open-items.json, empty when the hive has none.
+	Open OpenItems
 }
 
 // Load reads the work identities and decisions under root. It checks the files'
@@ -37,12 +39,17 @@ func Load(root string) (*Hive, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Hive{Identities: identities, Decisions: decisions}, nil
+	open, err := LoadOpenItems(root)
+	if err != nil {
+		return nil, err
+	}
+	return &Hive{Identities: identities, Decisions: decisions, Open: open}, nil
 }
 
 // Validate checks the work identities and decisions together.
 func (h *Hive) Validate() error {
-	return errors.Join(ValidateIdentities(h.Identities), ValidateDecisions(h.Decisions, h.Identities))
+	return errors.Join(ValidateIdentities(h.Identities), ValidateDecisions(h.Decisions, h.Identities),
+		ValidateOpenItems(h.Open, h.Identities, h.Decisions))
 }
 
 // Identity returns the work identity named name, or false when there is none.

@@ -1,0 +1,73 @@
+{
+  "updated": "2026-11-21",
+  "items": [
+    {
+      "key": "billing/coupon-stacking",
+      "identity": "billing",
+      "source": {
+        "kind": "report"
+      },
+      "status": "open",
+      "request": {
+        "id": "coupon-stacking",
+        "title": "Allow coupons to stack?",
+        "situation": "Two launch partners want their coupons to combine.",
+        "evidence": [
+          "Both partners asked in writing.",
+          "Stacking is off today."
+        ],
+        "options": [
+          {
+            "name": "no-stacking",
+            "description": "Keep one coupon per order.",
+            "costAndRisk": "May lose one partner's launch traffic."
+          },
+          {
+            "name": "stack-two",
+            "description": "Allow at most two coupons.",
+            "costAndRisk": "A day of work; discounts can reach 40%."
+          }
+        ],
+        "recommendation": "no-stacking",
+        "approval": "A pricing change.",
+        "repositories": [
+          "github.com/example/billing"
+        ]
+      },
+      "related": [
+        "website/checkout-copy"
+      ]
+    },
+    {
+      "key": "website/checkout-copy",
+      "identity": "website",
+      "source": {
+        "kind": "adr",
+        "repository": "github.com/example/web",
+        "path": "docs/adr/ADR-004-checkout.md",
+        "document": "ADR-004"
+      },
+      "status": "draft",
+      "request": {
+        "id": "checkout-copy",
+        "title": "Who writes the checkout wording, website or billing?"
+      }
+    },
+    {
+      "key": "website/cookie-banner",
+      "identity": "website",
+      "source": {
+        "kind": "adr",
+        "repository": "github.com/example/web",
+        "path": "docs/adr/ADR-004-checkout.md",
+        "document": "ADR-004"
+      },
+      "status": "deferred",
+      "request": {
+        "id": "cookie-banner",
+        "title": "Which cookie banner the checkout shows"
+      },
+      "note": "Waits on the privacy review."
+    }
+  ]
+}

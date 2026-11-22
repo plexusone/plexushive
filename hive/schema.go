@@ -11,9 +11,10 @@ const schemaBase = "https://github.com/plexusone/plexushive/hive/schema/"
 
 // Schemas maps each file under schema/ to its generator.
 var Schemas = map[string]func() ([]byte, error){
-	"identity.schema.json": IdentitySchema,
-	"decision.schema.json": DecisionSchema,
-	"report.schema.json":   ReportSchema,
+	"identity.schema.json":   IdentitySchema,
+	"decision.schema.json":   DecisionSchema,
+	"report.schema.json":     ReportSchema,
+	"open-items.schema.json": OpenItemsSchema,
 }
 
 // IdentitySchema generates the work identity JSON Schema from WorkIdentity.
@@ -45,4 +46,10 @@ func schema(v any, file, title, description string) ([]byte, error) {
 func ReportSchema() ([]byte, error) {
 	return schema(&Report{}, "report.schema.json", "Status report",
 		"One work identity's current status: the operator's actions it waits on, its work in progress, what it finished, what is blocked and on whom, what it does next, the decisions it needs and notices for other work identities. Reports are kept outside version control, so they can describe unpublished work plainly.")
+}
+
+// OpenItemsSchema generates the open items JSON Schema from OpenItems.
+func OpenItemsSchema() ([]byte, error) {
+	return schema(&OpenItems{}, "open-items.schema.json", "Open items",
+		"Every question waiting on the operator, from work identities' reports and from design records, with its status until it is decided or withdrawn.")
 }
