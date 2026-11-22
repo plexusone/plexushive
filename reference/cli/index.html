@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -549,6 +549,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../open-items/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Items
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reports/" class="md-nav__link">
         
   
@@ -775,6 +803,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        open
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        open sync
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -925,6 +975,34 @@
     
   
     Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
   
 
     
@@ -1250,6 +1328,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        open
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        open sync
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1343,7 +1443,7 @@ the <code>export</code> to use instead.</p>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>Report at handoffs: when work is ready for the operator, when blocked or
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>unblocked, when a decision is needed, when starting or stopping in a
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>repository, after the operator acts for you, and when another work identity&#39;s work
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>repository, after the operator acts for you, and when another work identity's work
 <a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>changes your plan. Before working in a repository another work identity stewards:
 <a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>  plexushive -C /path/to/my-hive who github.com/&lt;org&gt;/&lt;repo&gt;
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>Submit (plexushive schema report gives the format):
@@ -1491,17 +1591,69 @@ work in progress there, and the operator actions waiting on it.</p>
 becomes the decision and the others its alternatives; the request's
 situation and evidence become its reasons, after <code>--reason</code> when given.
 The decision is written to <code>decisions/&lt;id&gt;.json</code> under the request's ID,
+the item is marked decided in <code>open-items.json</code> when it is listed there,
 and the command prints the message to send the work identity. It never replaces an
 existing decision: a changed decision is a new one that supersedes it.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason &quot;Partners can wait a release.&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$ plexushive -C my-hive decide billing/coupon-stacking no-stacking --reason "Partners can wait a release."
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>wrote decisions/coupon-stacking.json
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>send to billing:
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>marked billing/coupon-stacking decided in open-items.json
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>send to billing:
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>[hive] type=status from=operator decided coupon-stacking: no-stacking. Read decisions/coupon-stacking.json and drop the request from your report.
 </code></pre></div>
 <p>Commit the new decision with the rest of the hive directory.</p>
+<h2 id="open">open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
+<p>Lists <a href="../open-items/">open items</a>: open questions with their
+recommendation first, then drafts that still need options, then deferred
+ones. Give a work identity to list only its items.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>$ plexushive -C my-hive open
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Open, waiting on the operator (1)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  billing/coupon-stacking
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>      Allow coupons to stack?
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>      recommends no-stacking; decide with website/checkout-copy
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Draft, waiting on its work identity for options (1)
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>  website/checkout-copy  [ADR-004]
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>      Who writes the checkout wording, website or billing?
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>Deferred (1)
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>  website/cookie-banner  [ADR-004]
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>      Which cookie banner the checkout shows
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>      note: Waits on the privacy review.
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--status</code></td>
+<td>Only these statuses, comma-separated or repeated</td>
+</tr>
+<tr>
+<td><code>--all</code></td>
+<td>Include decided and withdrawn items</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>Print the items as JSON</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-sync">open sync<a class="headerlink" href="#open-sync" title="Permanent link">&para;</a></h2>
+<p>Brings <code>open-items.json</code> up to date with the reports and the decision log
+and prints each change; <code>--dry-run</code> prints without writing. See
+<a href="../open-items/#keeping-the-list-current">keeping the list current</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>$ plexushive -C my-hive open sync
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>added      website/hero-image
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>opened     website/checkout-copy
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>withdrawn  billing/coupon-stacking
+</code></pre></div>
 <h2 id="schema">schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
-<p>Prints the JSON Schema for a record type: <code>decision</code>, <code>report</code> or <code>identity</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>identity<span class="w"> </span>&gt;<span class="w"> </span>identity.schema.json
+<p>Prints the JSON Schema for a record type: <code>decision</code>, <code>report</code>, <code>identity</code> or <code>open-items</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>plexushive<span class="w"> </span>schema<span class="w"> </span>identity<span class="w"> </span>&gt;<span class="w"> </span>identity.schema.json
 </code></pre></div>
 
 
@@ -1574,10 +1726,10 @@ existing decision: a changed decision is a new one that supersedes it.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
