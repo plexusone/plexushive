@@ -3,7 +3,7 @@ module github.com/plexusone/plexushive
 go 1.26.6
 
 require (
-	github.com/grokify/oscompat v0.13.0
+	github.com/grokify/oscompat v0.14.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/spf13/cobra v1.10.2
 )
